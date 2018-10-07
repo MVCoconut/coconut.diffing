@@ -1,0 +1,5 @@
+-D tink_pure=0.4.0
+# @install: lix --silent download "haxelib:/tink_pure#0.4.0" into tink_pure/0.4.0/haxelib
+-lib tink_slice
+-lib tink_core
+-cp ${HAXE_LIBCACHE}/tink_pure/0.4.0/haxelib/src
