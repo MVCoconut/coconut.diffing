@@ -1,7 +1,6 @@
 package coconut.diffing;
 
 import tink.state.Observable;
-using tink.CoreApi;
 
 class Widget<Virtual, Real> implements Parent<Virtual, Real> {
 
@@ -46,6 +45,7 @@ class Widget<Virtual, Real> implements Parent<Virtual, Real> {
     _coco_update();
     return _coco_lastRender.real;
   }
+  
   function _coco_teardown() {
     //TODO: implement
   }
