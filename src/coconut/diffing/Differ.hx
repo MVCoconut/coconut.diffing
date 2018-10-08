@@ -1,21 +1,23 @@
 package coconut.diffing;
 
+import coconut.diffing.Rendered;
+
 class Differ<Virtual, Real> {
 
   function _renderAll(
     nodes:Array<VNode<Virtual, Real>>, 
     with:{ 
-      function native(type:NodeType, v:Virtual):Real; 
-      function widget<A>(type:NodeType, attr:A, t:WidgetType<Virtual, A, Real>):Widget<Virtual, Real>; 
+      function native(type:NodeType, key:Key, v:Virtual):Real; 
+      function widget<A>(type:NodeType, key:Key, attr:A, t:WidgetType<Virtual, A, Real>):Widget<Virtual, Real>; 
     }
   ):Rendered<Virtual, Real> {
 
-    var byType = new Map<NodeType, Array<RNode<Virtual, Real>>>(),
+    var byType = new Map<NodeType, TypeRegistry<RNode<Virtual, Real>>>(),
         childList = [];
 
     for (n in nodes) {
-      var bucket = switch byType[n.type] {
-        case null: byType[n.type] = [];
+      var registry = switch byType[n.type] {
+        case null: byType[n.type] = new TypeRegistry();
         case v: v;
       }
       function add(r:Dynamic, kind) {
@@ -30,22 +32,24 @@ class Differ<Virtual, Real> {
           kind: kind
         }
 
-        bucket.push(n);
+        registry.put(n);
         childList.push(n);
       }
       switch n.kind {
         case VNative(v):
 
-          var r = with.native(n.type, v);
+          var r = with.native(n.type, n.key, v);
           
           add(r, RNative(v, r));
         case VWidget(a, t):
 
-          var w = with.widget(n.type, a, t);
+          var w = with.widget(n.type, n.key, a, t);
 
           add(w, RWidget(w));
       }
     }
+
+    if (childList.length == 0) throw 'empty return is currently not supported';
     
     return {
       byType: byType,
@@ -55,8 +59,8 @@ class Differ<Virtual, Real> {
   
   public function renderAll(nodes:Array<VNode<Virtual, Real>>):Rendered<Virtual, Real> 
     return _renderAll(nodes, {
-      native: function (_, v) return create(v),
-      widget: function (_, a, t) return t.create(a)
+      native: function (_, _, v) return create(v),
+      widget: function (_, _, a, t) return t.create(a)
     });
   
   public function mountInto(target:Real, nodes:Array<VNode<Virtual, Real>>):Rendered<Virtual, Real> {
@@ -67,37 +71,39 @@ class Differ<Virtual, Real> {
 
   public function update(before:Rendered<Virtual, Real>, nodes:Array<VNode<Virtual, Real>>, w:Widget<Virtual, Real>) {
     
-    for (bucket in before.byType)
-      for (r in bucket) switch r {
+    for (registry in before.byType)
+      registry.each(function (r) switch r {
         case { ref: null }:
         case { ref: f }: f(null);
-      }
+      });
 
-    function previous(t:NodeType)
+    function previous(t:NodeType, key:Key)
       return 
         switch before.byType[t] {
           case null: null;
-          case v: v.pop();
+          case v: 
+            if (key == null) v.pull();
+            else v.get(key);
         }
 
     var after = _renderAll(nodes, {
-      native: function (type, nu) return switch previous(type) {
+      native: function (type, key, nu) return switch previous(type, key) {
         case null: create(nu);
         case { kind: RNative(old, r) }: updateNative(r, nu, old); r;
         default: throw 'assert';
       },
-      widget: function (type, attr, widgetType) return switch previous(type) {
+      widget: function (type, key, attr, widgetType) return switch previous(type, key) {
         case null: widgetType.create(attr);
         case { kind: RWidget(w) }: widgetType.update(attr, w); w;
         default: throw 'assert';
       },
     });   
 
-    for (bucket in before.byType)
-      for (r in bucket) switch r.kind {
+    for (registry in before.byType)
+      registry.each(function (r) switch r.kind {
         case RWidget(w): @:privateAccess w._coco_teardown();
         default:
-      }
+      });
 
     var before = flatten(before.childList);
     switch nativeParent(before[0]) {
