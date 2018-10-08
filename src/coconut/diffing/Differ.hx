@@ -10,49 +10,49 @@ class Differ<Virtual, Real> {
     }
   ):Rendered<Virtual, Real> {
 
-    var children = new Map<NodeType, Array<RNode<Virtual, Real>>>(),
-        real = [];
+    var byType = new Map<NodeType, Array<RNode<Virtual, Real>>>(),
+        childList = [];
 
     for (n in nodes) {
-      var bucket = switch children[n.type] {
-        case null: children[n.type] = [];
+      var bucket = switch byType[n.type] {
+        case null: byType[n.type] = [];
         case v: v;
       }
       function add(r:Dynamic, kind) {
         
         if (n.ref != null)
           n.ref(r);//TODO: schedule ref rather than calling directly
-        bucket.push({
+
+        var n:RNode<Virtual, Real> = {
           key: n.key,
           type: n.type,
           ref: n.ref,
           kind: kind
-        });
+        }
+
+        bucket.push(n);
+        childList.push(n);
       }
       switch n.kind {
         case VNative(v):
 
           var r = with.native(n.type, v);
-
-          real.push(r);
           
           add(r, RNative(v, r));
         case VWidget(a, t):
 
           var w = with.widget(n.type, a, t);
-          var r = @:privateAccess w._coco_getReal();
-          for (r in r)
-            real.push(r);
 
           add(w, RWidget(w));
       }
     }
     
     return {
-      children: children,
-      real: real,
+      byType: byType,
+      childList: childList,
     }    
   }
+  
   public function renderAll(nodes:Array<VNode<Virtual, Real>>):Rendered<Virtual, Real> 
     return _renderAll(nodes, {
       native: function (_, v) return create(v),
@@ -61,13 +61,13 @@ class Differ<Virtual, Real> {
   
   public function mountInto(target:Real, nodes:Array<VNode<Virtual, Real>>):Rendered<Virtual, Real> {
     var ret = renderAll(nodes);
-    setChildren(target, ret.real);
+    setChildren(target, flatten(ret.childList));
     return ret;
   }
 
-  public function update(rendered:Rendered<Virtual, Real>, nodes:Array<VNode<Virtual, Real>>, w:Widget<Virtual, Real>) {
+  public function update(before:Rendered<Virtual, Real>, nodes:Array<VNode<Virtual, Real>>, w:Widget<Virtual, Real>) {
     
-    for (bucket in rendered.children)
+    for (bucket in before.byType)
       for (r in bucket) switch r {
         case { ref: null }:
         case { ref: f }: f(null);
@@ -75,12 +75,12 @@ class Differ<Virtual, Real> {
 
     function previous(t:NodeType)
       return 
-        switch rendered.children[t] {
+        switch before.byType[t] {
           case null: null;
           case v: v.pop();
         }
 
-    var ret = _renderAll(nodes, {
+    var after = _renderAll(nodes, {
       native: function (type, nu) return switch previous(type) {
         case null: create(nu);
         case { kind: RNative(old, r) }: updateNative(r, nu, old); r;
@@ -93,32 +93,24 @@ class Differ<Virtual, Real> {
       },
     });   
 
-    for (bucket in rendered.children)
+    for (bucket in before.byType)
       for (r in bucket) switch r.kind {
         case RWidget(w): @:privateAccess w._coco_teardown();
         default:
       }
 
-    updateParent(@:privateAccess w._coco_parent, w, rendered, ret);
-
-    return ret;
-  }
-
-  function updateParent(parent:Parent<Virtual, Real>, child:Widget<Virtual, Real>, before:Rendered<Virtual, Real>, after:Rendered<Virtual, Real>) {
-    if (parent == null) return;
-    else {
-      var changed = before.real.length != after.real.length;
-
-      if (!changed)
-        for (i in 0...before.real.length) 
-          if (before.real[i] != after.real[i]) {
-            changed = true;
-            break;
-          }
-
-      if (!changed) return;
+    var before = flatten(before.childList);
+    switch nativeParent(before[0]) {
+      case null:
+      case parent:
+        spliceChildren(parent, flatten(after.childList), before[0], before.length);
     }
+
+    return after;
   }
+
+  function nativeParent(real:Real):Null<Real> 
+    return throw 'abstract';
 
   function updateNative(real:Real, nu:Virtual, old:Virtual) 
     throw 'abstract';
@@ -126,10 +118,21 @@ class Differ<Virtual, Real> {
   function create(n:Virtual):Real 
     return throw 'abstract';
 
+  function flatten(children):Array<Real> {
+    var ret = [];
+    function rec(children:Array<RNode<Virtual, Real>>)
+      for (c in children) switch c.kind {
+        case RNative(_, r): ret.push(r);
+        case RWidget(w): rec(@:privateAccess w._coco_getRender().childList);
+      }
+    rec(children);
+    return ret;
+  }
+
   function spliceChildren(target:Real, children:Array<Real>, start:Real, oldCount:Int)
     throw 'abstract';
 
-  function setChildren(target:Real, children:Array<Real>)
+  function setChildren(target:Real, children:Array<Real>)//TODO: passing the array of children directly may open opportunities for optimization
     throw 'abstract';
 
   public function teardown(target:Real) 

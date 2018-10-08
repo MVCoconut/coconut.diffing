@@ -11,7 +11,6 @@ class VRoot<Virtual, Real> implements Parent<Virtual, Real> {
   var rendered:Rendered<Virtual, Real>;
 
   public function new(target, content, differ) {
-
     this.differ = differ;
     this.target = target;
     this.rendered = differ.mountInto(target, content);

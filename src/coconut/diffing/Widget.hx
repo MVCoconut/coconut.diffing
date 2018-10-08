@@ -34,17 +34,17 @@ class Widget<Virtual, Real> implements Parent<Virtual, Real> {
     }
   }
 
-  public function _coco_replaceChildren(w:Widget<Virtual, Real>, children:Rendered<Virtual, Real>):Void {}
+  // public function _coco_replaceChildren(w:Widget<Virtual, Real>, children:Rendered<Virtual, Real>):Void {}
 
   function _coco_arm() {
     _coco_link.dissolve();//you never know
     _coco_link = _coco_vStructure.poll().becameInvalid.handle(_coco_invalidate);
   }
 
-  function _coco_getReal():Array<Real> {
-    _coco_update();
-    return _coco_lastRender.real;
-  }
+  // function _coco_getReal():Array<Real> {
+  //   _coco_update();
+  //   return _coco_lastRender.real;
+  // }
   
   function _coco_teardown() {
     //TODO: implement
