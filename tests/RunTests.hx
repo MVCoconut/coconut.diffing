@@ -1,5 +1,7 @@
 package ;
 
+import coconut.diffing.Differ;
+
 class RunTests {
 
   static function main() {

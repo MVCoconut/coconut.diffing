@@ -1,11 +1,13 @@
 package coconut.diffing;
 
 import coconut.diffing.Rendered;
+import haxe.DynamicAccess as Dict;
 
 class Differ<Virtual, Real> {
 
   function _renderAll(
     nodes:Array<VNode<Virtual, Real>>, 
+    root:VRoot<Virtual, Real>,
     with:{ 
       function native(type:NodeType, key:Key, v:Virtual):Real; 
       function widget<A>(type:NodeType, key:Key, attr:A, t:WidgetType<Virtual, A, Real>):Widget<Virtual, Real>; 
@@ -23,7 +25,7 @@ class Differ<Virtual, Real> {
       function add(r:Dynamic, kind) {
         
         if (n.ref != null)
-          n.ref(r);//TODO: schedule ref rather than calling directly
+          root.afterRendering(function () n.ref(r));
 
         var n:RNode<Virtual, Real> = {
           key: n.key,
@@ -57,19 +59,25 @@ class Differ<Virtual, Real> {
     }    
   }
   
-  public function renderAll(nodes:Array<VNode<Virtual, Real>>):Rendered<Virtual, Real> 
-    return _renderAll(nodes, {
-      native: function (_, _, v) return create(v),
-      widget: function (_, _, a, t) return t.create(a)
+  public function renderAll(nodes:Array<VNode<Virtual, Real>>, root:VRoot<Virtual, Real>):Rendered<Virtual, Real> 
+    return _renderAll(nodes, root, {
+      native: function (type, _, v) return create(type, v, root),
+      widget: function (_, _, a, t) return createWidget(t, a, root),
     });
   
-  public function mountInto(target:Real, nodes:Array<VNode<Virtual, Real>>):Rendered<Virtual, Real> {
-    var ret = renderAll(nodes);
+  public function mountInto(target:Real, nodes:Array<VNode<Virtual, Real>>, root:VRoot<Virtual, Real>):Rendered<Virtual, Real> {
+    var ret = renderAll(nodes, root);
     setChildren(target, flatten(ret.childList));
     return ret;
   }
 
-  public function update(before:Rendered<Virtual, Real>, nodes:Array<VNode<Virtual, Real>>, w:Widget<Virtual, Real>) {
+  function createWidget<A>(t:WidgetType<Virtual, A, Real>, a:A, root:VRoot<Virtual, Real>) {
+    var ret = t.create(a);
+    @:privateAccess ret._coco_initialize(root);
+    return ret;
+  }
+
+  public function update(before:Rendered<Virtual, Real>, nodes:Array<VNode<Virtual, Real>>, w:Widget<Virtual, Real>, root:VRoot<Virtual, Real>) {
     
     for (registry in before.byType)
       registry.each(function (r) switch r {
@@ -86,14 +94,14 @@ class Differ<Virtual, Real> {
             else v.get(key);
         }
 
-    var after = _renderAll(nodes, {
+    var after = _renderAll(nodes, root, {
       native: function (type, key, nu) return switch previous(type, key) {
-        case null: create(nu);
+        case null: create(type, nu, root);
         case { kind: RNative(old, r) }: updateNative(r, nu, old); r;
         default: throw 'assert';
       },
       widget: function (type, key, attr, widgetType) return switch previous(type, key) {
-        case null: widgetType.create(attr);
+        case null: createWidget(widgetType, attr, root);
         case { kind: RWidget(w) }: widgetType.update(attr, w); w;
         default: throw 'assert';
       },
@@ -121,7 +129,7 @@ class Differ<Virtual, Real> {
   function updateNative(real:Real, nu:Virtual, old:Virtual) 
     throw 'abstract';
 
-  function create(n:Virtual):Real 
+  function create(type:NodeType, n:Virtual, root:VRoot<Virtual, Real>):Real 
     return throw 'abstract';
 
   function flatten(children):Array<Real> {
@@ -143,4 +151,26 @@ class Differ<Virtual, Real> {
 
   public function teardown(target:Real) 
     setChildren(target, []);
+
+  static var EMPTY:Dict<Any> = {};  
+
+  @:extern inline function updateObject<Target>(element:Target, newProps:Dict<Any>, oldProps:Dict<Any>, updateProp:Target->String->Any->Any->Void) {
+    if (newProps == oldProps) return;
+    var keys = new Dict<Bool>();
+    
+    if (newProps == null) newProps = EMPTY;
+    if (oldProps == null) oldProps = EMPTY;
+
+    for(key in newProps.keys()) keys[key] = true;
+    for(key in oldProps.keys()) keys[key] = true;
+    
+    for(key in keys.keys()) 
+      switch [newProps[key], oldProps[key]] {
+        case [a, b] if (a == b):
+        case [nu, old]: updateProp(element, key, nu, old);
+      }
+  }
+
+  inline function setField(target:Dynamic, name:String, newVal:Dynamic, ?oldVal:Dynamic)
+    Reflect.setField(target, name, newVal);    
 }

@@ -13,14 +13,15 @@ class VRoot<Virtual, Real> implements Parent<Virtual, Real> {
   public function new(target, content, differ) {
     this.differ = differ;
     this.target = target;
-    this.rendered = differ.mountInto(target, content);
+    this.rendered = differ.mountInto(target, content, this);
+    refresh();//meh
   }
 
   var invalid:Bool = false;
-  var _afterRefresh:Array<Void->Void> = [];
+  var _afterRendering:Array<Void->Void> = [];
 
-  public function afterRefresh(f)
-    this._afterRefresh.push(f);
+  public function afterRendering(f)
+    if (f != null) this._afterRendering.push(f);
 
   function _coco_invalidate()
     if (!invalid) {
@@ -37,8 +38,8 @@ class VRoot<Virtual, Real> implements Parent<Virtual, Real> {
     while (scheduled.length > 0)//TODO: make sure this terminates
       for (w in scheduled.splice(0, scheduled.length)) @:privateAccess w._coco_update();
 
-    while (_afterRefresh.length > 0)//TODO: make sure this terminates
-      for (f in _afterRefresh.splice(0, _afterRefresh.length)) f();
+    while (_afterRendering.length > 0)//TODO: make sure this terminates
+      for (f in _afterRendering.splice(0, _afterRendering.length)) f();
 
     invalid = false;
   }
