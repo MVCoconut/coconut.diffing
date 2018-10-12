@@ -47,21 +47,15 @@ class Widget<Virtual, Real> implements Parent<Virtual, Real> {
       _coco_invalid = true;
       if (_coco_parent != null)
         _coco_parent._coco_invalidate();
-      // else
-        // Callback.defer();
-  //     _coco_root.schedule(this);
+      defer(_coco_update);//TODO: this is not optimal
     }
 
-  // function _coco_update() if (_coco_invalid) {
-  //   _coco_invalid = false;
-  //   var nuSnapshot = _coco_vStructure.poll().value;
-  //   if (nuSnapshot != _coco_lastSnapshot) {
-  //     _coco_lastSnapshot = nuSnapshot;
-  //     _coco_lastRender = _coco_root.differ.update(_coco_lastRender, nuSnapshot, this, _coco_root);
-  //     _coco_arm();
-  //     _coco_root.afterRendering(_coco_viewUpdated);
-  //   }
-  // }
+  function _coco_update()
+    if (_coco_invalid) 
+      _coco_differ.run(function (later) _coco_getRender(later));
+
+  static function defer(f:Void->Void) f();
+    Callback.defer(f);
 
   function _coco_arm() {
     _coco_link.dissolve();//you never know
@@ -69,7 +63,9 @@ class Widget<Virtual, Real> implements Parent<Virtual, Real> {
   }
 
   function _coco_teardown() {
-    //TODO: implement
+    _coco_viewUnmounting();
+    for (c in _coco_lastRender.childList)
+      @:privateAccess _coco_differ.destroyRender(c);
   }
 
   function _coco_initialize(differ:Differ<Virtual, Real>, parent:Parent<Virtual, Real>, later:Later) {

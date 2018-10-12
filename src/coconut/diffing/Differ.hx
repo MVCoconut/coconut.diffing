@@ -142,14 +142,15 @@ class Differ<Virtual, Real> {
     return ret;
   }      
 
-  public function render(virtual:Array<VNode<Virtual, Real>>, target:Real) {
-    
-    var after = [];
+  public function render(virtual:Array<VNode<Virtual, Real>>, target:Real) 
+    run(_render.bind(virtual, target, null));
 
-    _render(virtual, target, null, function (later) if (later != null) after.push(later));
-    
+  public function run<T>(f:Later->T):T {
+    var after = [];
+    var ret = f(function (later) if (later != null) after.push(later));
     for (f in after)
       f();
+    return ret;
   }
 
   function setLastRender(target:Real, r:Rendered<Virtual, Real>)
