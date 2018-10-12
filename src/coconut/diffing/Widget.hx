@@ -13,9 +13,8 @@ class Widget<Virtual, Real> implements Parent<Virtual, Real> {
   @:noCompletion var _coco_lastRender:Rendered<Virtual, Real>;
   @:noCompletion var _coco_invalid:Bool = false;
   @:noCompletion var _coco_parent:Parent<Virtual, Real>;
-  @:noCompletion var _coco_root:VRoot<Virtual, Real>;
+  @:noCompletion var _coco_differ:Differ<Virtual, Real>;
   @:noCompletion var _coco_link:CallbackLink;
-  @:noCompletion var _coco_type:String;
     
   public function new(
     rendered:Observable<VNode<Virtual, Real>>,
@@ -29,27 +28,40 @@ class Widget<Virtual, Real> implements Parent<Virtual, Real> {
     this._coco_viewUnmounting = unmounting;    
   }
 
-  function _coco_getRender():Rendered<Virtual, Real> 
+  function _coco_getRender(later:Later):Rendered<Virtual, Real> {
+    if (_coco_invalid) {
+      _coco_invalid = false;
+      var nuSnapshot = _coco_vStructure.poll().value;
+      if (nuSnapshot != _coco_lastSnapshot) {
+        _coco_lastSnapshot = nuSnapshot;
+        _coco_lastRender = @:privateAccess _coco_differ.updateAll(_coco_lastRender, nuSnapshot, this, later);
+        _coco_arm();
+        later(_coco_viewUpdated);
+      }
+    }
     return _coco_lastRender;
+  }
 
   function _coco_invalidate()
     if (!_coco_invalid) {
       _coco_invalid = true;
       if (_coco_parent != null)
         _coco_parent._coco_invalidate();
-      _coco_root.schedule(this);
+      // else
+        // Callback.defer();
+  //     _coco_root.schedule(this);
     }
 
-  function _coco_update() if (_coco_invalid) {
-    _coco_invalid = false;
-    var nuSnapshot = _coco_vStructure.poll().value;
-    if (nuSnapshot != _coco_lastSnapshot) {
-      _coco_lastSnapshot = nuSnapshot;
-      _coco_lastRender = _coco_root.differ.update(_coco_lastRender, nuSnapshot, this, _coco_root);
-      _coco_arm();
-      _coco_root.afterRendering(_coco_viewUpdated);
-    }
-  }
+  // function _coco_update() if (_coco_invalid) {
+  //   _coco_invalid = false;
+  //   var nuSnapshot = _coco_vStructure.poll().value;
+  //   if (nuSnapshot != _coco_lastSnapshot) {
+  //     _coco_lastSnapshot = nuSnapshot;
+  //     _coco_lastRender = _coco_root.differ.update(_coco_lastRender, nuSnapshot, this, _coco_root);
+  //     _coco_arm();
+  //     _coco_root.afterRendering(_coco_viewUpdated);
+  //   }
+  // }
 
   function _coco_arm() {
     _coco_link.dissolve();//you never know
@@ -60,14 +72,16 @@ class Widget<Virtual, Real> implements Parent<Virtual, Real> {
     //TODO: implement
   }
 
-  function _coco_initialize(root:VRoot<Virtual, Real>) {
-    _coco_root = root;
-    _coco_lastRender = _coco_root.differ.renderAll(
+  function _coco_initialize(differ:Differ<Virtual, Real>, parent:Parent<Virtual, Real>, later:Later) {
+    _coco_parent = parent;
+    _coco_differ = differ;
+    _coco_lastRender = @:privateAccess differ.renderAll(
       _coco_lastSnapshot = _coco_vStructure.poll().value,
-      _coco_root
+      parent,
+      later
     );
     _coco_arm();
-    root.afterRendering(_coco_viewMounted);
+    later(_coco_viewMounted);
   }
 
 }

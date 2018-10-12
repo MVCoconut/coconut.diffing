@@ -16,7 +16,13 @@ class TypeRegistry<V> {
   public function new() {}
 
   public function get(key:Key)
-    return if (keyed == null) null else keyed.get(key);
+    return 
+      if (keyed == null) null 
+      else {
+        var ret = keyed.get(key);
+        if (ret != null) keyed.remove(key);
+        return ret;
+      }
 
   public function set(key:Key, value) {
     if (keyed == null) 

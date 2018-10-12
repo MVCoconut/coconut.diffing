@@ -35,8 +35,8 @@ class VRoot<Virtual, Real> implements Parent<Virtual, Real> {
 
   function refresh() {
 
-    while (scheduled.length > 0)//TODO: make sure this terminates
-      for (w in scheduled.splice(0, scheduled.length)) @:privateAccess w._coco_update();
+    // while (scheduled.length > 0)//TODO: make sure this terminates
+    //   for (w in scheduled.splice(0, scheduled.length)) @:privateAccess w._coco_update();
 
     while (_afterRendering.length > 0)//TODO: make sure this terminates
       for (f in _afterRendering.splice(0, _afterRendering.length)) f();

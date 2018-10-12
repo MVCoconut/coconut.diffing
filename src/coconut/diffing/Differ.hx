@@ -4,10 +4,9 @@ import coconut.diffing.Rendered;
 import haxe.DynamicAccess as Dict;
 
 class Differ<Virtual, Real> {
-
   function _renderAll(
     nodes:Array<VNode<Virtual, Real>>, 
-    root:VRoot<Virtual, Real>,
+    later:Later,
     with:{ 
       function native(type:NodeType, key:Key, v:Virtual):Real; 
       function widget<A>(type:NodeType, key:Key, attr:A, t:WidgetType<Virtual, A, Real>):Widget<Virtual, Real>; 
@@ -17,7 +16,7 @@ class Differ<Virtual, Real> {
     var byType = new Map<NodeType, TypeRegistry<RNode<Virtual, Real>>>(),
         childList = [];
 
-    for (n in nodes) {
+    if (nodes != null) for (n in nodes) {
       var registry = switch byType[n.type] {
         case null: byType[n.type] = new TypeRegistry();
         case v: v;
@@ -25,7 +24,7 @@ class Differ<Virtual, Real> {
       function add(r:Dynamic, kind) {
         
         if (n.ref != null)
-          root.afterRendering(function () n.ref(r));
+          later(function () n.ref(r));
 
         var n:RNode<Virtual, Real> = {
           key: n.key,
@@ -34,7 +33,10 @@ class Differ<Virtual, Real> {
           kind: kind
         }
 
-        registry.put(n);
+        switch n.key {
+          case null: registry.put(n);
+          case k: registry.set(k, n);
+        }
         childList.push(n);
       }
       switch n.kind {
@@ -50,35 +52,26 @@ class Differ<Virtual, Real> {
           add(w, RWidget(w));
       }
     }
-
-    if (childList.length == 0) throw 'empty return is currently not supported';
     
     return {
       byType: byType,
       childList: childList,
     }    
-  }
-  
-  public function renderAll(nodes:Array<VNode<Virtual, Real>>, root:VRoot<Virtual, Real>):Rendered<Virtual, Real> 
-    return _renderAll(nodes, root, {
-      native: function (type, _, v) return create(type, v, root),
-      widget: function (_, _, a, t) return createWidget(t, a, root),
+  }  
+
+  function renderAll(nodes:Array<VNode<Virtual, Real>>, parent:Null<Parent<Virtual, Real>>, later:Later):Rendered<Virtual, Real> 
+    return _renderAll(nodes, later, {
+      native: function (type, _, v) return createNative(type, v, parent, later),
+      widget: function (_, _, a, t) return createWidget(t, a, parent, later),
     });
-  
-  public function mountInto(target:Real, nodes:Array<VNode<Virtual, Real>>, root:VRoot<Virtual, Real>):Rendered<Virtual, Real> {
-    var ret = renderAll(nodes, root);
-    setChildren(target, flatten(ret.childList));
-    return ret;
-  }
 
-  function createWidget<A>(t:WidgetType<Virtual, A, Real>, a:A, root:VRoot<Virtual, Real>) {
+  function createWidget<A>(t:WidgetType<Virtual, A, Real>, a:A, parent:Parent<Virtual, Real>, later:Later) {
     var ret = t.create(a);
-    @:privateAccess ret._coco_initialize(root);
+    @:privateAccess ret._coco_initialize(this, parent, later);
     return ret;
   }
 
-  public function update(before:Rendered<Virtual, Real>, nodes:Array<VNode<Virtual, Real>>, w:Widget<Virtual, Real>, root:VRoot<Virtual, Real>) {
-    
+  function updateAll(before:Rendered<Virtual, Real>, nodes:Array<VNode<Virtual, Real>>, parent:Null<Parent<Virtual, Real>>, later:Later):Rendered<Virtual, Real> {
     for (registry in before.byType)
       registry.each(function (r) switch r {
         case { ref: null }:
@@ -92,65 +85,84 @@ class Differ<Virtual, Real> {
           case v: 
             if (key == null) v.pull();
             else v.get(key);
-        }
-
-    var after = _renderAll(nodes, root, {
+        }    
+    var after =  _renderAll(nodes, later, {
       native: function (type, key, nu) return switch previous(type, key) {
-        case null: create(type, nu, root);
-        case { kind: RNative(old, r) }: updateNative(r, nu, old); r;
+        case null: createNative(type, nu, parent, later);
+        case { kind: RNative(old, r) }: updateNative(r, nu, old, parent, later); r;
         default: throw 'assert';
       },
       widget: function (type, key, attr, widgetType) return switch previous(type, key) {
-        case null: createWidget(widgetType, attr, root);
+        case null: createWidget(widgetType, attr, parent, later);
         case { kind: RWidget(w) }: widgetType.update(attr, w); w;
         default: throw 'assert';
       },
-    });   
-
+    });  
+      
     for (registry in before.byType)
-      registry.each(function (r) switch r.kind {
-        case RWidget(w): @:privateAccess w._coco_teardown();
-        default:
-      });
+      registry.each(destroyRender);    
 
-    var before = flatten(before.childList);
-    switch nativeParent(before[0]) {
-      case null:
-      case parent:
-        spliceChildren(parent, flatten(after.childList), before[0], before.length);
+    return after; 
+  }
+
+  function destroyRender(r:RNode<Virtual, Real>) 
+    switch r.kind {
+      case RWidget(w): @:privateAccess w._coco_teardown();
+      case RNative(_, r): destroyNative(r);
     }
 
-    return after;
-  }
-
-  function nativeParent(real:Real):Null<Real> 
-    return throw 'abstract';
-
-  function updateNative(real:Real, nu:Virtual, old:Virtual) 
+  function destroyNative(n:Real) 
     throw 'abstract';
 
-  function create(type:NodeType, n:Virtual, root:VRoot<Virtual, Real>):Real 
-    return throw 'abstract';
-
-  function flatten(children):Array<Real> {
-    var ret = [];
-    function rec(children:Array<RNode<Virtual, Real>>)
-      for (c in children) switch c.kind {
-        case RNative(_, r): ret.push(r);
-        case RWidget(w): rec(@:privateAccess w._coco_getRender().childList);
-      }
-    rec(children);
+  function _render(nodes:Array<VNode<Virtual, Real>>, target:Real, parent:Parent<Virtual, Real>, later:Later) {
+    var ret = 
+      switch getLastRender(target) {
+        case null: renderAll(nodes, parent, later);
+        case v: updateAll(v, nodes, parent, later);
+      }  
+    setLastRender(target, ret);
+    setChildren(target, flatten(ret.childList, later));
     return ret;
   }
-
-  function spliceChildren(target:Real, children:Array<Real>, start:Real, oldCount:Int)
-    throw 'abstract';
 
   function setChildren(target:Real, children:Array<Real>)//TODO: passing the array of children directly may open opportunities for optimization
     throw 'abstract';
 
-  public function teardown(target:Real) 
-    setChildren(target, []);
+
+  function flatten(children, later):Array<Real> {
+    var ret = [];
+    function rec(children:Array<RNode<Virtual, Real>>)
+      for (c in children) switch c.kind {
+        case RNative(_, r): ret.push(r);
+        case RWidget(w): 
+          rec(@:privateAccess w._coco_getRender(later).childList);
+          // throw 'not implemented';
+      }
+    rec(children);
+    return ret;
+  }      
+
+  public function render(virtual:Array<VNode<Virtual, Real>>, target:Real) {
+    
+    var after = [];
+
+    _render(virtual, target, null, function (later) if (later != null) after.push(later));
+    
+    for (f in after)
+      f();
+  }
+
+  function setLastRender(target:Real, r:Rendered<Virtual, Real>)
+    throw 'abstract';
+
+  function getLastRender(target:Real):Null<Rendered<Virtual, Real>>
+    return throw 'abstract';
+
+  function updateNative(real:Real, nu:Virtual, old:Virtual, parent:Null<Parent<Virtual, Real>>, later:Later) 
+    throw 'abstract';
+
+  function createNative(type:NodeType, n:Virtual, parent:Null<Parent<Virtual, Real>>, later:Later):Real 
+    return throw 'abstract';  
 
   static var EMPTY:Dict<Any> = {};  
 
@@ -171,6 +183,12 @@ class Differ<Virtual, Real> {
       }
   }
 
+  function removeChild(real:Real, child:Real)
+    return throw 'abstract';
+
+  function nativeParent(real:Real):Null<Real>
+    return throw 'abstract';
+
   inline function setField(target:Dynamic, name:String, newVal:Dynamic, ?oldVal:Dynamic)
-    Reflect.setField(target, name, newVal);    
+    Reflect.setField(target, name, newVal);        
 }
