@@ -108,7 +108,9 @@ class Differ<Virtual, Real> {
   function destroyRender(r:RNode<Virtual, Real>) 
     switch r.kind {
       case RWidget(w): @:privateAccess w._coco_teardown();
-      case RNative(_, r): destroyNative(r);
+      case RNative(_, r): 
+        unsetLastRender(r);
+        destroyNative(r);
     }
 
   function destroyNative(n:Real) 
@@ -152,6 +154,9 @@ class Differ<Virtual, Real> {
       f();
     return ret;
   }
+
+  function unsetLastRender(target:Real)
+    throw 'abstract';
 
   function setLastRender(target:Real, r:Rendered<Virtual, Real>)
     throw 'abstract';
