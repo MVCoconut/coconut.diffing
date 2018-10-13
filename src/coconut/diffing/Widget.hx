@@ -28,7 +28,7 @@ class Widget<Virtual, Real> implements Parent<Virtual, Real> {
     this._coco_viewUnmounting = unmounting;    
   }
 
-  function _coco_getRender(later:Later):Rendered<Virtual, Real> {
+  @:noCompletion function _coco_getRender(later:Later):Rendered<Virtual, Real> {
     if (_coco_invalid) {
       _coco_invalid = false;
       var nuSnapshot = _coco_vStructure.poll().value;
@@ -42,7 +42,7 @@ class Widget<Virtual, Real> implements Parent<Virtual, Real> {
     return _coco_lastRender;
   }
 
-  function _coco_invalidate()
+  @:noCompletion function _coco_invalidate()
     if (!_coco_invalid) {
       _coco_invalid = true;
       if (_coco_parent != null)
@@ -50,25 +50,25 @@ class Widget<Virtual, Real> implements Parent<Virtual, Real> {
       defer(_coco_update);//TODO: this is not optimal
     }
 
-  function _coco_update()
+  @:noCompletion function _coco_update()
     if (_coco_invalid) 
       _coco_differ.run(function (later) _coco_getRender(later));
 
   static function defer(f:Void->Void) f();
     Callback.defer(f);
 
-  function _coco_arm() {
+  @:noCompletion function _coco_arm() {
     _coco_link.dissolve();//you never know
     _coco_link = _coco_vStructure.poll().becameInvalid.handle(_coco_invalidate);
   }
 
-  function _coco_teardown() {
+  @:noCompletion function _coco_teardown() {
     _coco_viewUnmounting();
     for (c in _coco_lastRender.childList)
       @:privateAccess _coco_differ.destroyRender(c);
   }
 
-  function _coco_initialize(differ:Differ<Virtual, Real>, parent:Parent<Virtual, Real>, later:Later) {
+  @:noCompletion function _coco_initialize(differ:Differ<Virtual, Real>, parent:Parent<Virtual, Real>, later:Later) {
     _coco_parent = parent;
     _coco_differ = differ;
     _coco_lastRender = @:privateAccess differ.renderAll(
