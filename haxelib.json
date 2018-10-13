@@ -13,5 +13,7 @@
   "releasenote": "initial release",
   "version": "0.0.0",
   "url": "https://github.com/MVCoconut/coconut.diffing/",
-  "dependencies": {}
+  "dependencies": {
+    "coconut.ui": "gh:MVCoconut/coconut.ui#gen4"
+  }
 }

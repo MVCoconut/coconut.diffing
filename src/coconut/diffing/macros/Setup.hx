@@ -4,7 +4,9 @@ import haxe.macro.Expr;
 using tink.MacroApi;
 
 class Setup {
+
   static function all() 
+  
     coconut.ui.macros.ViewBuilder.afterBuild.whenever(function (ctx) {
       var t = ctx.target.target.name.asComplexType();
       var allAttributes = TAnonymous(ctx.attributes.concat(
