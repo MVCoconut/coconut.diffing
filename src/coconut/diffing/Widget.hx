@@ -54,7 +54,7 @@ class Widget<Virtual, Real> implements Parent<Virtual, Real> {
     if (_coco_invalid) 
       _coco_differ.run(function (later) _coco_getRender(later));
 
-  static function defer(f:Void->Void) f();
+  static function defer(f:Void->Void)
     Callback.defer(f);
 
   @:noCompletion function _coco_arm() {
