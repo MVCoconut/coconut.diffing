@@ -3,7 +3,7 @@ package coconut.diffing;
 import coconut.diffing.Rendered;
 import haxe.DynamicAccess as Dict;
 
-class Differ<Virtual, Real> {
+class Differ<Virtual, Real:{}> {
   function _renderAll(
     nodes:Array<VNode<Virtual, Real>>, 
     later:Later,
@@ -59,19 +59,19 @@ class Differ<Virtual, Real> {
     }    
   }  
 
-  function renderAll(nodes:Array<VNode<Virtual, Real>>, parent:Null<Parent<Virtual, Real>>, later:Later):Rendered<Virtual, Real> 
+  public function renderAll(nodes:Array<VNode<Virtual, Real>>, parent:Null<Widget<Virtual, Real>>, later:Later):Rendered<Virtual, Real> 
     return _renderAll(nodes, later, {
       native: function (type, _, v) return createNative(type, v, parent, later),
       widget: function (_, _, a, t) return createWidget(t, a, parent, later),
     });
 
-  function createWidget<A>(t:WidgetType<Virtual, A, Real>, a:A, parent:Parent<Virtual, Real>, later:Later) {
+  function createWidget<A>(t:WidgetType<Virtual, A, Real>, a:A, parent:Null<Widget<Virtual, Real>>, later:Later) {
     var ret = t.create(a);
     @:privateAccess ret._coco_initialize(this, parent, later);
     return ret;
   }
 
-  function updateAll(before:Rendered<Virtual, Real>, nodes:Array<VNode<Virtual, Real>>, parent:Null<Parent<Virtual, Real>>, later:Later):Rendered<Virtual, Real> {
+  public function updateAll(before:Rendered<Virtual, Real>, nodes:Array<VNode<Virtual, Real>>, parent:Null<Widget<Virtual, Real>>, later:Later):Rendered<Virtual, Real> {
     for (registry in before.byType)
       registry.each(function (r) switch r {
         case { ref: null }:
@@ -105,7 +105,7 @@ class Differ<Virtual, Real> {
     return after; 
   }
 
-  function destroyRender(r:RNode<Virtual, Real>) 
+  public function destroyRender(r:RNode<Virtual, Real>) 
     switch r.kind {
       case RWidget(w): @:privateAccess w._coco_teardown();
       case RNative(_, r): 
@@ -113,36 +113,27 @@ class Differ<Virtual, Real> {
         destroyNative(r);
     }
 
+  public function remount(before:Array<Real>, after:Array<Real>) {
+    // for (a in after.childList)
+    
+  }
+
   function destroyNative(n:Real) 
     throw 'abstract';
 
-  function _render(nodes:Array<VNode<Virtual, Real>>, target:Real, parent:Parent<Virtual, Real>, later:Later) {
+  function _render(nodes:Array<VNode<Virtual, Real>>, target:Real, parent:Null<Widget<Virtual, Real>>, later:Later) {
     var ret = 
       switch getLastRender(target) {
         case null: renderAll(nodes, parent, later);
         case v: updateAll(v, nodes, parent, later);
       }  
     setLastRender(target, ret);
-    setChildren(target, flatten(ret.childList, later));
+    setChildren(target, ret.flatten(later));
     return ret;
   }
 
   function setChildren(target:Real, children:Array<Real>)//TODO: passing the array of children directly may open opportunities for optimization
-    throw 'abstract';
-
-
-  function flatten(children, later):Array<Real> {
-    var ret = [];
-    function rec(children:Array<RNode<Virtual, Real>>)
-      for (c in children) switch c.kind {
-        case RNative(_, r): ret.push(r);
-        case RWidget(w): 
-          rec(@:privateAccess w._coco_getRender(later).childList);
-          // throw 'not implemented';
-      }
-    rec(children);
-    return ret;
-  }      
+    throw 'abstract';     
 
   public function render(virtual:Array<VNode<Virtual, Real>>, target:Real) 
     run(_render.bind(virtual, target, null));
@@ -164,10 +155,40 @@ class Differ<Virtual, Real> {
   function getLastRender(target:Real):Null<Rendered<Virtual, Real>>
     return throw 'abstract';
 
-  function updateNative(real:Real, nu:Virtual, old:Virtual, parent:Null<Parent<Virtual, Real>>, later:Later) 
+  function updateNative(real:Real, nu:Virtual, old:Virtual, parent:Null<Widget<Virtual, Real>>, later:Later) 
     throw 'abstract';
 
-  function createNative(type:NodeType, n:Virtual, parent:Null<Parent<Virtual, Real>>, later:Later):Real 
+  public function updateWidget(w:Widget<Virtual, Real>, later:Later) {
+    var isRoot = later == null;
+    function update(later:Later) @:privateAccess {
+
+      var previousReal = new Map(),
+          count = 0,
+          first = null;
+      
+      w._coco_lastRender.each(later, function (r) {
+        if (first == null) first = r;
+        count++;
+        previousReal[r] = true;
+      });
+
+      w._coco_getRender(later);
+
+      for (c in w._coco_pendingChildren.splice(0, w._coco_pendingChildren.length)) 
+        if (c._coco_alive && c._coco_invalid)
+          c._coco_update(later);
+
+      replaceWidgetContent(previousReal, first, count, w._coco_lastRender, later);
+    }
+
+    if (later == null) run(update);
+    else update(later);
+  }
+
+  function replaceWidgetContent(prev:Map<Real, Bool>, first:Real, total:Int, next:Rendered<Virtual, Real>, later:Later)
+    throw 'abstract';
+
+  function createNative(type:NodeType, n:Virtual, parent:Null<Widget<Virtual, Real>>, later:Later):Real 
     return throw 'abstract';  
 
   static var EMPTY:Dict<Any> = {};  
