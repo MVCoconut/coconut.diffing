@@ -1,0 +1,6 @@
+-D coconut.vdom=0.5.0
+# @install: lix --silent download "gh://github.com/MVCoconut/coconut.vdom#82922f3ab6c085719408e24934130c9f73b3d078" into coconut.vdom/0.5.0/github/82922f3ab6c085719408e24934130c9f73b3d078
+-lib coconut.diffing
+-lib xDOM
+-cp ../coconut.vdom/src
+--macro coconut.vdom.macros.Setup.all()

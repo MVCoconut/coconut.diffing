@@ -1,5 +1,4 @@
 tests.hxml
 -lib travix
 -lib coconut.diffing
--js bin/out.js
---no-output
+-js bin/js/tests.js

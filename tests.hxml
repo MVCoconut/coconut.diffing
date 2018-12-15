@@ -1,3 +1,4 @@
 -cp tests
--main RunTests
+-main Main
 -dce full
+-lib coconut.vdom
