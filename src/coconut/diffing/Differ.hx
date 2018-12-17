@@ -72,11 +72,12 @@ class Differ<Virtual, Real:{}> {
   }
 
   public function updateAll(before:Rendered<Virtual, Real>, nodes:Array<VNode<Virtual, Real>>, parent:Null<Widget<Virtual, Real>>, later:Later):Rendered<Virtual, Real> {
-    for (registry in before.byType)
-      registry.each(function (r) switch r {
-        case { ref: null }:
-        case { ref: f }: f(null);
-      });
+    
+    for (node in before.childList)
+      switch node.ref {
+        case null:
+        case f: f(null);
+      }
 
     function previous(t:NodeType, key:Key)
       return 
@@ -99,27 +100,22 @@ class Differ<Virtual, Real:{}> {
       },
     });  
       
-    for (registry in before.byType)
-      registry.each(destroyRender);    
+    for (node in before.childList)
+      destroyRender(node);
 
     return after; 
   }
 
-  public function destroyRender(r:RNode<Virtual, Real>) 
+  public inline function destroyRender(r:RNode<Virtual, Real>) 
     switch r.kind {
       case RWidget(w): @:privateAccess w._coco_teardown();
       case RNative(_, r): 
-        unsetLastRender(r);
-        destroyNative(r);
+        switch unsetLastRender(r) {
+          case null:
+          case { childList: children }: 
+            for (c in children) destroyRender(c);
+        }
     }
-
-  public function remount(before:Array<Real>, after:Array<Real>) {
-    // for (a in after.childList)
-    
-  }
-
-  function destroyNative(n:Real) 
-    throw 'abstract';
 
   function _render(nodes:Array<VNode<Virtual, Real>>, target:Real, parent:Null<Widget<Virtual, Real>>, later:Later) {
     var ret = 
@@ -146,7 +142,7 @@ class Differ<Virtual, Real:{}> {
     return ret;
   }
 
-  function unsetLastRender(target:Real)
+  function unsetLastRender(target:Real):Rendered<Virtual, Real>
     throw 'abstract';
 
   function setLastRender(target:Real, r:Rendered<Virtual, Real>)
@@ -159,14 +155,14 @@ class Differ<Virtual, Real:{}> {
     throw 'abstract';
 
   public function updateWidget(w:Widget<Virtual, Real>, later:Later) {
-    var isRoot = later == null;
+
     function update(later:Later) @:privateAccess {
 
       var previousReal = new Map(),
           count = 0,
           first = null;
       
-      w._coco_lastRender.each(later, function (r) {
+      w._coco_lastRender.each(later, function (r) {//old
         if (first == null) first = r;
         count++;
         previousReal[r] = true;
