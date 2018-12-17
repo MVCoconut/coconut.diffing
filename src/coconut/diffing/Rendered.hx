@@ -13,7 +13,7 @@ class Rendered<Virtual, Real:{}> {
     return ret;
   }
 
-  @:extern public inline function each(later:Later, f:Real->Void) {
+  public function each(later:Later, f:Real->Void) {
     function rec(children:Array<RNode<Virtual, Real>>)
       for (c in children) switch c.kind {
         case RNative(_, r): f(r);

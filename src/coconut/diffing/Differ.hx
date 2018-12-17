@@ -154,33 +154,6 @@ class Differ<Virtual, Real:{}> {
   function updateNative(real:Real, nu:Virtual, old:Virtual, parent:Null<Widget<Virtual, Real>>, later:Later) 
     throw 'abstract';
 
-  public function updateWidget(w:Widget<Virtual, Real>, later:Later) {
-
-    function update(later:Later) @:privateAccess {
-
-      var previousReal = new Map(),
-          count = 0,
-          first = null;
-      
-      w._coco_lastRender.each(later, function (r) {//old
-        if (first == null) first = r;
-        count++;
-        previousReal[r] = true;
-      });
-
-      w._coco_getRender(later);
-
-      for (c in w._coco_pendingChildren.splice(0, w._coco_pendingChildren.length)) 
-        if (c._coco_alive && c._coco_invalid)
-          c._coco_update(later);
-
-      replaceWidgetContent(previousReal, first, count, w._coco_lastRender, later);
-    }
-
-    if (later == null) run(update);
-    else update(later);
-  }
-
   function replaceWidgetContent(prev:Map<Real, Bool>, first:Real, total:Int, next:Rendered<Virtual, Real>, later:Later)
     throw 'abstract';
 

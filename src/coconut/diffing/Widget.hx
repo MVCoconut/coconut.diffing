@@ -34,16 +34,19 @@ class Widget<Virtual, Real:{}> {
   @:noCompletion function _coco_getRender(later:Later):Rendered<Virtual, Real> {
     if (_coco_invalid) {
       _coco_invalid = false;
-      var nuSnapshot = _coco_vStructure.poll().value;
+      var nuSnapshot = _coco_poll().value;
       if (nuSnapshot != _coco_lastSnapshot) {
         _coco_lastSnapshot = nuSnapshot;
         _coco_lastRender = _coco_differ.updateAll(_coco_lastRender, nuSnapshot, this, later);
-        _coco_arm();
         later(_coco_viewUpdated);
+        _coco_arm();
       }
     }
     return _coco_lastRender;
   }
+
+  @:noCompletion function _coco_poll()
+    return Observable.untracked(_coco_vStructure.poll);
 
   @:noCompletion var _coco_pendingChildren:Array<Widget<Virtual, Real>> = [];
   @:noCompletion function _coco_scheduleChild(child:Widget<Virtual, Real>) {
@@ -60,9 +63,39 @@ class Widget<Virtual, Real:{}> {
         defer(_coco_update.bind(null));
     }
 
+  @:noCompletion function _coco_updateChildren(later:Null<Later>)
+    if (_coco_pendingChildren.length > 0)
+      for (c in _coco_pendingChildren.splice(0, _coco_pendingChildren.length))
+        c._coco_update(later);
+
+  @:noCompletion function _coco_performUpdate(later:Later) {
+
+    var previous = _coco_lastRender;
+    var next = _coco_getRender(later);
+
+    _coco_updateChildren(later);
+
+    if (previous == next) return;
+
+    var previousReal = new Map(),
+        count = 0,
+        first = null;
+    
+    previous.each(later, function (r) {
+      if (first == null) first = r;
+      count++;
+      previousReal[r] = true;
+    });
+
+    @:privateAccess _coco_differ.replaceWidgetContent(previousReal, first, count, next, later);
+  }
+
+
   @:noCompletion function _coco_update(later:Null<Later>)
-    if (_coco_invalid) 
-      _coco_differ.updateWidget(this, later);
+    if (_coco_invalid && _coco_alive) {
+      if (later == null) _coco_differ.run(_coco_performUpdate);
+      else _coco_performUpdate(later);
+    }
 
   static var defer:Later = 
     try {
@@ -73,7 +106,7 @@ class Widget<Virtual, Real:{}> {
 
   @:noCompletion function _coco_arm() {
     _coco_link.dissolve();//you never know
-    _coco_link = _coco_vStructure.poll().becameInvalid.handle(_coco_invalidate);
+    _coco_link = _coco_poll().becameInvalid.handle(_coco_invalidate);
   }
 
   @:noCompletion function _coco_teardown() {
@@ -88,7 +121,7 @@ class Widget<Virtual, Real:{}> {
     _coco_parent = parent;
     _coco_differ = differ;
     _coco_lastRender = differ.renderAll(
-      _coco_lastSnapshot = _coco_vStructure.poll().value,
+      _coco_lastSnapshot = _coco_poll().value,
       this,
       later
     );
