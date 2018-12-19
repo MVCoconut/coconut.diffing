@@ -46,7 +46,7 @@ class Widget<Virtual, Real:{}> {
   }
 
   @:noCompletion function _coco_poll()
-    return Observable.untracked(_coco_vStructure.poll);
+    return Observable.untracked(_coco_vStructure.poll);//TODO: figure out if going untracked is really needed
 
   @:noCompletion var _coco_pendingChildren:Array<Widget<Virtual, Real>> = [];
   @:noCompletion function _coco_scheduleChild(child:Widget<Virtual, Real>) {
