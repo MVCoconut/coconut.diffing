@@ -10,8 +10,8 @@ class Widget<Virtual, Real:{}> {
 
   @:noCompletion var _coco_placeholder:Null<Real>;
 
-  @:noCompletion var _coco_vStructure:ObservableObject<Array<VNode<Virtual, Real>>>;
-  @:noCompletion var _coco_lastSnapshot:Array<VNode<Virtual, Real>>;
+  @:noCompletion var _coco_vStructure:ObservableObject<VNode<Virtual, Real>>;
+  @:noCompletion var _coco_lastSnapshot:VNode<Virtual, Real>;
   @:noCompletion var _coco_lastRender:Rendered<Virtual, Real>;
   @:noCompletion var _coco_invalid:Bool = false;
   @:noCompletion var _coco_alive:Bool = false;
@@ -25,7 +25,7 @@ class Widget<Virtual, Real:{}> {
     updated:Void->Void,
     unmounting:Void->Void
   ) {
-    this._coco_vStructure = rendered.map(function (r) return [r]);
+    this._coco_vStructure = rendered;
     this._coco_viewMounted = mounted;
     this._coco_viewUpdated = updated;
     this._coco_viewUnmounting = unmounting;    
@@ -37,7 +37,7 @@ class Widget<Virtual, Real:{}> {
       var nuSnapshot = _coco_poll().value;
       if (nuSnapshot != _coco_lastSnapshot) {
         _coco_lastSnapshot = nuSnapshot;
-        _coco_lastRender = _coco_differ.updateAll(_coco_lastRender, nuSnapshot, this, later);
+        _coco_lastRender = _coco_differ.updateAll(_coco_lastRender, [nuSnapshot], this, later);
         later(_coco_viewUpdated);
         _coco_arm();
       }
@@ -121,7 +121,7 @@ class Widget<Virtual, Real:{}> {
     _coco_parent = parent;
     _coco_differ = differ;
     _coco_lastRender = differ.renderAll(
-      _coco_lastSnapshot = _coco_poll().value,
+      [_coco_lastSnapshot = _coco_poll().value],
       this,
       later
     );

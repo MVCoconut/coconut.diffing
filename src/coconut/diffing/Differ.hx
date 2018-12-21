@@ -15,44 +15,51 @@ class Differ<Virtual, Real:{}> {
 
     var byType = new Map<NodeType, TypeRegistry<RNode<Virtual, Real>>>(),
         childList = [];
-
-    if (nodes != null) for (n in nodes) {
-      var registry = switch byType[n.type] {
-        case null: byType[n.type] = new TypeRegistry();
-        case v: v;
-      }
-      function add(r:Dynamic, kind) {
-        
-        if (n.ref != null)
-          later(function () n.ref(r));
-
-        var n:RNode<Virtual, Real> = {
-          key: n.key,
-          type: n.type,
-          ref: n.ref,
-          kind: kind
-        }
-
-        switch n.key {
-          case null: registry.put(n);
-          case k: registry.set(k, n);
-        }
-        childList.push(n);
-      }
-      switch n.kind {
-        case VNative(v):
-
-          var r = with.native(n.type, n.key, v);
+    function process(nodes:Array<VNode<Virtual, Real>>)
+      if (nodes != null) for (n in nodes) {
+        function add(r:Dynamic, kind) {
           
-          add(r, RNative(v, r));
-        case VWidget(a, t):
+          var registry = switch byType[n.type] {
+            case null: byType[n.type] = new TypeRegistry();
+            case v: v;
+          }
 
-          var w = with.widget(n.type, n.key, a, t);
+          if (n.ref != null)
+            later(function () n.ref(r));
 
-          add(w, RWidget(w));
+          var n:RNode<Virtual, Real> = {
+            key: n.key,
+            type: n.type,
+            ref: n.ref,
+            kind: kind
+          }
+
+          switch n.key {
+            case null: registry.put(n);
+            case k: registry.set(k, n);
+          }
+          childList.push(n);
+        }
+        switch n.kind {
+          case VNative(v):
+
+            var r = with.native(n.type, n.key, v);
+            
+            add(r, RNative(v, r));
+          case VWidget(a, t):
+
+            var w = with.widget(n.type, n.key, a, t);
+
+            add(w, RWidget(w));
+          
+          case VMany(nodes): 
+          
+            process(nodes);
+        }
       }
-    }
     
+    process(nodes);
+
     return {
       byType: byType,
       childList: childList,
