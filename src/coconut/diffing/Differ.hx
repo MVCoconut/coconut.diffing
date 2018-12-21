@@ -15,6 +15,7 @@ class Differ<Virtual, Real:{}> {
 
     var byType = new Map<NodeType, TypeRegistry<RNode<Virtual, Real>>>(),
         childList = [];
+
     function process(nodes:Array<VNode<Virtual, Real>>)
       if (nodes != null) for (n in nodes) {
         function add(r:Dynamic, kind) {
@@ -97,6 +98,7 @@ class Differ<Virtual, Real:{}> {
             if (key == null) v.pull();
             else v.get(key);
         }    
+        
     var after =  _renderAll(nodes, later, {
       native: function (type, key, nu) return switch previous(type, key) {
         case null: createNative(type, nu, parent, later);
@@ -110,8 +112,8 @@ class Differ<Virtual, Real:{}> {
       },
     });  
       
-    for (node in before.childList)
-      destroyRender(node);
+    for (registry in before.byType)
+      registry.each(destroyRender);
 
     return after; 
   }

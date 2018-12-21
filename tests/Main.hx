@@ -12,8 +12,9 @@ class Main extends View {
           <blub>
             Foo: {foo}
             <button onclick={r.update({ foo: r.foo + 1})}>{r.foo}</button>
+            <Outer>{r.foo}</Outer>
           </blub>
-        </Blargh>
+        </Blargh>      
       </main>
     ').renderInto(js.Browser.document.body);
   }
@@ -33,6 +34,28 @@ class Main extends View {
 //     </if>  
 //   ';
 // }
+
+class Outer extends View {
+  @:attribute var children:Children;
+  function render() {
+    trace('render Outer');
+    return @hxx '<div data-id={viewId}>Outer: {...children} <Inner>{...children}</Inner></div>';
+  }
+  override function viewDidUpdate()
+    trace('updated Outer');
+}
+
+
+class Inner extends View {
+  @:attribute var children:Children;
+  function render() {
+    trace('render Inner');
+    return @hxx '<div data-id={viewId}>Inner: {...children}</div>';
+  }
+
+  override function viewDidUpdate()
+    trace('updated Inner');
+}
 
 class Blargh extends View {
   @:attribute function blub(attr:{ foo:String }):Children;
