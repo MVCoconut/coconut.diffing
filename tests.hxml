@@ -1,4 +1,5 @@
 -cp tests
 -main Main
 -dce full
+# coconut.diffing.Widget
 -lib coconut.vdom

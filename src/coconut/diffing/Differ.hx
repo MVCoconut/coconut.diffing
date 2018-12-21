@@ -78,6 +78,9 @@ class Differ<Virtual, Real:{}> {
     return ret;
   }
 
+  function placeholder(forTarget:Widget<Virtual, Real>):VNode<Virtual, Real>
+    return throw 'abstract';
+
   public function updateAll(before:Rendered<Virtual, Real>, nodes:Array<VNode<Virtual, Real>>, parent:Null<Widget<Virtual, Real>>, later:Later):Rendered<Virtual, Real> {
     
     for (node in before.childList)

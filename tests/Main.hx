@@ -1,20 +1,61 @@
-class Main extends coconut.ui.View {
+import coconut.ui.*;
+
+typedef Rec = coconut.data.Record<{ foo: Int }>;
+
+class Main extends View {
   static function main() {
-    coconut.Ui.hxx('<Main/>').renderInto(js.Browser.document.body);
+    var r = new Rec({ foo: 42});
+    // coconut.Ui.hxx('<Main/>').renderInto(js.Browser.document.body);
+    coconut.Ui.hxx('
+      <main>
+        <Blargh>
+          <blub>
+            Foo: {foo}
+            <button onclick={r.update({ foo: r.foo + 1})}>{r.foo}</button>
+          </blub>
+        </Blargh>
+      </main>
+    ').renderInto(js.Browser.document.body);
   }
-  function render() '<div><Foo depth={5} /></div>';
+  function render() return null;//'<div><Foo depth={5} /></div>';
 }
 
-class Foo extends coconut.ui.View {
+// class Foo extends View {
 	
-  @:state var key:Int = 0;
-  @:attribute var depth:Int;
+//   @:state var key:Int = 0;
+//   @:attribute var depth:Int;
 
-	function render() '
-    <if {depth > 0}>
-      <Foo depth={depth - 1} />
-    <else>
-      <div key=${key} onclick=${key++}>Key: $key</div>
-    </if>  
+// 	function render() '
+//     <if {depth > 0}>
+//       <Foo depth={depth - 1} />
+//     <else>
+//       <div key=${key} onclick=${key++}>Key: $key</div>
+//     </if>  
+//   ';
+// }
+
+class Blargh extends View {
+  @:attribute function blub(attr:{ foo:String }):Children;
+  @:state var hidden:Bool = false;
+  function render() '
+    <if {!hidden}>
+      <>
+        <div>1</div>
+        <div>2</div>
+        {...blub({ foo: "yeah" })}
+        <button onclick={hide}>Hide</button>
+      </>
+    </if>
   ';
+
+  function hide() {
+    hidden = true; 
+    @in(1) @do hidden = false;
+  }
+  // function render() '
+  //   <div>
+  //     {...blub({ foo: "yeah" })}
+  //   </div>
+  // ';
+
 }

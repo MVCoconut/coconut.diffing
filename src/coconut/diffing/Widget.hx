@@ -10,7 +10,7 @@ class Widget<Virtual, Real:{}> {
 
   @:noCompletion var _coco_placeholder:Null<Real>;
 
-  @:noCompletion var _coco_vStructure:ObservableObject<VNode<Virtual, Real>>;
+  @:noCompletion var _coco_vStructure:Observable<VNode<Virtual, Real>>;
   @:noCompletion var _coco_lastSnapshot:VNode<Virtual, Real>;
   @:noCompletion var _coco_lastRender:Rendered<Virtual, Real>;
   @:noCompletion var _coco_invalid:Bool = false;
@@ -25,7 +25,23 @@ class Widget<Virtual, Real:{}> {
     updated:Void->Void,
     unmounting:Void->Void
   ) {
-    this._coco_vStructure = rendered;
+
+    this._coco_vStructure = rendered.map(function (r) return switch r {
+      case null: @:privateAccess _coco_differ.placeholder(this);
+      case { kind: VMany(nodes) }:
+        function isEmpty(nodes:Array<VNode<Virtual, Real>>) {
+          for (n in nodes) if (n != null) switch n.kind {
+            case VMany(nodes): 
+              if (!isEmpty(nodes)) return false;
+            default: return false;
+          }
+          return true;
+        }
+        if (isEmpty(nodes)) @:privateAccess _coco_differ.placeholder(this);
+        else r;
+      default: r;
+    });
+    
     this._coco_viewMounted = mounted;
     this._coco_viewUpdated = updated;
     this._coco_viewUnmounting = unmounting;    
@@ -46,7 +62,7 @@ class Widget<Virtual, Real:{}> {
   }
 
   @:noCompletion function _coco_poll()
-    return Observable.untracked(_coco_vStructure.poll);//TODO: figure out if going untracked is really needed
+    return Observable.untracked(_coco_vStructure.measure);
 
   @:noCompletion var _coco_pendingChildren:Array<Widget<Virtual, Real>> = [];
   @:noCompletion function _coco_scheduleChild(child:Widget<Virtual, Real>) {
