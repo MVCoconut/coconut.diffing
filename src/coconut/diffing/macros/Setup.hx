@@ -14,7 +14,7 @@ class Setup {
       var allAttributes = TAnonymous(ctx.attributes.concat(
         (macro class {
           @:optional var key(default, never):coconut.diffing.Key;
-          @:optional var ref(default, never):$t->Void;
+          @:optional var ref(default, never):coconut.ui.Ref.RefSetter<$t>;
         }).fields      
       ));
 
