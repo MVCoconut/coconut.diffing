@@ -3,18 +3,18 @@ package coconut.diffing;
 import coconut.diffing.Key;
 
 @:structInit
-class Rendered<Virtual, Real:{}> {
-  public var byType(default, null):Map<NodeType, TypeRegistry<RNode<Virtual, Real>>>;//TODO: splitting this by native vs. widgets might be a good idea
-  public var childList(default, null):Array<RNode<Virtual, Real>>;
+class Rendered<Real:{}> {
+  public var byType(default, null):Map<NodeType, TypeRegistry<RNode<Real>>>;//TODO: splitting this by native vs. widgets might be a good idea
+  public var childList(default, null):Array<RNode<Real>>;
 
-  public function flatten(later) {
+  public function flatten(later):Array<Real> {//TODO: report bug - not specifying return type here leads to compiler error
     var ret = [];
     each(later, function (r) ret.push(r));
     return ret;
   }
 
   public function each(later:Later, f:Real->Void) {
-    function rec(children:Array<RNode<Virtual, Real>>)
+    function rec(children:Array<RNode<Real>>)
       for (c in children) switch c {
         case RNative(_, r, _): f(r);
         case RWidget(w, _): 

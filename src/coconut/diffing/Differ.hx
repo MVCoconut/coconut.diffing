@@ -3,21 +3,21 @@ package coconut.diffing;
 import coconut.diffing.Rendered;
 import haxe.DynamicAccess as Dict;
 
-class Differ<Virtual, Real:{}> {
+class Differ<Real:{}> {
   function _renderAll(
-    nodes:Array<VNode<Virtual, Real>>, 
+    nodes:Array<VNode<Real>>, 
     later:Later,
-    parent:Null<Widget<Virtual, Real>>,
+    parent:Null<Widget<Real>>,
     with:{ 
-      function native(type:NodeType, key:Key, v:Virtual):Real; 
-      function widget<A>(type:NodeType, key:Key, attr:A, t:WidgetType<Virtual, A, Real>):Widget<Virtual, Real>; 
+      function native<A>(type:NodeType, key:Key, attr:A, ?children:Array<VNode<Real>>):Real; 
+      function widget<A>(type:NodeType, key:Key, attr:A, t:WidgetType<A, Real>):Widget<Real>; 
     }
-  ):Rendered<Virtual, Real> {
+  ):Rendered<Real> {
 
-    var byType = new Map<NodeType, TypeRegistry<RNode<Virtual, Real>>>(),
+    var byType = new Map<NodeType, TypeRegistry<RNode<Real>>>(),
         childList = [];
 
-    function process(nodes:Array<VNode<Virtual, Real>>)
+    function process(nodes:Array<VNode<Real>>)
       if (nodes != null) for (n in nodes) {
         inline function add(r:Dynamic, ref:Null<Dynamic>->Void, key:Null<Key>, type:Null<NodeType>, n) {
           
@@ -36,11 +36,12 @@ class Differ<Virtual, Real:{}> {
           childList.push(n);
         }
         switch n {
-          case VNative(type, ref, key, v):
+          case VNative(type, ref, key, attr, children):
 
-            var r = with.native(type, key, v);
+            var real = with.native(type, key, attr, children);
             
-            add(r, ref, key, type, RNative(v, r, ref));
+            add(real, ref, key, type, RNative(attr, real, ref));
+
           case VWidget(type, ref, key, a, t):
 
             var w = with.widget(type, key, a, t);
@@ -62,7 +63,6 @@ class Differ<Virtual, Real:{}> {
             }
 
             add(w, null, null, ':widget-inst', RWidget(w, null));
-            // childList.push(RWidget(w, null));
         }
       }
     
@@ -74,22 +74,22 @@ class Differ<Virtual, Real:{}> {
     }    
   }  
 
-  public function renderAll(nodes:Array<VNode<Virtual, Real>>, parent:Null<Widget<Virtual, Real>>, later:Later):Rendered<Virtual, Real> 
+  public function renderAll(nodes:Array<VNode<Real>>, parent:Null<Widget<Real>>, later:Later):Rendered<Real> 
     return _renderAll(nodes, later, parent, {
-      native: function (type, _, v) return createNative(type, v, parent, later),
+      native: function (type, _, attr, ?children) return createNative(type, attr, children, parent, later),
       widget: function (_, _, a, t) return createWidget(t, a, parent, later),
     });
 
-  function createWidget<A>(t:WidgetType<Virtual, A, Real>, a:A, parent:Null<Widget<Virtual, Real>>, later:Later) {
+  function createWidget<A>(t:WidgetType<A, Real>, a:A, parent:Null<Widget<Real>>, later:Later) {
     var ret = t.create(a);
     @:privateAccess ret._coco_initialize(this, parent, later);
     return ret;
   }
 
-  function placeholder(forTarget:Widget<Virtual, Real>):VNode<Virtual, Real>
+  function placeholder(forTarget:Widget<Real>):VNode<Real>
     return throw 'abstract';
 
-  public function updateAll(before:Rendered<Virtual, Real>, nodes:Array<VNode<Virtual, Real>>, parent:Null<Widget<Virtual, Real>>, later:Later):Rendered<Virtual, Real> {
+  public function updateAll(before:Rendered<Real>, nodes:Array<VNode<Real>>, parent:Null<Widget<Real>>, later:Later):Rendered<Real> {
     
     for (node in before.childList)
       switch node {
@@ -107,14 +107,19 @@ class Differ<Virtual, Real:{}> {
         }    
         
     var after =  _renderAll(nodes, later, parent, {
-      native: function (type, key, nu) return switch previous(type, key) {
-        case null: createNative(type, nu, parent, later);
-        case RNative(old, r, ref): updateNative(r, nu, old, parent, later); r;
+      native: function native(type, key, nuAttr, ?nuChildren) return switch previous(type, key) {
+        case null: 
+          createNative(type, nuAttr, nuChildren, parent, later);
+        case RNative(oldAttr, r, ref): 
+          updateNative(r, nuAttr, nuChildren, cast oldAttr, parent, later); //TODO: the cast here shouldn't be necessary
         default: throw 'assert';
       },
       widget: function (type, key, attr, widgetType) return switch previous(type, key) {
-        case null: createWidget(widgetType, attr, parent, later);
-        case RWidget(w, ref): widgetType.update(attr, w); w;
+        case null: 
+          createWidget(widgetType, attr, parent, later);
+        case RWidget(w, ref): 
+          widgetType.update(attr, w); 
+          w;
         default: throw 'assert';
       },
     });  
@@ -125,18 +130,18 @@ class Differ<Virtual, Real:{}> {
     return after; 
   }
 
-  public inline function destroyRender(r:RNode<Virtual, Real>) 
+  public inline function destroyRender(r:RNode<Real>) 
     switch r {
       case RWidget(w, _): @:privateAccess w._coco_teardown();
-      case RNative(_, r, _): 
-        switch unsetLastRender(r) {
+      case RNative(_, real, _): 
+        switch unsetLastRender(real) {
           case null:
           case { childList: children }: 
             for (c in children) destroyRender(c);
         }
     }
 
-  function _render(nodes:Array<VNode<Virtual, Real>>, target:Real, parent:Null<Widget<Virtual, Real>>, later:Later) {
+  function _render(nodes:Array<VNode<Real>>, target:Real, parent:Null<Widget<Real>>, later:Later) {
     var ret = 
       switch getLastRender(target) {
         case null: renderAll(nodes, parent, later);
@@ -150,8 +155,8 @@ class Differ<Virtual, Real:{}> {
   function setChildren(target:Real, children:Array<Real>)//TODO: passing the array of children directly may open opportunities for optimization
     throw 'abstract';     
 
-  public function render(virtual:Array<VNode<Virtual, Real>>, target:Real) 
-    run(_render.bind(virtual, target, null));
+  public function render(virtual:Array<VNode<Real>>, target:Real) 
+    run(function (later) return _render(virtual, target, null, later));
 
   public function run<T>(f:Later->T):T {
     var after = [];
@@ -161,28 +166,40 @@ class Differ<Virtual, Real:{}> {
     return ret;
   }
 
-  function unsetLastRender(target:Real):Rendered<Virtual, Real>
+  function unsetLastRender(target:Real):Rendered<Real>
     throw 'abstract';
 
-  function setLastRender(target:Real, r:Rendered<Virtual, Real>)
+  function setLastRender(target:Real, r:Rendered<Real>)
     throw 'abstract';
 
-  function getLastRender(target:Real):Null<Rendered<Virtual, Real>>
+  function getLastRender(target:Real):Null<Rendered<Real>>
     return throw 'abstract';
 
-  function updateNative(real:Real, nu:Virtual, old:Virtual, parent:Null<Widget<Virtual, Real>>, later:Later) 
+  function updateNative<Attr>(real:Real, nuAttr:Attr, children:Null<Array<VNode<Real>>>, oldAttr:Attr, parent:Null<Widget<Real>>, later:Later) {
+    updateAttr(real, nuAttr, oldAttr);
+    _render(children, real, parent, later);
+    return real;
+  }
+
+  function updateAttr<Attr>(real:Real, nuAttr:Attr, oldAttr:Attr) 
     throw 'abstract';
 
-  function replaceWidgetContent(prev:Map<Real, Bool>, first:Real, total:Int, next:Rendered<Virtual, Real>, later:Later)
+  function replaceWidgetContent(prev:Map<Real, Bool>, first:Real, total:Int, next:Rendered<Real>, later:Later)
     throw 'abstract';
 
-  function createNative(type:NodeType, n:Virtual, parent:Null<Widget<Virtual, Real>>, later:Later):Real 
-    return throw 'abstract';  
+  function createNative<Attr>(type:NodeType, attr:Attr, children:Null<Array<VNode<Real>>>, parent:Null<Widget<Real>>, later:Later):Real {
+    var ret = initAttr(type, attr);
+    _render(children, ret, parent, later);
+    return ret;
+  }
+
+  function initAttr<Attr>(type:NodeType, attr:Attr):Real
+    return throw 'abstract';
 
   static var EMPTY:Dict<Any> = {};  
 
-  @:extern inline function updateObject<Target>(element:Target, newProps:Dict<Any>, oldProps:Dict<Any>, updateProp:Target->String->Any->Any->Void) {
-    if (newProps == oldProps) return;
+  @:extern inline function updateObject<Target>(target:Target, newProps:Dict<Any>, oldProps:Dict<Any>, updateProp:Target->String->Any->Any->Void):Target {
+    if (newProps == oldProps) return target;
     var keys = new Dict<Bool>();
     
     if (newProps == null) newProps = EMPTY;
@@ -194,8 +211,10 @@ class Differ<Virtual, Real:{}> {
     for(key in keys.keys()) 
       switch [newProps[key], oldProps[key]] {
         case [a, b] if (a == b):
-        case [nu, old]: updateProp(element, key, nu, old);
+        case [nu, old]: updateProp(target, key, nu, old);
       }
+
+    return target;
   }
 
   function removeChild(real:Real, child:Real)

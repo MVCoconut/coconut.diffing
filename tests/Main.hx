@@ -36,7 +36,6 @@ class Main extends View {
           <blub>
             Foo: {foo}
             <button onclick={r.update({ foo: r.foo + 1})}>{r.foo}</button>
-            <Outer>{r.foo}</Outer>
             <if {r.foo == 42}>
               <video muted></video>
             <else>

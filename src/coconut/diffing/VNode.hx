@@ -1,15 +1,15 @@
 package coconut.diffing;
 
-abstract VNode<Virtual, Real:{}>(VNodeData<Virtual, Real>) from VNodeData<Virtual, Real> to VNodeData<Virtual, Real> {
+abstract VNode<Real:{}>(VNodeData<Real>) from VNodeData<Real> to VNodeData<Real> {
   
-  static public inline function fragment<V, R:{}>(attr:{}, children):VNode<V, R>
+  static public inline function fragment<R:{}>(attr:{}, children):VNode<R>
     return VMany(children);
 }
 
-enum VNodeData<Virtual, Real:{}> {
+enum VNodeData<Real:{}> {
   VNativeInst(n:Real);
-  VWidgetInst(w:Widget<Virtual, Real>);
-  VMany(nodes:Array<VNode<Virtual, Real>>);
-  VNative(type:NodeType, ?ref:Dynamic->Void, ?key:Key, n:Virtual);
-  VWidget<Attr>(type:NodeType, ?ref:Dynamic->Void, ?key:Key, a:Attr, t:WidgetType<Virtual, Attr, Real>);
+  VWidgetInst(w:Widget<Real>);
+  VMany(nodes:Array<VNode<Real>>);
+  VNative<Attr>(type:NodeType, ?ref:Dynamic->Void, ?key:Key, a:Attr, ?children:Array<VNode<Real>>);
+  VWidget<Attr>(type:NodeType, ?ref:Dynamic->Void, ?key:Key, a:Attr, t:WidgetType<Attr, Real>);
 }

@@ -2,7 +2,7 @@ package coconut.diffing;
 
 import tink.state.Observable;
 
-class Widget<Virtual, Real:{}> {
+class Widget<Real:{}> {
 
   @:noCompletion var _coco_viewMounted:Void->Void;
   @:noCompletion var _coco_viewUpdated:Void->Void;
@@ -10,17 +10,17 @@ class Widget<Virtual, Real:{}> {
 
   @:noCompletion var _coco_placeholder:Null<Real>;
 
-  @:noCompletion var _coco_vStructure:Observable<VNode<Virtual, Real>>;
-  @:noCompletion var _coco_lastSnapshot:VNode<Virtual, Real>;
-  @:noCompletion var _coco_lastRender:Rendered<Virtual, Real>;
+  @:noCompletion var _coco_vStructure:Observable<VNode<Real>>;
+  @:noCompletion var _coco_lastSnapshot:VNode<Real>;
+  @:noCompletion var _coco_lastRender:Rendered<Real>;
   @:noCompletion var _coco_invalid:Bool = false;
   @:noCompletion var _coco_alive:Bool = false;
-  @:noCompletion var _coco_parent:Widget<Virtual, Real>;
-  @:noCompletion var _coco_differ:Differ<Virtual, Real>;
+  @:noCompletion var _coco_parent:Widget<Real>;
+  @:noCompletion var _coco_differ:Differ<Real>;
   @:noCompletion var _coco_link:CallbackLink;
     
   public function new(
-    rendered:Observable<VNode<Virtual, Real>>,
+    rendered:Observable<VNode<Real>>,
     mounted:Void->Void,
     updated:Void->Void,
     unmounting:Void->Void
@@ -29,7 +29,7 @@ class Widget<Virtual, Real:{}> {
     this._coco_vStructure = rendered.map(function (r) return switch r {
       case null: @:privateAccess _coco_differ.placeholder(this);
       case VMany(nodes):
-        function isEmpty(nodes:Array<VNode<Virtual, Real>>) {
+        function isEmpty(nodes:Array<VNode<Real>>) {
           for (n in nodes) if (n != null) switch n {
             case VMany(nodes): 
               if (!isEmpty(nodes)) return false;
@@ -47,7 +47,7 @@ class Widget<Virtual, Real:{}> {
     this._coco_viewUnmounting = unmounting;    
   }
 
-  @:noCompletion function _coco_getRender(later:Later):Rendered<Virtual, Real> {
+  @:noCompletion function _coco_getRender(later:Later):Rendered<Real> {
     if (_coco_invalid) {
       _coco_invalid = false;
       var nuSnapshot = _coco_poll().value;
@@ -64,8 +64,8 @@ class Widget<Virtual, Real:{}> {
   @:noCompletion function _coco_poll()
     return Observable.untracked(_coco_vStructure.measure);
 
-  @:noCompletion var _coco_pendingChildren:Array<Widget<Virtual, Real>> = [];
-  @:noCompletion function _coco_scheduleChild(child:Widget<Virtual, Real>) {
+  @:noCompletion var _coco_pendingChildren:Array<Widget<Real>> = [];
+  @:noCompletion function _coco_scheduleChild(child:Widget<Real>) {
     _coco_pendingChildren.push(child);
     _coco_invalidate();
   }
@@ -132,7 +132,7 @@ class Widget<Virtual, Real:{}> {
       _coco_differ.destroyRender(c);
   }
 
-  @:noCompletion function _coco_initialize(differ:Differ<Virtual, Real>, parent:Widget<Virtual, Real>, later:Later) {
+  @:noCompletion function _coco_initialize(differ:Differ<Real>, parent:Widget<Real>, later:Later) {
     _coco_alive = true;
     _coco_parent = parent;
     _coco_differ = differ;
