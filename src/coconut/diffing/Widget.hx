@@ -28,9 +28,9 @@ class Widget<Virtual, Real:{}> {
 
     this._coco_vStructure = rendered.map(function (r) return switch r {
       case null: @:privateAccess _coco_differ.placeholder(this);
-      case { kind: VMany(nodes) }:
+      case VMany(nodes):
         function isEmpty(nodes:Array<VNode<Virtual, Real>>) {
-          for (n in nodes) if (n != null) switch n.kind {
+          for (n in nodes) if (n != null) switch n {
             case VMany(nodes): 
               if (!isEmpty(nodes)) return false;
             default: return false;

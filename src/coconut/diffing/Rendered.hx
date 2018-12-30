@@ -15,9 +15,9 @@ class Rendered<Virtual, Real:{}> {
 
   public function each(later:Later, f:Real->Void) {
     function rec(children:Array<RNode<Virtual, Real>>)
-      for (c in children) switch c.kind {
-        case RNative(_, r): f(r);
-        case RWidget(w): 
+      for (c in children) switch c {
+        case RNative(_, r, _): f(r);
+        case RWidget(w, _): 
           rec(@:privateAccess w._coco_getRender(later).childList);
       }
     rec(childList);

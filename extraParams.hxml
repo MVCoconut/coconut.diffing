@@ -1,2 +1,2 @@
 --macro coconut.diffing.macros.Setup.all()
--D hxx_fragment=coconut.diffing.NodeOf.many
+-D hxx_fragment=coconut.diffing.VNode.fragment

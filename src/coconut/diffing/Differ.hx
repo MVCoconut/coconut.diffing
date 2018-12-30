@@ -18,44 +18,38 @@ class Differ<Virtual, Real:{}> {
 
     function process(nodes:Array<VNode<Virtual, Real>>)
       if (nodes != null) for (n in nodes) {
-        function add(r:Dynamic, kind) {
+        inline function add(r:Dynamic, ref:Null<Dynamic>->Void, key:Null<Key>, type:Null<NodeType>, n) {
           
-          var registry = switch byType[n.type] {
-            case null: byType[n.type] = new TypeRegistry();
+          var registry = switch byType[type] {
+            case null: byType[type] = new TypeRegistry();
             case v: v;
           }
 
-          if (n.ref != null)
-            later(function () n.ref(r));
+          if (ref != null)
+            later(function () ref(r));
 
-          var n:RNode<Virtual, Real> = {
-            key: n.key,
-            type: n.type,
-            ref: n.ref,
-            kind: kind
-          }
-
-          switch n.key {
+          switch key {
             case null: registry.put(n);
             case k: registry.set(k, n);
           }
           childList.push(n);
         }
-        switch n.kind {
-          case VNative(v):
+        switch n {
+          case VNative(type, ref, key, v):
 
-            var r = with.native(n.type, n.key, v);
+            var r = with.native(type, key, v);
             
-            add(r, RNative(v, r));
-          case VWidget(a, t):
+            add(r, ref, key, type, RNative(v, r, ref));
+          case VWidget(type, ref, key, a, t):
 
-            var w = with.widget(n.type, n.key, a, t);
+            var w = with.widget(type, key, a, t);
 
-            add(w, RWidget(w));
+            add(w, ref, key, type, RWidget(w, ref));
           
           case VMany(nodes): 
           
             process(nodes);
+
         }
       }
     
@@ -85,9 +79,9 @@ class Differ<Virtual, Real:{}> {
   public function updateAll(before:Rendered<Virtual, Real>, nodes:Array<VNode<Virtual, Real>>, parent:Null<Widget<Virtual, Real>>, later:Later):Rendered<Virtual, Real> {
     
     for (node in before.childList)
-      switch node.ref {
-        case null:
-        case f: f(null);
+      switch node {
+        case RNative(_, _, f) | RWidget(_, f) if (f != null): f(null);
+        default:
       }
 
     function previous(t:NodeType, key:Key)
@@ -102,12 +96,12 @@ class Differ<Virtual, Real:{}> {
     var after =  _renderAll(nodes, later, {
       native: function (type, key, nu) return switch previous(type, key) {
         case null: createNative(type, nu, parent, later);
-        case { kind: RNative(old, r) }: updateNative(r, nu, old, parent, later); r;
+        case RNative(old, r, ref): updateNative(r, nu, old, parent, later); r;
         default: throw 'assert';
       },
       widget: function (type, key, attr, widgetType) return switch previous(type, key) {
         case null: createWidget(widgetType, attr, parent, later);
-        case { kind: RWidget(w) }: widgetType.update(attr, w); w;
+        case RWidget(w, ref): widgetType.update(attr, w); w;
         default: throw 'assert';
       },
     });  
@@ -119,9 +113,9 @@ class Differ<Virtual, Real:{}> {
   }
 
   public inline function destroyRender(r:RNode<Virtual, Real>) 
-    switch r.kind {
-      case RWidget(w): @:privateAccess w._coco_teardown();
-      case RNative(_, r): 
+    switch r {
+      case RWidget(w, _): @:privateAccess w._coco_teardown();
+      case RNative(_, r, _): 
         switch unsetLastRender(r) {
           case null:
           case { childList: children }: 

@@ -1,8 +1,6 @@
 package coconut.diffing;
 
-typedef RNode<Native, Real:{}> = NodeOf<RNodeKind<Native, Real>>;
-
-enum RNodeKind<N, Real:{}> {
-  RNative(n:N, r:Real);
-  RWidget<Attr>(w:Widget<N, Real>);
+enum RNode<N, Real:{}> {
+  RNative(n:N, r:Real, ?ref:Dynamic->Void);
+  RWidget<Attr>(w:Widget<N, Real>, ?ref:Dynamic->Void);
 }
