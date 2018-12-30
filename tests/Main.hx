@@ -42,9 +42,7 @@ class Main extends View {
               <video>DIV</video>
             </if>
             <hr/>
-            $inst
-            $inst
-            
+            $inst            
           </blub>
         </Blargh>      
       </main>

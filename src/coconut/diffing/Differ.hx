@@ -83,7 +83,7 @@ class Differ<Real:{}> {
 
   function mountInstance(w:Widget<Real>, parent:Null<Widget<Real>>, later:Later)
     @:privateAccess {    
-      if (!w._coco_alive) throw 'Same widget instance mounted twice $w';
+      if (w._coco_alive) throw 'Same widget instance mounted twice $w';
       w._coco_initialize(this, parent, later);
     }
 
