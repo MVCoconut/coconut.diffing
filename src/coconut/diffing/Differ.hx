@@ -11,6 +11,7 @@ class Differ<Real:{}> {
     with:{ 
       function native<A>(type:NodeType, key:Key, attr:A, ?children:Array<VNode<Real>>):Real; 
       function widget<A>(type:NodeType, key:Key, attr:A, t:WidgetType<A, Real>):Widget<Real>; 
+      function widgetInst(w:Widget<Real>):Void;
     }
   ):Rendered<Real> {
 
@@ -58,11 +59,8 @@ class Differ<Real:{}> {
 
           case VWidgetInst(w):
 
-            @:privateAccess if (!w._coco_alive) {
-              w._coco_initialize(this, parent, later);
-            }
-
-            add(w, null, null, ':widget-inst', RWidget(w, null));
+            with.widgetInst(w);
+            add(w, null, w, WIDGET_INST, RWidget(w, null));
         }
       }
     
@@ -74,11 +72,20 @@ class Differ<Real:{}> {
     }    
   }  
 
+  static var WIDGET_INST = ':widget-inst';
+
   public function renderAll(nodes:Array<VNode<Real>>, parent:Null<Widget<Real>>, later:Later):Rendered<Real> 
     return _renderAll(nodes, later, parent, {
       native: function (type, _, attr, ?children) return createNative(type, attr, children, parent, later),
       widget: function (_, _, a, t) return createWidget(t, a, parent, later),
+      widgetInst: function (w) mountInstance(w, parent, later),
     });
+
+  function mountInstance(w:Widget<Real>, parent:Null<Widget<Real>>, later:Later)
+    @:privateAccess {    
+      if (!w._coco_alive) throw 'Same widget instance mounted twice $w';
+      w._coco_initialize(this, parent, later);
+    }
 
   function createWidget<A>(t:WidgetType<A, Real>, a:A, parent:Null<Widget<Real>>, later:Later) {
     var ret = t.create(a);
@@ -110,18 +117,23 @@ class Differ<Real:{}> {
       native: function native(type, key, nuAttr, ?nuChildren) return switch previous(type, key) {
         case null: 
           createNative(type, nuAttr, nuChildren, parent, later);
-        case RNative(oldAttr, r, ref): 
+        case RNative(oldAttr, r, _): 
           updateNative(r, nuAttr, nuChildren, cast oldAttr, parent, later); //TODO: the cast here shouldn't be necessary
         default: throw 'assert';
       },
       widget: function (type, key, attr, widgetType) return switch previous(type, key) {
         case null: 
           createWidget(widgetType, attr, parent, later);
-        case RWidget(w, ref): 
+        case RWidget(w, _): 
           widgetType.update(attr, w); 
           w;
         default: throw 'assert';
       },
+      widgetInst: function (w) return switch previous(WIDGET_INST, w) {
+        case null: mountInstance(w, parent, later);
+        case RWidget(w, _): // nothing to do presumably
+        default: throw 'assert';
+      }
     });  
       
     for (registry in before.byType)

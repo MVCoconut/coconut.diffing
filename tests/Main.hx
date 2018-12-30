@@ -43,6 +43,8 @@ class Main extends View {
             </if>
             <hr/>
             $inst
+            $inst
+            
           </blub>
         </Blargh>      
       </main>
@@ -52,6 +54,9 @@ class Main extends View {
 }
 
 class Inst extends View {
+
+  @:state var count:Int = 0;
+
   var elt = {
     var div = document.createDivElement();
     div.innerHTML = 'I am native!';
@@ -60,7 +65,8 @@ class Inst extends View {
 
   function render() '
     <div>
-      Inst: $elt
+      Inst: ${elt}
+      <button onclick=${count++}>$count</button>
     </div>
   ';
 
