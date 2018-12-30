@@ -1,5 +1,6 @@
 import coconut.ui.*;
 import coconut.data.*;
+import js.Browser.*;
 import haxe.Timer.delay;
 using tink.CoreApi;
 using tink.state.Promised;
@@ -20,15 +21,14 @@ class Main extends View {
         default:
       }
     });
-            
-    // var value = 
-    
+                
     coconut.Ui.hxx('
       <Loader value={data.details.map(function(details) return details.list.first().orNull().value)} />
-    ').renderInto(js.Browser.document.body);
+    ').renderInto(document.body);
   }
   static function main() {
     var r = new Rec({ foo: 42});
+    var inst = new Inst({});
     // coconut.Ui.hxx('<Main/>').renderInto(js.Browser.document.body);
     coconut.Ui.hxx('
       <main>
@@ -42,14 +42,36 @@ class Main extends View {
             <else>
               <video>DIV</video>
             </if>
+            <hr/>
+            $inst
           </blub>
         </Blargh>      
       </main>
-    ').renderInto(js.Browser.document.body);
+    ').renderInto(document.body);
   }
   function render() '<div><Foo depth={5} /></div>';
 }
 
+class Inst extends View {
+  var elt = {
+    var div = document.createDivElement();
+    div.innerHTML = 'I am native!';
+    div;
+  }
+
+  function render() '
+    <div>
+      Inst: $elt
+    </div>
+  ';
+
+  override function viewDidMount()
+    trace('mounted');
+
+  override function viewWillUnmount()
+    trace('unmounting');
+
+}
 
 class Loader extends View {
   @:attribute var value:Promised<Int>;

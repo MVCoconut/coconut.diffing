@@ -7,6 +7,8 @@ abstract VNode<Virtual, Real:{}>(VNodeData<Virtual, Real>) from VNodeData<Virtua
 }
 
 enum VNodeData<Virtual, Real:{}> {
+  VNativeInst(n:Real);
+  VWidgetInst(w:Widget<Virtual, Real>);
   VMany(nodes:Array<VNode<Virtual, Real>>);
   VNative(type:NodeType, ?ref:Dynamic->Void, ?key:Key, n:Virtual);
   VWidget<Attr>(type:NodeType, ?ref:Dynamic->Void, ?key:Key, a:Attr, t:WidgetType<Virtual, Attr, Real>);

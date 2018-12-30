@@ -7,6 +7,7 @@ class Differ<Virtual, Real:{}> {
   function _renderAll(
     nodes:Array<VNode<Virtual, Real>>, 
     later:Later,
+    parent:Null<Widget<Virtual, Real>>,
     with:{ 
       function native(type:NodeType, key:Key, v:Virtual):Real; 
       function widget<A>(type:NodeType, key:Key, attr:A, t:WidgetType<Virtual, A, Real>):Widget<Virtual, Real>; 
@@ -50,6 +51,18 @@ class Differ<Virtual, Real:{}> {
           
             process(nodes);
 
+          case VNativeInst(n):
+
+            childList.push(RNative(null, n, null));
+
+          case VWidgetInst(w):
+
+            @:privateAccess if (!w._coco_alive) {
+              w._coco_initialize(this, parent, later);
+            }
+
+            add(w, null, null, ':widget-inst', RWidget(w, null));
+            // childList.push(RWidget(w, null));
         }
       }
     
@@ -62,7 +75,7 @@ class Differ<Virtual, Real:{}> {
   }  
 
   public function renderAll(nodes:Array<VNode<Virtual, Real>>, parent:Null<Widget<Virtual, Real>>, later:Later):Rendered<Virtual, Real> 
-    return _renderAll(nodes, later, {
+    return _renderAll(nodes, later, parent, {
       native: function (type, _, v) return createNative(type, v, parent, later),
       widget: function (_, _, a, t) return createWidget(t, a, parent, later),
     });
@@ -93,7 +106,7 @@ class Differ<Virtual, Real:{}> {
             else v.get(key);
         }    
         
-    var after =  _renderAll(nodes, later, {
+    var after =  _renderAll(nodes, later, parent, {
       native: function (type, key, nu) return switch previous(type, key) {
         case null: createNative(type, nu, parent, later);
         case RNative(old, r, ref): updateNative(r, nu, old, parent, later); r;
