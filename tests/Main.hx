@@ -21,34 +21,50 @@ class Main extends View {
         default:
       }
     });
-                
-    coconut.Ui.hxx('
-      <Loader value={data.details.map(function(details) return details.list.first().orNull().value)} />
-    ').renderInto(document.body);
+
+    Renderer.mount(
+      document.body,
+      coconut.Ui.hxx('
+        <Loader value={data.details.map(function(details) return details.list.first().orNull().value)} />
+      ')
+    );     
   }
   static function main() {
     var r = new Rec({ foo: 42});
     var inst = new Inst({});
     // coconut.Ui.hxx('<Main/>').renderInto(js.Browser.document.body);
-    coconut.Ui.hxx('
-      <main>
-        <Blargh>
-          <blub>
-            Foo: {foo}
-            <button onclick={r.update({ foo: r.foo + 1})}>{r.foo}</button>
-            <if {r.foo == 42}>
-              <video muted></video>
-            <else>
-              <video>DIV</video>
-            </if>
-            <hr/>
-            $inst            
-          </blub>
-        </Blargh>      
-      </main>
-    ').renderInto(document.body);
+    Renderer.mount(
+      document.body,
+      coconut.Ui.hxx('
+        <main>
+          <Blargh>
+            <blub>
+              Foo: {foo}
+              <button onclick={r.update({ foo: r.foo + 1})}>{r.foo}</button>
+              <Btn onclick={{ var x = 1 + Std.random(10); function () r.update({ foo: r.foo + x}); }} />
+              <if {r.foo == 42}>
+                <video muted></video>
+              <else>
+                <video>DIV</video>
+              </if>
+              <hr/>
+              $inst     
+                     
+            </blub>
+          </Blargh>      
+        </main>
+      ')
+    );
   }
   function render() '<div><Foo depth={5} /></div>';
+}
+
+class Btn extends View {
+  @:attribute function onclick();
+  var count = 0;
+  function render() '
+    <button onclick=${onclick}>Rendered ${count++}</button>
+  ';
 }
 
 class Inst extends View {
