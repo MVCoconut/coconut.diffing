@@ -113,12 +113,12 @@ class Widget<Real:{}> {
       else _coco_performUpdate(later);
     }
 
-  static var defer:Later = 
-    try {
-      var p = js.Promise.resolve(true);
-      function (cb:Void->Void) p.then(cast cb);
-    }
-    catch (e:Dynamic) Callback.defer;
+  static var defer:Later = @:privateAccess Observable.schedule;
+    // try {
+    //   var p = js.Promise.resolve(true);
+    //   function (cb:Void->Void) p.then(cast cb);
+    // }
+    // catch (e:Dynamic) Callback.defer;
 
   @:noCompletion function _coco_arm() {
     _coco_link.dissolve();//you never know
