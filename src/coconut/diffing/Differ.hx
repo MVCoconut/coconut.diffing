@@ -19,7 +19,7 @@ class Differ<Real:{}> {
         childList = [];
 
     function process(nodes:Array<VNode<Real>>)
-      if (nodes != null) for (n in nodes) {
+      if (nodes != null) for (n in nodes) if (n != null) {
         inline function add(r:Dynamic, ref:Null<Dynamic>->Void, key:Null<Key>, type:Null<NodeType>, n) {
           
           var registry = switch byType[type] {
