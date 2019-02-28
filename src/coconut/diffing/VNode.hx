@@ -2,8 +2,8 @@ package coconut.diffing;
 
 abstract VNode<Real:{}>(VNodeData<Real>) from VNodeData<Real> to VNodeData<Real> {
   
-  static public inline function fragment<R:{}>(attr:{}, children):VNode<R>
-    return VMany(children);
+  static public inline function fragment<R:{}>(attr:{}, children:coconut.ui.Children):VNode<R>
+    return VMany(cast children);
 }
 
 enum VNodeData<Real:{}> {
