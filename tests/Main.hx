@@ -32,27 +32,24 @@ class Main extends View {
   static function main() {
     var r = new Rec({ foo: 42});
     var inst = new Inst({});
-    // coconut.Ui.hxx('<Main/>').renderInto(js.Browser.document.body);
     Renderer.mount(
       document.body,
       coconut.Ui.hxx('
-        <main>
-          <Blargh>
-            <blub>
-              Foo: {foo}
-              <button onclick={r.update({ foo: r.foo + 1})}>{r.foo}</button>
-              <Btn onclick={{ var x = 1 + Std.random(10); function () r.update({ foo: r.foo + x}); }} />
-              <if {r.foo == 42}>
-                <video muted></video>
-              <else>
-                <video>DIV</video>
-              </if>
-              <hr/>
-              $inst     
-                     
-            </blub>
-          </Blargh>      
-        </main>
+        <Blargh>
+          <blub>
+            Foo: {foo}
+            <button onclick={r.update({ foo: r.foo + 1})}>{r.foo}</button>
+            <Btn onclick={{ var x = 1 + Std.random(10); function () r.update({ foo: r.foo + x}); }} />
+            <if {r.foo == 42}>
+              <video muted></video>
+            <else>
+              <video>DIV</video>
+            </if>
+            <hr/>
+            $inst     
+                    
+          </blub>
+        </Blargh>      
       ')
     );
   }

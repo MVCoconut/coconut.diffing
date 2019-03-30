@@ -27,7 +27,7 @@ class Widget<Real:{}> {
   ) {
 
     this._coco_vStructure = rendered.map(function (r) return switch r {
-      case null: @:privateAccess _coco_differ.placeholder(this);
+      case null: @:privateAccess _coco_differ.applicator.placeholder(this);
       case VMany(nodes):
         function isEmpty(nodes:Array<VNode<Real>>) {
           for (n in nodes) if (n != null) switch n {
@@ -37,7 +37,7 @@ class Widget<Real:{}> {
           }
           return true;
         }
-        if (isEmpty(nodes)) @:privateAccess _coco_differ.placeholder(this);
+        if (isEmpty(nodes)) @:privateAccess _coco_differ.applicator.placeholder(this);
         else r;
       default: r;
     });
@@ -103,7 +103,19 @@ class Widget<Real:{}> {
       previousReal[r] = true;
     });
 
-    @:privateAccess _coco_differ.replaceWidgetContent(previousReal, first, count, next, later);
+    var a = @:privateAccess _coco_differ.applicator;
+
+    var cursor = a.createCursor(first),
+        parent = a.getParent(first);
+    
+    next.each(later, function (r) {
+      previousReal.remove(r);
+      if (r == cursor.current()) cursor.step();
+      else cursor.insert(r);
+    });
+
+    for (r in previousReal.keys())
+      a.removeChild(parent, r);
   }
 
 

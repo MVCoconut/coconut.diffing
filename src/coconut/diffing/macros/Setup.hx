@@ -1,5 +1,6 @@
 package coconut.diffing.macros;
 
+#if macro
 import haxe.macro.Expr;
 using tink.MacroApi;
 using Lambda;
@@ -21,16 +22,17 @@ class Setup {
       var attributes = ctx.attributes;
       
       var def = macro class {
+        static var __type = {
+          create: $i{ctx.target.target.name}.new,
+          update: function (attr, v) (cast v:$t).__initAttributes(attr) //TODO: unhardcode method name ... should probably come from ctx
+        };
+
         static public function fromHxx(attributes:$allAttributes) {
           return @:privateAccess coconut.ui.RenderResult.widget(
-            $v{ctx.target.target.pack.concat([ctx.target.target.name]).join('.')},
+            __type,
             attributes.key,
             attributes.ref,
-            attributes,
-            {
-              create: $i{ctx.target.target.name}.new,
-              update: function (attr, v) (cast v:$t).__initAttributes(attr) //TODO: unhardcode method name ... should probably come from ctx
-            }
+            attributes
           );
         }
       }
@@ -55,3 +57,4 @@ class Setup {
       }
     }
 }
+#end
