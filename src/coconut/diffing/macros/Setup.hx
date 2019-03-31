@@ -27,14 +27,8 @@ class Setup {
           update: function (attr, v) (cast v:$t).__initAttributes(attr) //TODO: unhardcode method name ... should probably come from ctx
         };
 
-        static public function fromHxx(attributes:$allAttributes) {
-          return @:privateAccess coconut.ui.RenderResult.widget(
-            __type,
-            attributes.key,
-            attributes.ref,
-            attributes
-          );
-        }
+        static public function fromHxx(attributes:$allAttributes):coconut.ui.RenderResult 
+          return coconut.diffing.VNode.VNodeData.VWidget(__type, (cast attributes.ref : Dynamic->Void), attributes.key, attributes);
       }
       
       switch def.fields.find(function(f) return f.name == 'fromHxx').kind {
