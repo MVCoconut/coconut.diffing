@@ -189,7 +189,7 @@ class Differ<Real:{}> {
 
   static var EMPTY:Dict<Any> = {};  
 
-  @:extern static public inline function updateObject<Target>(target:Target, newProps:Dict<Any>, oldProps:Dict<Any>, updateProp:Target->String->Any->Any->Void):Target {
+  @:extern inline static public function updateObject<Target>(target:Target, newProps:Dict<Any>, oldProps:Dict<Any>, updateProp:Target->String->Any->Any->Void):Target {
     if (newProps == oldProps) return target;
     
     var keys =
@@ -202,7 +202,7 @@ class Differ<Real:{}> {
         newProps;
       }
       else {
-        var ret = newProps.copy();
+        var ret = #if haxe4 newProps.copy() #else Reflect.copy(newProps) #end; 
         for (key in oldProps.keys()) ret[key] = true;
         ret;
       }
