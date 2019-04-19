@@ -104,7 +104,7 @@ class Differ<Real:{}> {
     
     for (node in before.childList)
       switch node {
-        case RNative(_, _, f) | RWidget(_, f) if (f != null): f(null);
+        case RNative(_, _, f) | RWidget(_, f) if (f != null): f(null);// root cause of https://github.com/MVCoconut/coconut.diffing/issues/5
         default:
       }
 
@@ -165,9 +165,30 @@ class Differ<Real:{}> {
         case null: renderAll(nodes, parent, later);
         case v: updateAll(v, nodes, parent, later);
       }  
+    
     applicator.setLastRender(target, ret);
-    applicator.setChildren(target, ret.flatten(later));
+    setChildren(
+      later, 
+      { var sum = 0; ret.each(later, function (_) sum++); sum; }, 
+      applicator.traverseChildren(target), 
+      ret
+    );
+
     return ret;
+  }
+
+  function setChildren(later, previousCount:Int, cursor:Cursor<Real>, next:Rendered<Real>) {
+    var insertedCount = 0,
+        currentCount = 0;
+        
+    next.each(later, function (r) {
+      currentCount++;
+      if (r == cursor.current()) cursor.step();
+      else if (cursor.insert(r)) insertedCount++;
+    });
+
+    for (i in 0...previousCount + insertedCount - currentCount)
+      if (!cursor.delete()) break;
   }
 
   public function render(virtual:Array<VNode<Real>>, target:Real) 

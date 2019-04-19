@@ -8,8 +8,6 @@ class Widget<Real:{}> {
   @:noCompletion var _coco_viewUpdated:Void->Void;
   @:noCompletion var _coco_viewUnmounting:Void->Void;
 
-  @:noCompletion var _coco_placeholder:Null<Real>;
-
   @:noCompletion var _coco_vStructure:Observable<VNode<Real>>;
   @:noCompletion var _coco_lastSnapshot:VNode<Real>;
   @:noCompletion var _coco_lastRender:Rendered<Real>;
@@ -93,29 +91,15 @@ class Widget<Real:{}> {
 
     if (previous == next) return;
 
-    var previousReal = new Map(),
-        count = 0,
+    var previousCount = 0,
         first = null;
     
     previous.each(later, function (r) {
       if (first == null) first = r;
-      count++;
-      previousReal[r] = true;
+      previousCount++;
     });
 
-    var a = @:privateAccess _coco_differ.applicator;
-
-    var cursor = a.createCursor(first),
-        parent = a.getParent(first);
-    
-    next.each(later, function (r) {
-      previousReal.remove(r);
-      if (r == cursor.current()) cursor.step();
-      else cursor.insert(r);
-    });
-
-    for (r in previousReal.keys())
-      a.removeChild(parent, r);
+    @:privateAccess _coco_differ.setChildren(later, previousCount, _coco_differ.applicator.traverseSiblings(first), next);
   }
 
 

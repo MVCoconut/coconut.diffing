@@ -11,15 +11,7 @@ class Setup {
   
     coconut.ui.macros.ViewBuilder.afterBuild.whenever(function (ctx) {
       var t = ctx.target.target.name.asComplexType([for(p in ctx.target.target.params) TPType(p.t.toComplex())]);
-      
-      var allAttributes = TAnonymous(ctx.attributes.concat(
-        (macro class {
-          @:optional var key(default, never):coconut.diffing.Key;
-          @:optional var ref(default, never):coconut.ui.Ref.RefSetter<$t>;
-        }).fields      
-      ));
-
-      var attributes = ctx.attributes;
+      var attributes = TAnonymous(ctx.attributes);
       
       var def = macro class {
         static var __type = {
@@ -27,8 +19,14 @@ class Setup {
           update: function (attr, v) (cast v:$t).__initAttributes(attr) //TODO: unhardcode method name ... should probably come from ctx
         };
 
-        static public function fromHxx(attributes:$allAttributes):coconut.ui.RenderResult 
-          return coconut.diffing.VNode.VNodeData.VWidget(__type, (cast attributes.ref : Dynamic->Void), attributes.key, attributes);
+        static public function fromHxx(
+          hxxMeta: {
+            @:optional var key(default, never):coconut.diffing.Key;
+            @:optional var ref(default, never):coconut.ui.Ref<$t>;
+          },
+          attributes:$attributes
+        ):coconut.ui.RenderResult 
+          return coconut.diffing.VNode.VNodeData.VWidget(cast __type, hxxMeta.ref, hxxMeta.key, attributes);
       }
       
       switch def.fields.find(function(f) return f.name == 'fromHxx').kind {

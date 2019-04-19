@@ -13,6 +13,14 @@ class Rendered<Real:{}> {
     return ret;
   }
 
+  public function first(later):Real {
+    try each(later, function (r) throw { F: r })
+    catch (d:Dynamic) 
+      if (d.F != null) return d.F;
+      else Error.rethrow(d);
+    return null;
+  }
+
   public function each(later:Later, f:Real->Void) {
     function rec(children:Array<RNode<Real>>)
       for (c in children) switch c {
@@ -52,7 +60,6 @@ class TypeRegistry<V> {
     unkeyed.push(v);
   }
   
-  var reversed:Bool = false;
   public function pull() 
     return
       if (unkeyed == null) null;
