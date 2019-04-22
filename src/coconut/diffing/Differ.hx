@@ -160,16 +160,21 @@ class Differ<Real:{}> {
     }
 
   function _render(nodes:Array<VNode<Real>>, target:Real, parent:Null<Widget<Real>>, later:Later) {
+    
+    var lastCount = 0; 
     var ret = 
       switch applicator.getLastRender(target) {
-        case null: renderAll(nodes, parent, later);
-        case v: updateAll(v, nodes, parent, later);
+        case null: 
+          renderAll(nodes, parent, later);
+        case v: 
+          v.each(later, function (_) lastCount++);
+          updateAll(v, nodes, parent, later);
       }  
     
     applicator.setLastRender(target, ret);
     setChildren(
       later, 
-      { var sum = 0; ret.each(later, function (_) sum++); sum; }, 
+      lastCount,
       applicator.traverseChildren(target), 
       ret
     );
@@ -177,7 +182,7 @@ class Differ<Real:{}> {
     return ret;
   }
 
-  function setChildren(later, previousCount:Int, cursor:Cursor<Real>, next:Rendered<Real>) {
+  function setChildren(later, previousCount:Int, cursor:Cursor<Real>, next:Rendered<Real>, ?log) {
     var insertedCount = 0,
         currentCount = 0;
         
@@ -187,7 +192,11 @@ class Differ<Real:{}> {
       else if (cursor.insert(r)) insertedCount++;
     });
 
-    for (i in 0...previousCount + insertedCount - currentCount)
+    var deleteCount = previousCount + insertedCount - currentCount;
+
+    if (log) trace(deleteCount);
+
+    for (i in 0...deleteCount)
       if (!cursor.delete()) break;
   }
 
