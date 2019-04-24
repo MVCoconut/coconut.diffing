@@ -1,6 +1,6 @@
 # Coconut Diffing Library
 
-This library provides a platform agnostic diffing algorithm to render and update UI hierarchies. The rest of this README illustrates how you would go about creating an OpenFl backend for coconut based on coconut.diffing.
+This library provides a platform agnostic diffing algorithm to render and update UI hierarchies. This README illustrates how you would go about creating an OpenFl backend for coconut based on coconut.diffing.
 
 ## Virtual Nodes
 
