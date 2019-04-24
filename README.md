@@ -12,6 +12,13 @@ package coconut.diffing;
 abstract VNode<Real:{}> {  
   static function native<A, R:{}>(type:NodeType<A, R>, ?ref:R->Void, ?key:Key, attr:A, ?children:Array<VNode<R>>):VNode<R>;
 }
+```
+
+Where a `NodeType` is actually the following:
+
+```haxe
+package coconut.diffing;
+
 interface NodeType<Attr, Real:{}> {
   function create(a:Attr):Real;
   function update(w:Real, old:Attr, nu:Attr):Void;
