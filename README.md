@@ -240,7 +240,7 @@ private class OpenFlCursor implements Cursor<DisplayObject> {
 
   public function new(container:DisplayObjectContainer, pos:Int) {
     this.container = container;
-    this.pos = this.pos = pos;
+    this.pos = pos;
   }
 
   public function insert(real:DisplayObject):Bool { 
