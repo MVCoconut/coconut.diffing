@@ -1,0 +1,3 @@
+-D tink_svgspec=0.0.1
+# @install: lix --silent download "haxelib:/tink_svgspec#0.0.1" into tink_svgspec/0.0.1/haxelib
+-cp ${HAXE_LIBCACHE}/tink_svgspec/0.0.1/haxelib/src

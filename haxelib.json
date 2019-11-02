@@ -14,6 +14,6 @@
   "version": "0.0.0",
   "url": "https://github.com/MVCoconut/coconut.diffing/",
   "dependencies": {
-    "coconut.ui": "gh:MVCoconut/coconut.ui#gen4"
+    "coconut.ui": ""
   }
 }

@@ -1,0 +1,4 @@
+-D tink_csss=0.2.2
+# @install: lix --silent download "haxelib:/tink_csss#0.2.2" into tink_csss/0.2.2/haxelib
+-lib tink_parse
+-cp ${HAXE_LIBCACHE}/tink_csss/0.2.2/haxelib/src
