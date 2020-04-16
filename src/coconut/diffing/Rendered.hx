@@ -21,6 +21,15 @@ class Rendered<Real:{}> {
     return found;
   }
 
+  public function justCount() {
+    var ret = 0;
+    for (c in childList) ret += switch c {
+      case RNative(_, _, _): 1;
+      case RWidget(w, _): @:privateAccess w._coco_lastRender.justCount();
+    }
+    return ret;
+  }
+
   public function each(later:Later, f:Real->Void) {
     function rec(children:Array<RNode<Real>>)
       for (c in children) switch c {

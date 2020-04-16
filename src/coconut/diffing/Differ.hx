@@ -167,7 +167,7 @@ class Differ<Real:{}> {
         case null:
           renderAll(nodes, parent, later);
         case v:
-          v.each(later, function (_) lastCount++);
+          v.justCount();
           updateAll(v, nodes, parent, later);
       }
 
