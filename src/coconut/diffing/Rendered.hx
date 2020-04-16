@@ -14,38 +14,38 @@ class Rendered<Real:{}> {
   }
 
   public function first(later):Real {
-    try each(later, function (r) throw { F: r })
-    catch (d:Dynamic) 
-      if (d.F != null) return d.F;
-      else Error.rethrow(d);
-    return null;
+    var found = null;
+    try each(later, function (r) throw found = r)
+    catch (d:Dynamic)
+      if (d != found) Error.rethrow(d);
+    return found;
   }
 
   public function each(later:Later, f:Real->Void) {
     function rec(children:Array<RNode<Real>>)
       for (c in children) switch c {
         case RNative(_, r, _): f(r);
-        case RWidget(w, _): 
+        case RWidget(w, _):
           rec(@:privateAccess w._coco_getRender(later).childList);
       }
     rec(childList);
-  }   
+  }
 }
 
 class TypeRegistry<V> {
-  
+
   var keyed:KeyMap<V>;
   var unkeyed:Array<V>;
-  
+
   public function new() {}
 
   public function get(key:Key)
-    return 
-      if (keyed == null) null 
+    return
+      if (keyed == null) null
       else keyed.get(key);
 
   public function set(key:Key, value) {
-    if (keyed == null) 
+    if (keyed == null)
       keyed = new KeyMap();
 
     #if debug
@@ -59,8 +59,8 @@ class TypeRegistry<V> {
     if (unkeyed == null) unkeyed = [];
     unkeyed.push(v);
   }
-  
-  public function pull() 
+
+  public function pull()
     return
       if (unkeyed == null) null;
       else unkeyed.shift();//TODO: find better solution for platforms where shifting is slow
