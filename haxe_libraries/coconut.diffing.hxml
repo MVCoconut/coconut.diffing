@@ -1,4 +1,3 @@
 -D coconut.diffing
 -cp src
 -lib coconut.ui
-extraParams.hxml
