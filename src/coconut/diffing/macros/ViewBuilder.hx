@@ -7,8 +7,8 @@ using Lambda;
 
 class ViewBuilder {
 
-  static public function init()
-    return coconut.ui.macros.ViewBuilder.init(function (ctx) {
+  static public function init(renders)
+    return coconut.ui.macros.ViewBuilder.init(renders, function (ctx) {
       var t = ctx.target.target.name.asComplexType([for(p in ctx.target.target.params) TPType(p.t.toComplex())]);
       var attributes = TAnonymous(ctx.attributes);
 
@@ -24,7 +24,7 @@ class ViewBuilder {
             @:optional var ref(default, never):coconut.ui.Ref<$t>;
           },
           attributes:$attributes
-        ):coconut.ui.RenderResult
+        ):$renders
           return coconut.diffing.VNode.VNodeData.VWidget(cast __type, hxxMeta.ref, hxxMeta.key, attributes);
       }
 
