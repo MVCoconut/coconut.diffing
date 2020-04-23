@@ -49,11 +49,11 @@ class Widget<Real:{}> {
     if (_coco_invalid) {
       _coco_invalid = false;
       var nuSnapshot = _coco_poll().value;
+      _coco_arm();
       if (nuSnapshot != _coco_lastSnapshot) {
         _coco_lastSnapshot = nuSnapshot;
         _coco_lastRender = _coco_differ.updateAll(_coco_lastRender, [nuSnapshot], this, later);
         later(_coco_viewUpdated);
-        _coco_arm();
       }
     }
     return _coco_lastRender;
