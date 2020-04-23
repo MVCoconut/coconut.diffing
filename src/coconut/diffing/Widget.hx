@@ -16,7 +16,7 @@ class Widget<Real:{}> {
   @:noCompletion var _coco_parent:Widget<Real>;
   @:noCompletion var _coco_differ:Differ<Real>;
   @:noCompletion var _coco_link:CallbackLink;
-    
+
   public function new(
     rendered:Observable<VNode<Real>>,
     mounted:Void->Void,
@@ -29,7 +29,7 @@ class Widget<Real:{}> {
       case VMany(nodes):
         function isEmpty(nodes:Array<VNode<Real>>) {
           for (n in nodes) if (n != null) switch n {
-            case VMany(nodes): 
+            case VMany(nodes):
               if (!isEmpty(nodes)) return false;
             default: return false;
           }
@@ -39,10 +39,10 @@ class Widget<Real:{}> {
         else r;
       default: r;
     });
-    
+
     this._coco_viewMounted = mounted;
     this._coco_viewUpdated = updated;
-    this._coco_viewUnmounting = unmounting;    
+    this._coco_viewUnmounting = unmounting;
   }
 
   @:noCompletion function _coco_getRender(later:Later):Rendered<Real> {
@@ -73,7 +73,7 @@ class Widget<Real:{}> {
       _coco_invalid = true;
       if (_coco_parent != null)
         _coco_parent._coco_scheduleChild(this);
-      else 
+      else
         defer(_coco_update.bind(null));
     }
 
@@ -93,7 +93,7 @@ class Widget<Real:{}> {
 
     var previousCount = 0,
         first = null;
-    
+
     previous.each(later, function (r) {
       if (first == null) first = r;
       previousCount++;
