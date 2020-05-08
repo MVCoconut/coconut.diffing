@@ -2,13 +2,29 @@ package coconut.diffing;
 
 import tink.state.Observable;
 
+private class Invalidation<T:{}> implements Invalidatable {
+  final widget:Widget<T>;
+  final link:CallbackLink;
+
+  function new<X>(widget, vstructure:ObservableObject<X>) {
+    this.widget = widget;
+    link = vstructure.onInvalidate(this);
+  }
+
+  public function invalidate()
+    @:privateAccess widget._coco_invalidate();
+
+  static public function setup<T:{}>(widget, vstructure)
+    return new Invalidation(widget, vstructure).link;
+}
+
 class Widget<Real:{}> {
 
   @:noCompletion var _coco_viewMounted:Void->Void;
   @:noCompletion var _coco_viewUpdated:Void->Void;
   @:noCompletion var _coco_viewUnmounting:Void->Void;
 
-  @:noCompletion var _coco_vStructure:Observable<VNode<Real>>;
+  @:noCompletion var _coco_vStructure:ObservableObject<VNode<Real>>;
   @:noCompletion var _coco_lastSnapshot:VNode<Real>;
   @:noCompletion var _coco_lastRender:Rendered<Real>;
   @:noCompletion var _coco_invalid:Bool = false;
@@ -23,8 +39,7 @@ class Widget<Real:{}> {
     updated:Void->Void,
     unmounting:Void->Void
   ) {
-
-    this._coco_vStructure = rendered.map(function (r) return switch r {
+    _coco_vStructure = rendered.map(function (r) return switch r {
       case null: @:privateAccess _coco_differ.applicator.placeholder(this);
       case VMany(nodes):
         function isEmpty(nodes:Array<VNode<Real>>) {
@@ -48,8 +63,7 @@ class Widget<Real:{}> {
   @:noCompletion function _coco_getRender(later:Later):Rendered<Real> {
     if (_coco_invalid) {
       _coco_invalid = false;
-      var nuSnapshot = _coco_poll().value;
-      _coco_arm();
+      var nuSnapshot = _coco_poll();
       if (nuSnapshot != _coco_lastSnapshot) {
         _coco_lastSnapshot = nuSnapshot;
         _coco_lastRender = _coco_differ.updateAll(_coco_lastRender, [nuSnapshot], this, later);
@@ -60,7 +74,7 @@ class Widget<Real:{}> {
   }
 
   @:noCompletion function _coco_poll()
-    return Observable.untracked(_coco_vStructure.measure);
+    return Observable.untracked(_coco_vStructure.getValue);
 
   @:noCompletion var _coco_pendingChildren:Array<Widget<Real>> = [];
   @:noCompletion function _coco_scheduleChild(child:Widget<Real>) {
@@ -110,19 +124,10 @@ class Widget<Real:{}> {
     }
 
   static var defer:Later = @:privateAccess Observable.schedule;
-    // try {
-    //   var p = js.Promise.resolve(true);
-    //   function (cb:Void->Void) p.then(cast cb);
-    // }
-    // catch (e:Dynamic) Callback.defer;
-
-  @:noCompletion function _coco_arm() {
-    _coco_link.dissolve();//you never know
-    _coco_link = _coco_poll().becameInvalid.handle(_coco_invalidate);
-  }
 
   @:noCompletion function _coco_teardown() {
     _coco_alive = false;
+    _coco_link.dissolve();
     _coco_viewUnmounting();
     for (c in _coco_lastRender.childList)
       _coco_differ.destroyRender(c);
@@ -132,12 +137,14 @@ class Widget<Real:{}> {
     _coco_alive = true;
     _coco_parent = parent;
     _coco_differ = differ;
+
+    _coco_link = Invalidation.setup(this, _coco_vStructure);
+
     _coco_lastRender = differ.renderAll(
-      [_coco_lastSnapshot = _coco_poll().value],
+      [_coco_lastSnapshot = _coco_poll()],
       this,
       later
     );
-    _coco_arm();
     later(_coco_viewMounted);
   }
 
