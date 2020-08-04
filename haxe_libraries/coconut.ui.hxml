@@ -1,8 +1,8 @@
-# @install: lix --silent download "haxelib:/coconut.ui#0.11.2" into coconut.ui/0.11.2/haxelib
+# @install: lix --silent download "gh://github.com/MVCoconut/coconut.ui#03d8530e2847167b266b3da97875c749331820fd" into coconut.ui/0.11.2/github/03d8530e2847167b266b3da97875c749331820fd
 -lib coconut.data
 -lib tink_anon
 -lib tink_hxx
 -lib tink_lang
--cp ${HAXE_LIBCACHE}/coconut.ui/0.11.2/haxelib/src
+-cp ${HAXE_LIBCACHE}/coconut.ui/0.11.2/github/03d8530e2847167b266b3da97875c749331820fd/src
 -D coconut.ui=0.11.2
 -D coconut_ui
