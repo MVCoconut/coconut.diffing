@@ -13,7 +13,7 @@ class Main extends View {
     var data = new Data();
     data.observables.details.bind({}, function(o) {
       switch o {
-        case Done(details): 
+        case Done(details):
           delay(function() {
             trace('update');
             details.list.first().orNull().value += 1;
@@ -27,18 +27,21 @@ class Main extends View {
       coconut.Ui.hxx('
         <Loader value={data.details.map(function(details) return details.list.first().orNull().value)} />
       ')
-    );     
+    );
   }
   static function main() {
     var r = new Rec({ foo: 42});
     var inst = new Inst({});
+    function ref(x) trace(x);
     Renderer.mount(
       document.body,
       coconut.Ui.hxx('
         <Blargh>
           <blub>
             Foo: {foo}
-            <button onclick={r.update({ foo: r.foo + 1})}>{r.foo}</button>
+            <if ${r.foo < 50}>
+              <button ref=${ref} onclick={r.update({ foo: r.foo + 1})}>{r.foo}</button>
+            </if>
             <Btn onclick={{ var x = 1 + Std.random(10); function () r.update({ foo: r.foo + x}); }} />
             <if {r.foo == 42}>
               <video muted></video>
@@ -46,10 +49,10 @@ class Main extends View {
               <video>DIV</video>
             </if>
             <hr/>
-            $inst     
-                    
+            $inst
+
           </blub>
-        </Blargh>      
+        </Blargh>
       ')
     );
   }
@@ -124,7 +127,7 @@ class Wrapped implements Model {
 }
 
 class Foo extends View {
-	
+
   @:state var key:Int = 0;
   @:attribute var depth:Int;
 
@@ -133,7 +136,7 @@ class Foo extends View {
       <Foo depth={depth - 1} />
     <else>
       <div key=${key} onclick=${key++}>Key: $key</div>
-    </if>  
+    </if>
   ';
 }
 
@@ -174,7 +177,7 @@ class Blargh extends View {
   ';
 
   function hide() {
-    hidden = true; 
+    hidden = true;
     @in(1) @do hidden = false;
   }
 

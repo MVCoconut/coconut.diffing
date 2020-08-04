@@ -4,6 +4,8 @@ import coconut.diffing.Rendered;
 import coconut.diffing.NodeType;
 import haxe.DynamicAccess as Dict;
 
+private typedef Ref = Null<Dynamic->Void>;
+
 class Differ<Real:{}> {
   var applicator:Applicator<Real>;
 
@@ -15,8 +17,8 @@ class Differ<Real:{}> {
     later:Later,
     parent:Null<Widget<Real>>,
     with:{
-      function native<A>(type:NodeType<A, Real>, key:Key, attr:A, ?children:Array<VNode<Real>>):Real;
-      function widget<A>(type:WidgetType<A, Real>, key:Key, attr:A):Widget<Real>;
+      function native<A>(type:NodeType<A, Real>, ref:Ref, key:Key, attr:A, ?children:Array<VNode<Real>>):Real;
+      function widget<A>(type:WidgetType<A, Real>, ref:Ref, key:Key, attr:A):Widget<Real>;
       function widgetInst(w:Widget<Real>):Void;
     }
   ):Rendered<Real> {
@@ -26,15 +28,12 @@ class Differ<Real:{}> {
 
     function process(nodes:Array<VNode<Real>>)
       if (nodes != null) for (n in nodes) if (n != null) {
-        inline function add(r:Dynamic, ref:Null<Dynamic>->Void, key:Null<Key>, type:{}, n) {
+        inline function add(r:Dynamic, key:Null<Key>, type:{}, n) {
 
           var registry = switch byType[type] {
             case null: byType[type] = new TypeRegistry();
             case v: v;
           }
-
-          if (ref != null)
-            later(function () ref(r));
 
           switch key {
             case null: registry.put(n);
@@ -46,15 +45,15 @@ class Differ<Real:{}> {
         switch n {
           case VNative(type, ref, key, attr, children):
 
-            var real = with.native(type, key, attr, children);
+            var real = with.native(type, ref, key, attr, children);
 
-            add(real, ref, key, type, RNative(attr, real, ref));
+            add(real, key, type, RNative(attr, real, ref));
 
           case VWidget(type, ref, key, a):
 
-            var w = with.widget(type, key, a);
+            var w = with.widget(type, ref, key, a);
 
-            add(w, ref, key, type, RWidget(w, ref));
+            add(w, key, type, RWidget(w, ref));
 
           case VMany(nodes):
 
@@ -67,7 +66,7 @@ class Differ<Real:{}> {
           case VWidgetInst(w):
 
             with.widgetInst(w);
-            add(w, null, w, WIDGET_INST, RWidget(w, null));
+            add(w, w, WIDGET_INST, RWidget(w, null));
         }
       }
 
@@ -83,8 +82,8 @@ class Differ<Real:{}> {
 
   public function renderAll(nodes:Array<VNode<Real>>, parent:Null<Widget<Real>>, later:Later):Rendered<Real>
     return _renderAll(nodes, later, parent, {
-      native: function (type, _, attr, ?children) return createNative(type, attr, children, parent, later),
-      widget: function (t, _, a) return createWidget(t, a, parent, later),
+      native: function (type, ref, _, attr, ?children) return createNative(type, ref, attr, children, parent, later),
+      widget: function (t, ref, _, a) return createWidget(t, ref, a, parent, later),
       widgetInst: function (w) mountInstance(w, parent, later),
     });
 
@@ -94,19 +93,22 @@ class Differ<Real:{}> {
       w._coco_initialize(this, parent, later);
     }
 
-  function createWidget<A>(t:WidgetType<A, Real>, a:A, parent:Null<Widget<Real>>, later:Later) {
+  function createWidget<A>(t:WidgetType<A, Real>, ref:Ref, a:A, parent:Null<Widget<Real>>, later:Later) {
     var ret = t.create(a);
     @:privateAccess ret._coco_initialize(this, parent, later);
+    if (ref != null)
+      later(ref.bind(ret));
     return ret;
   }
 
+  inline function callRef(ref:Ref, old:Ref, v:Dynamic, later:Later)
+    if (ref != old) {
+      if (old != null) old(null);
+      if (ref != null) later(ref.bind(v));
+    }
+
   public function updateAll(before:Rendered<Real>, nodes:Array<VNode<Real>>, parent:Null<Widget<Real>>, later:Later):Rendered<Real> {
 
-    for (node in before.childList)
-      switch node {
-        case RNative(_, _, f) | RWidget(_, f) if (f != null): f(null);// root cause of https://github.com/MVCoconut/coconut.diffing/issues/5
-        default:
-      }
 
     function previous(t:{}, key:Key)
       return
@@ -118,20 +120,22 @@ class Differ<Real:{}> {
         }
 
     var after = _renderAll(nodes, later, parent, {
-      native: function native(type, key, nuAttr, ?nuChildren) return switch previous(type, key) {
+      native: function native(type, ref, key, nuAttr, ?nuChildren) return switch previous(type, key) {
         case null:
-          createNative(type, nuAttr, nuChildren, parent, later);
-        case RNative(oldAttr, r, _):
+          createNative(type, ref, nuAttr, nuChildren, parent, later);
+        case RNative(oldAttr, r, oldRef):
           type.update(r, cast oldAttr, nuAttr);
           _render(nuChildren, r, parent, later);
+          callRef(ref, oldRef, r, later);
           r;
         default: throw 'assert';
       },
-      widget: function (type, key, attr) return switch previous(type, key) {
+      widget: function (type, ref, key, attr) return switch previous(type, key) {
         case null:
-          createWidget(type, attr, parent, later);
-        case RWidget(w, _):
+          createWidget(type, ref, attr, parent, later);
+        case RWidget(w, oldRef):
           type.update(attr, w);
+          callRef(ref, oldRef, w, later);
           w;
         default: throw 'assert';
       },
@@ -211,10 +215,12 @@ class Differ<Real:{}> {
     return ret;
   }
 
-  function createNative<Attr>(type:NodeType<Attr, Real>, attr:Attr, children:Null<Array<VNode<Real>>>, parent:Null<Widget<Real>>, later:Later):Real {
+  function createNative<Attr>(type:NodeType<Attr, Real>, ref:Ref, attr:Attr, children:Null<Array<VNode<Real>>>, parent:Null<Widget<Real>>, later:Later):Real {
     var ret = type.create(attr);
     if (children != null)
       _render(children, ret, parent, later);
+    if (ref != null)
+      later(ref.bind(ret));
     return ret;
   }
 
