@@ -1,21 +1,21 @@
 package coconut.diffing;
 
-import tink.state.*;
-
+import coconut.data.Value;
 import coconut.ui.internal.*;
 import coconut.ui.internal.ImplicitContext;
 import coconut.diffing.VNode;
 
-private typedef Attr<Real:{}> = {
-  final children:Observable<Children<VNode<Real>>>;
+private typedef Attr<Real:{}, RenderResult:VNode<Real>> = {
+  final children:Value<Children<RenderResult>>;
   final defaults:ImplicitValues;
 }
 
-class Implicit<Real:{}> extends Widget<Real> {
-  final children:Slot<Children<VNode<Real>>, Observable<Children<VNode<Real>>>>;
+class Implicit<Real:{}, RenderResult:VNode<Real>> extends Widget<Real> {
 
-  function new(attr:Attr<Real>) {
-    var children = new Slot<Children<VNode<Real>>, Observable<Children<VNode<Real>>>>(this);
+  final children:Slot<Children<RenderResult>, Value<Children<RenderResult>>>;
+
+  function new(attr:Attr<Real, RenderResult>) {
+    var children = new Slot<Children<RenderResult>, Value<Children<RenderResult>>>(this);
     super(children.observe().map(c -> VNode.fragment(null, c)), noop, noop, noop);
     this.children = children;
 
@@ -25,15 +25,13 @@ class Implicit<Real:{}> extends Widget<Real> {
 
   static function noop() {}
 
-  static final TYPE:WidgetType<Attr<Dynamic>, Dynamic> = {
-    create: Implicit.new,
-    update: (a, w) -> {
-      var w = (cast w:Implicit<Dynamic>);
-      w.children.setData(a.children);
-      w._coco_implicits.update(a.defaults);
+  static public function type<Real:{}, RenderResult:VNode<Real>>():WidgetType<Attr<Real, RenderResult>, Real>
+    return {
+      create: Implicit.new,
+      update: (a, w) -> {
+        var w = (cast w:Implicit<Real, RenderResult>);
+        w.children.setData(a.children);
+        w._coco_implicits.update(a.defaults);
+      }
     }
-  }
-
-  static public function fromHxx<Real:{}>(attr:Attr<Real>):VNode<Real>
-    return VWidget(cast TYPE, null, null, attr);
 }
