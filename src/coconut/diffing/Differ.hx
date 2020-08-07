@@ -186,7 +186,7 @@ class Differ<Real:{}> {
     return ret;
   }
 
-  function setChildren(later, previousCount:Int, cursor:Cursor<Real>, next:Rendered<Real>, ?log) {
+  function setChildren(later, previousCount:Int, cursor:Cursor<Real>, next:Rendered<Real>) {
     var insertedCount = 0,
         currentCount = 0;
 
@@ -197,8 +197,6 @@ class Differ<Real:{}> {
     });
 
     var deleteCount = previousCount + insertedCount - currentCount;
-
-    if (log) trace(deleteCount);
 
     for (i in 0...deleteCount)
       if (!cursor.delete()) break;
