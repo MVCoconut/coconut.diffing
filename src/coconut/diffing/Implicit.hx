@@ -15,9 +15,11 @@ class Implicit<Real:{}, RenderResult:VNode<Real>> extends Widget<Real> {
   final children:Slot<Children<RenderResult>, Value<Children<RenderResult>>>;
 
   function new(attr:Attr<Real, RenderResult>) {
-    var children = new Slot<Children<RenderResult>, Value<Children<RenderResult>>>(this);
+    this.children = new Slot<Children<RenderResult>, Value<Children<RenderResult>>>(this);
+
+    children.setData(attr.children);
+
     super(children.observe().map(c -> VNode.fragment(null, c)), noop, noop, noop);
-    this.children = children;
 
     this._coco_implicits = new ImplicitContext();
     this._coco_implicits.update(attr.defaults);
