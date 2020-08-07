@@ -9,7 +9,9 @@ abstract VNode<Real:{}>(VNodeData<Real>) from VNodeData<Real> to VNodeData<Real>
     return cast VNative(type, ref, key, attr, cast children);
 
   static public inline function fragment<Real:{}>(attr:{}, children:coconut.ui.internal.Children<VNode<Real>>):VNode<Real>
-    return VMany(cast children);
+    return
+      if (children.length == 1) children[0];
+      else VMany(cast children);
 }
 
 enum VNodeData<Real:{}> {
