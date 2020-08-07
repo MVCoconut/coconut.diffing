@@ -1,5 +1,6 @@
 package coconut.diffing;
 
+import coconut.ui.internal.ImplicitContext;
 import tink.state.Observable;
 
 private class Invalidation<T:{}> implements Invalidatable {
@@ -32,6 +33,7 @@ class Widget<Real:{}> {
   @:noCompletion var _coco_parent:Widget<Real>;
   @:noCompletion var _coco_differ:Differ<Real>;
   @:noCompletion var _coco_link:CallbackLink;
+  @:noCompletion var _coco_implicits:coconut.ui.internal.ImplicitContext;
 
   public function new(
     rendered:Observable<VNode<Real>>,
@@ -137,6 +139,10 @@ class Widget<Real:{}> {
     _coco_alive = true;
     _coco_parent = parent;
     _coco_differ = differ;
+
+    if (_coco_implicits == null)
+      if (parent == null) _coco_implicits = new ImplicitContext();
+      else parent._coco_implicits;
 
     _coco_link = Invalidation.setup(this, _coco_vStructure);
 
