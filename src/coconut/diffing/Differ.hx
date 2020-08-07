@@ -152,16 +152,23 @@ class Differ<Real:{}> {
     return after;
   }
 
-  public inline function destroyRender(r:RNode<Real>)
-    switch r {
-      case RWidget(w, _): @:privateAccess w._coco_teardown();
-      case RNative(_, real, _):
-        switch applicator.unsetLastRender(real) {
-          case null:
-          case { childList: children }:
-            for (c in children) destroyRender(c);
-        }
-    }
+  public inline function destroyRender(r:RNode<Real>) {
+    var ref =
+      switch r {
+        case RWidget(w, ref):
+          @:privateAccess w._coco_teardown();
+          ref;
+        case RNative(_, real, ref):
+          switch applicator.unsetLastRender(real) {
+            case null:
+            case { childList: children }:
+              for (c in children) destroyRender(c);
+          }
+          ref;
+      }
+
+    if (ref != null) ref(null);
+  }
 
   function _render(nodes:Array<VNode<Real>>, target:Real, parent:Null<Widget<Real>>, later:Later) {
 
