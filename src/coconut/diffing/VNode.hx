@@ -10,7 +10,8 @@ abstract VNode<Real:{}>(VNodeData<Real>) from VNodeData<Real> to VNodeData<Real>
 
   static public inline function fragment<Real:{}>(attr:{}, children:coconut.ui.internal.Children<VNode<Real>>):VNode<Real>
     return
-      if (children.length == 1) children[0];
+      if (children == null) VMany([]);
+      else if (children.length == 1) children[0];
       else VMany(cast children);
 }
 
