@@ -141,8 +141,9 @@ class Widget<Real:{}> {
     _coco_differ = differ;
 
     if (_coco_implicits == null)
-      if (parent == null) _coco_implicits = new ImplicitContext();
-      else parent._coco_implicits;
+      _coco_implicits =
+        if (parent == null) new ImplicitContext();
+        else parent._coco_implicits;
 
     _coco_link = Invalidation.setup(this, _coco_vStructure);
 
