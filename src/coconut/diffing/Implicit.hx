@@ -21,7 +21,11 @@ class Implicit<Real:{}, RenderResult:VNode<Real>> extends Widget<Real> {
 
     super(children.observe().map(c -> VNode.fragment(null, c)), noop, noop, noop);
 
-    this._coco_implicits = new ImplicitContext();
+    this._coco_implicits = new ImplicitContext(() -> switch this._coco_parent {
+      case null: null;
+      case v: v._coco_implicits;
+    });
+
     this._coco_implicits.update(attr.defaults);
   }
 
