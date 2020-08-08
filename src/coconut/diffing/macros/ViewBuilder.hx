@@ -11,6 +11,10 @@ class ViewBuilder {
     return
       coconut.ui.macros.ViewBuilder.autoBuild({
         renders: renders,
+        implicits: {
+          name: '_coco_implicits',
+          fields: [],
+        },
         afterBuild: postprocess.bind(renders),
       });
 
