@@ -2,7 +2,7 @@ package coconut.diffing;
 
 import coconut.diffing.NodeType;
 
-@:pure
+@:pure @:transitive
 abstract VNode<Real:{}>(VNodeData<Real>) from VNodeData<Real> to VNodeData<Real> {
 
   static public inline function native<Attr, Real:{}>(type:NodeType<Attr, Real>, ref:Real->Void, key:Key, attr:Attr, ?children:coconut.ui.internal.Children<VNode<Real>>):VNode<Real>
