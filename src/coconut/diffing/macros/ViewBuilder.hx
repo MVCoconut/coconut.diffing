@@ -38,9 +38,13 @@ class ViewBuilder {
         return coconut.diffing.VNode.VNodeData.VWidget(cast __type, hxxMeta.ref, hxxMeta.key, attributes);
     }
 
-    switch def.fields.find(function(f) return f.name == 'fromHxx').kind {
-      case FFun(f): f.params = ctx.target.target.params.map(typeParameterToTypeParamDecl);
-      case _: // unreachable
+    {
+      var fromHxx = def.fields.find(function(f) return f.name == 'fromHxx');
+      fromHxx.pos = ctx.target.target.pos;
+      switch  fromHxx.kind {
+        case FFun(f): f.params = ctx.target.target.params.map(typeParameterToTypeParamDecl);
+        case _: // unreachable
+      }
     }
 
     ctx.target.addMembers(def);
