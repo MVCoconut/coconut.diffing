@@ -2,6 +2,7 @@ package coconut.diffing;
 
 import coconut.ui.internal.ImplicitContext;
 import tink.state.Observable;
+import tink.state.Invalidatable;
 
 private class Invalidation<T:{}> implements Invalidatable {
   final widget:Widget<T>;
