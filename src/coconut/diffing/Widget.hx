@@ -2,7 +2,7 @@ package coconut.diffing;
 
 import coconut.ui.internal.ImplicitContext;
 import tink.state.Observable;
-import tink.state.Invalidatable;
+import tink.state.internal.*;
 
 private class Invalidation<T:{}> implements Invalidatable {
   final widget:Widget<T>;
@@ -12,6 +12,11 @@ private class Invalidation<T:{}> implements Invalidatable {
     this.widget = widget;
     link = vstructure.onInvalidate(this);
   }
+
+  #if tink_state.debug
+  @:keep public function toString()
+    return @:privateAccess widget._coco_toString();
+  #end
 
   public function invalidate()
     @:privateAccess widget._coco_invalidate();
@@ -35,13 +40,18 @@ class Widget<Real:{}> {
   @:noCompletion var _coco_differ:Differ<Real>;
   @:noCompletion var _coco_link:CallbackLink;
   @:noCompletion var _coco_implicits:coconut.ui.internal.ImplicitContext;
+  #if tink_state.debug
+  @:noCompletion final _coco_toString:()->String;
+  #end
 
   public function new(
     rendered:Observable<VNode<Real>>,
     mounted:Void->Void,
     updated:Void->Void,
     unmounting:Void->Void
+    #if tink_state.debug , toString #end
   ) {
+    #if tink_state.debug this._coco_toString = toString; #end
     _coco_vStructure = rendered.map(function (r) return switch r {
       case null: @:privateAccess _coco_differ.applicator.placeholder(this);
       case VMany(nodes):
@@ -128,7 +138,10 @@ class Widget<Real:{}> {
 
   static var defer:Later = @:privateAccess Observable.schedule;
 
+  static public var liveCount = 0;
   @:noCompletion function _coco_teardown() {
+    if (!_coco_alive) throw 'wtf???';
+    liveCount--;
     _coco_alive = false;
     _coco_link.dissolve();
     _coco_viewUnmounting();
@@ -138,6 +151,7 @@ class Widget<Real:{}> {
 
   @:noCompletion function _coco_initialize(differ:Differ<Real>, parent:Widget<Real>, later:Later) {
     _coco_alive = true;
+    liveCount++;
     _coco_parent = parent;
     _coco_differ = differ;
 

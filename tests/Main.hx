@@ -11,7 +11,7 @@ typedef Rec = Record<{ foo: Int }>;
 class Main extends View {
   static function main2() {
     var data = new Data();
-    data.observables.details.bind({}, function(o) {
+    data.observables.details.bind(function(o) {
       switch o {
         case Done(details):
           delay(function() {
