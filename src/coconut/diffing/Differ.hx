@@ -23,7 +23,7 @@ class Differ<Real:{}> {
     }
   ):Rendered<Real> {
 
-    var byType = new Map<{}, TypeRegistry<RNode<Real>>>(),
+    var byType = new tink.state.internal.ObjectMap<{}, TypeRegistry<RNode<Real>>>(),
         childList = [];
 
     function process(nodes:Array<VNode<Real>>)
@@ -146,8 +146,7 @@ class Differ<Real:{}> {
       }
     });
 
-    for (registry in before.byType)
-      registry.each(destroyRender);
+    before.byType.forEach((registry, _, _) -> registry.each(r -> destroyRender(r)));
 
     return after;
   }

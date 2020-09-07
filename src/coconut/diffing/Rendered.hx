@@ -1,10 +1,11 @@
 package coconut.diffing;
 
+import tink.state.internal.ObjectMap;
 import coconut.diffing.Key;
 
 @:structInit
 class Rendered<Real:{}> {
-  public var byType(default, null):Map<{}, TypeRegistry<RNode<Real>>>;//TODO: splitting this by native vs. widgets might be a good idea
+  public var byType(default, null):ObjectMap<{}, TypeRegistry<RNode<Real>>>;//TODO: splitting this by native vs. widgets might be a good idea
   public var childList(default, null):Array<RNode<Real>>;
 
   public function flatten(later):Array<Real> {//TODO: report bug - not specifying return type here leads to compiler error
