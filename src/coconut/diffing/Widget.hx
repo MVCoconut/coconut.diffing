@@ -52,21 +52,7 @@ class Widget<Real:{}> {
     #if tink_state.debug , toString #end
   ) {
     #if tink_state.debug this._coco_toString = toString; #end
-    _coco_vStructure = rendered.map(function (r) return switch r {
-      case null: @:privateAccess _coco_differ.applicator.placeholder(this);
-      case VMany(nodes):
-        function isEmpty(nodes:Array<VNode<Real>>) {
-          for (n in nodes) if (n != null) switch n {
-            case VMany(nodes):
-              if (!isEmpty(nodes)) return false;
-            default: return false;
-          }
-          return true;
-        }
-        if (isEmpty(nodes)) @:privateAccess _coco_differ.applicator.placeholder(this);
-        else r;
-      default: r;
-    });
+    _coco_vStructure = rendered;
 
     this._coco_viewMounted = mounted;
     this._coco_viewUpdated = updated;
@@ -87,7 +73,21 @@ class Widget<Real:{}> {
   }
 
   @:noCompletion function _coco_poll()
-    return Observable.untracked(_coco_vStructure.getValue);
+    return switch Observable.untracked(_coco_vStructure.getValue) {
+      case null: @:privateAccess _coco_differ.applicator.placeholder(this);
+      case r = VMany(nodes):
+        function isEmpty(nodes:Array<VNode<Real>>) {
+          for (n in nodes) if (n != null) switch n {
+            case VMany(nodes):
+              if (!isEmpty(nodes)) return false;
+            default: return false;
+          }
+          return true;
+        }
+        if (isEmpty(nodes)) @:privateAccess _coco_differ.applicator.placeholder(this);
+        else r;
+      case r: r;
+    }
 
   @:noCompletion var _coco_pendingChildren:Array<Widget<Real>> = [];
   @:noCompletion function _coco_scheduleChild(child:Widget<Real>) {
@@ -101,7 +101,7 @@ class Widget<Real:{}> {
       if (_coco_parent != null)
         _coco_parent._coco_scheduleChild(this);
       else
-        defer(_coco_update.bind(null));
+        defer(() -> _coco_update(null));
     }
 
   @:noCompletion function _coco_updateChildren(later:Null<Later>)
@@ -132,7 +132,7 @@ class Widget<Real:{}> {
 
   @:noCompletion function _coco_update(later:Null<Later>)
     if (_coco_invalid && _coco_alive) {
-      if (later == null) _coco_differ.run(_coco_performUpdate);
+      if (later == null) _coco_differ.run(later -> _coco_performUpdate(later));
       else _coco_performUpdate(later);
     }
 
