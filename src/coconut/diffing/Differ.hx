@@ -195,15 +195,24 @@ class Differ<Real:{}> {
 
   function setChildren(later, previousCount:Int, cursor:Cursor<Real>, next:Rendered<Real>) {
     var insertedCount = 0,
-        currentCount = 0;
+        currentCount = 0,
+        deletedCount = 0;
 
     next.each(later, function (r) {
+      while (true)
+        switch cursor.current() {
+          case null: break;//for some reason this is not covered by default
+          case applicator.getLastRender(_) => null:
+            deletedCount++;
+            cursor.delete();
+          default: break;
+        }
       currentCount++;
       if (r == cursor.current()) cursor.step();
       else if (cursor.insert(r)) insertedCount++;
     });
 
-    var deleteCount = previousCount + insertedCount - currentCount;
+    var deleteCount = previousCount + insertedCount - currentCount - deletedCount;
 
     for (i in 0...deleteCount)
       if (!cursor.delete()) break;
