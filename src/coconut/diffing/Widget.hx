@@ -143,7 +143,7 @@ class Widget<Real:{}> {
     if (!_coco_alive) throw 'wtf???';
     liveCount--;
     _coco_alive = false;
-    _coco_link.dissolve();
+    _coco_link.cancel();
     _coco_viewUnmounting();
     for (c in _coco_lastRender.childList)
       _coco_differ.destroyRender(c);
