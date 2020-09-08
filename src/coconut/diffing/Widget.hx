@@ -72,7 +72,7 @@ class Widget<Real:{}> {
     return _coco_lastRender;
   }
 
-  @:noCompletion function _coco_poll()
+  @:noCompletion inline function _coco_poll()
     return switch Observable.untracked(_coco_vStructure.getValue) {
       case null: @:privateAccess _coco_differ.applicator.placeholder(this);
       case r = VMany(nodes):
@@ -107,7 +107,7 @@ class Widget<Real:{}> {
   @:noCompletion function _coco_updateChildren(later:Null<Later>)
     if (_coco_pendingChildren.length > 0)
       for (c in _coco_pendingChildren.splice(0, _coco_pendingChildren.length))
-        c._coco_update(later);
+        inline c._coco_update(later);
 
   @:noCompletion function _coco_performUpdate(later:Later) {
 
