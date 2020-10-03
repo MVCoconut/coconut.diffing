@@ -19,7 +19,7 @@ class Implicit<Real:{}, RenderResult:VNode<Real>> extends Widget<Real> {
 
     children.setData(attr.children);
 
-    super(children.observe().map(c -> VNode.fragment(null, c)), noop, noop, noop);
+    super(children.observe().map(c -> VNode.fragment(null, c)), noop, noop, noop #if tink_state.debug , () -> '<Implicit />' #end);
 
     this._coco_implicits = new ImplicitContext(() -> switch this._coco_parent {
       case null: null;
