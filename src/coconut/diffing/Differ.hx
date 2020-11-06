@@ -228,10 +228,14 @@ class Differ<Real:{}> {
     return ret;
   }
 
+  var noChildren:Rendered<Real> = { byType: new tink.state.internal.ObjectMap(), childList: [] };
+
   function createNative<Attr>(type:NodeType<Attr, Real>, ref:Ref, attr:Attr, children:Null<Array<VNode<Real>>>, parent:Null<Widget<Real>>, later:Later):Real {
     var ret = type.create(attr);
     if (children != null)
       _render(children, ret, parent, later);
+    else
+      applicator.setLastRender(ret, noChildren);// TODO: this is not exactly pretty ...
     if (ref != null)
       later(ref.bind(ret));
     return ret;
