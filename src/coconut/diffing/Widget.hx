@@ -129,7 +129,6 @@ class Widget<Real:{}> {
     @:privateAccess _coco_differ.setChildren(later, previousCount, _coco_differ.applicator.traverseSiblings(first), next);
   }
 
-
   @:noCompletion function _coco_update(later:Null<Later>)
     if (_coco_invalid && _coco_alive) {
       if (later == null) _coco_differ.run(later -> _coco_performUpdate(later));

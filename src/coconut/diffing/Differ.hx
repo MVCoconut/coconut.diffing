@@ -109,7 +109,6 @@ class Differ<Real:{}> {
 
   public function updateAll(before:Rendered<Real>, nodes:Array<VNode<Real>>, parent:Null<Widget<Real>>, later:Later):Rendered<Real> {
 
-
     function previous(t:{}, key:Key)
       return
         switch before.byType[t] {
