@@ -99,8 +99,9 @@ class Widget<Real:{}> {
     if (!_coco_invalid) {
       _coco_invalid = true;
       if (_coco_parent != null)
-        _coco_parent._coco_invalidate();
-      defer(() -> _coco_update(null));
+        _coco_parent._coco_scheduleChild(this);
+      else
+        defer(() -> _coco_update(null));
     }
 
   @:noCompletion function _coco_updateChildren(later:Null<Later>)
@@ -136,7 +137,10 @@ class Widget<Real:{}> {
 
   static var defer:Later = @:privateAccess Observable.schedule;
 
+  static public var liveCount = 0;
   @:noCompletion function _coco_teardown() {
+    if (!_coco_alive) throw 'wtf???';
+    liveCount--;
     _coco_alive = false;
     _coco_link.cancel();
     _coco_viewUnmounting();
@@ -146,6 +150,7 @@ class Widget<Real:{}> {
 
   @:noCompletion function _coco_initialize(differ:Differ<Real>, parent:Widget<Real>, later:Later) {
     _coco_alive = true;
+    liveCount++;
     _coco_parent = parent;
     _coco_differ = differ;
 
