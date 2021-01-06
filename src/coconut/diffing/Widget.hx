@@ -66,7 +66,10 @@ class Widget<Real:{}> {
       if (nuSnapshot != _coco_lastSnapshot) {
         _coco_lastSnapshot = nuSnapshot;
         _coco_lastRender = _coco_differ.updateAll(_coco_lastRender, [nuSnapshot], this, later);
-        later(_coco_viewUpdated);
+        if (later == null)
+          _coco_viewUpdated();
+        else
+          later(_coco_viewUpdated);
       }
     }
     return _coco_lastRender;
