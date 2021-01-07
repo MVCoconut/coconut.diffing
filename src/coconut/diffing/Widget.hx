@@ -102,9 +102,8 @@ class Widget<Real:{}> {
     if (!_coco_invalid) {
       _coco_invalid = true;
       if (_coco_parent != null)
-        _coco_parent._coco_scheduleChild(this);
-      else
-        defer(() -> _coco_update(null));
+        _coco_parent._coco_invalidate();
+      defer(() -> _coco_update(null));
     }
 
   @:noCompletion function _coco_updateChildren(later:Null<Later>)
