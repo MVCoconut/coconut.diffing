@@ -46,7 +46,11 @@ class RNative<Data, Native, Concrete:Native> implements RNode<Native> {
     next.factory.update(native, next.data, last.data);
     last = next;
 
-    children.update(next.children, cursor.applicator.children(native));
+    {
+      var cursor = cursor.applicator.children(native);
+      children.update(next.children, cursor);
+      cursor.close();
+    }
     cursor.insert(native);
   }
 
