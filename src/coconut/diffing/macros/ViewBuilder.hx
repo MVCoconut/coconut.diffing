@@ -23,10 +23,16 @@ class ViewBuilder {
     var attributes = TAnonymous(ctx.attributes);
 
     var def = macro class {
-      static var __type = {
-        create: $i{ctx.target.target.name}.new,
-        update: function (attr, v) (cast v:$t).__initAttributes(attr) //TODO: unhardcode method name ... should probably come from ctx
-      };
+      @:noCompletion static var __factory(get, null) = null;
+      @:noCompletion static inline function get___factory()
+        return switch __factory {
+          case null:
+            __factory = new coconut.diffing.WidgetFactory(
+              $i{ctx.target.target.name}.new,
+              function (attr, v) (cast v:$t).__initAttributes(attr) //TODO: unhardcode method name ... should probably come from ctx
+            );
+          case v: v;
+        }
 
       static public function fromHxx(
         hxxMeta: {
@@ -35,7 +41,7 @@ class ViewBuilder {
         },
         attributes:$attributes
       ):$renders
-        return new coconut.diffing.VWidget(null, attributes, hxxMeta.key, hxxMeta.ref);
+        return new coconut.diffing.VWidget(__factory, attributes, hxxMeta.key, hxxMeta.ref);
     }
 
     {
