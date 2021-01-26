@@ -1,6 +1,6 @@
 import coconut.diffing.*;
 import coconut.fake.*;
-
+import coconut.fake.Tags.*;
 import haxe.Exception;
 import haxe.ds.ReadOnlyArray;
 import coconut.diffing.VWidget;
@@ -16,13 +16,6 @@ class Test {
     var dummy = new Dummy('root');
     var root = new Root(dummy, DummyApplicator.INST);
 
-    function div(attr, children)
-      return VDummy.forTag('div')(attr, children);
-
-    function button(attr, children) {
-      return VDummy.forTag('button')(attr, children);
-    }
-
     function update(v:VNode<Dummy>) {
       root.render(v);
       var diffed = dummy.render();
@@ -36,13 +29,15 @@ class Test {
       }
     }
 
-    update(new VMany([button(["onclick" => 'foo'], []), div(["id" => 'bar'], [])]));
-    update(new VMany([div(["id" => 'bar'], []), div(["id" => 'test'], [])]));
+    update(new VMany([button({ onclick: 'foo'}), div({ id: 'bar' })]));
+    update(new VMany([div({ id: 'bar' }), div({ id: 'test' })]));
 
     function random(depth = 0)
       return div([for (i in 0...depth) if (Math.random() > .35) 'attr$i' => '$i'], [for (i in 0...Std.random(9 - depth)) random(depth + 1)]);
 
-    // for (i in 0...100)
-    //   update(random());
+    for (i in 0...10)
+      update(random());
+
+    trace('done!');
   }
 }

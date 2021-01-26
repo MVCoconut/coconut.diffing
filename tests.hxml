@@ -1,4 +1,4 @@
 -cp tests
--main RunTests
+-main Test
 -dce full
--lib coconut.vdom
+-lib coconut.diffing

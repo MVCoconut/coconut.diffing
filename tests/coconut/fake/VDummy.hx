@@ -4,7 +4,7 @@ import haxe.ds.ReadOnlyArray;
 
 @:allow(RDummy)
 class VDummy extends VNative<Attr, Dummy, Dummy> {
-  static final byTag = new Map<String, (attr:Attr, children:ReadOnlyArray<VNode<Dummy>>)->VDummy>();
+  static final byTag = new Map<String, (attr:Attr, ?children:ReadOnlyArray<VNode<Dummy>>)->VDummy>();
 
   function new(factory:DummyFactory, data, ?children)
     super(factory, data, null, children);
@@ -12,7 +12,7 @@ class VDummy extends VNative<Attr, Dummy, Dummy> {
   static public function forTag(tag:String)
     return switch byTag[tag] {
       case null:
-        byTag[tag] = (attr, children) -> new VDummy(new DummyFactory(new TypeId(), tag), attr, children);
+        byTag[tag] = (attr, ?children) -> new VDummy(new DummyFactory(new TypeId(), tag), attr, children);
       case v: v;
     }
 }
