@@ -1,5 +1,6 @@
 -cp tests
 -main Test
 -lib coconut.diffing
--js bin/js/tests.js
--dce full
+--interp
+# -js bin/js/tests.js
+# -dce full
