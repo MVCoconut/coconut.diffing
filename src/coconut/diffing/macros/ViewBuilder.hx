@@ -35,7 +35,7 @@ class ViewBuilder {
         },
         attributes:$attributes
       ):$renders
-        return coconut.diffing.VNode.VNodeData.VWidget(cast __type, hxxMeta.ref, hxxMeta.key, attributes);
+        return new coconut.diffing.VWidget(null, attributes, hxxMeta.key, hxxMeta.ref);
     }
 
     {

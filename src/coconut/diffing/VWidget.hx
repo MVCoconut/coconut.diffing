@@ -9,12 +9,14 @@ class VWidget<Data, Native, Concrete:Widget<Native>> implements VNode<Native> {
   public final data:Data;
   public final factory:Factory<Data, Concrete>;
   public final ref:Null<coconut.ui.Ref<Concrete>>;
+  public final key:Null<Key>;
 
-  public function new(factory, data, ?ref, ?children) {
+  public function new(factory, data, ?key:Key, ?ref) {
     this.factory = factory;
     this.type = factory.type;
     this.data = data;
     this.ref = ref;
+    this.key = key;
   }
 
   public function render(parent, cursor) {

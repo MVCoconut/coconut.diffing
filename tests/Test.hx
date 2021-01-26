@@ -5,9 +5,14 @@ import haxe.Exception;
 import haxe.ds.ReadOnlyArray;
 import coconut.diffing.VWidget;
 
+class MyView extends View {
+  function render() {
+    return null;
+  }
+}
+
 class Test {
   static function main() {
-    // coconut.vdom.Html.div({}, {});
     var dummy = new Dummy('root');
     var root = new Root(dummy, DummyApplicator.INST);
 

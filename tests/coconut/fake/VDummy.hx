@@ -1,6 +1,5 @@
 package coconut.fake;
 
-import coconut.diffing.*;
 import haxe.ds.ReadOnlyArray;
 
 @:allow(RDummy)

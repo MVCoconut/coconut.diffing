@@ -1,7 +1,5 @@
 package coconut.fake;
 
-import coconut.diffing.*;
-
 class DummyCursor implements Cursor<Dummy> {
 
   public final applicator:Applicator<Dummy>;

@@ -1,7 +1,7 @@
 package coconut.fake;
 
-import coconut.diffing.Widget;
-
-class View extends Widget<Dummy> {
-
+@:build(coconut.ui.macros.ViewBuilder.build((_:coconut.fake.RenderResult)))
+@:autoBuild(coconut.fake.View.autoBuild())
+class View extends coconut.diffing.Widget<Dummy> {
+  macro function hxx(e);
 }
