@@ -1,5 +1,5 @@
 -cp tests
--main Main
--lib coconut.vdom
+-main Test
+-lib coconut.diffing
 -js bin/js/tests.js
 -dce full
