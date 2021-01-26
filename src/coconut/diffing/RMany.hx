@@ -64,6 +64,7 @@ class RMany<Native> implements RNode<Native> {
   }
 
   public function delete(cursor:Cursor<Native>):Void {
+    cursor.markForDeletion(first);
     for (stack in byType)
       for (r in stack) r.delete(cursor);
     byType = null;
