@@ -1,16 +1,11 @@
 package coconut.diffing;
 
-@:access(coconut.diffing.VMany)
-class RMany<Native> implements RNode<Native> {
-  public final type = VMany.TYPE;
-
+class RChildren<Native> {
   var byType = new Map<TypeId, Array<RNode<Native>>>();
   var counts = new Map<TypeId, Int>();
-  final first:Native;
   final parent:Parent;
 
   public function new(parent:Parent, children:ReadOnlyArray<VNode<Native>>, cursor:Cursor<Native>) {
-    cursor.insert(this.first = cursor.applicator.emptyMarker());
     this.parent = parent;
     for (c in children) {
       var r = c.render(parent, cursor);
@@ -20,22 +15,14 @@ class RMany<Native> implements RNode<Native> {
       }
     }
   }
-
-  public function reiterate(applicator:Applicator<Native>) {
-    var ret = applicator.siblings(first);
-    ret.insert(first);
-    return ret;
-  }
-
-  public function update(next:VNode<Native>, cursor:Cursor<Native>) {
-    cursor.insert(first);
+  public function update(children:ReadOnlyArray<VNode<Native>>, cursor:Cursor<Native>) {
     for (k => _ in byType)
       counts[k] = 0;
 
     inline function insert(v:VNode<Native>)
       byType[v.type][counts[v.type]++] = v.render(parent, cursor);
 
-    for (v in Cast.down(next, VMany).children)
+    for (v in children)
       switch byType[v.type] {
         case null:
           byType[v.type] = [];
@@ -64,7 +51,6 @@ class RMany<Native> implements RNode<Native> {
   }
 
   public function delete(cursor:Cursor<Native>):Void {
-    cursor.markForDeletion(first);
     for (stack in byType)
       for (r in stack) r.delete(cursor);
     byType = null;

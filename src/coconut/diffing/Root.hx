@@ -3,12 +3,12 @@ package coconut.diffing;
 class Root<Native> implements Parent {
   final parent:Native;
   final applicator:Applicator<Native>;
-  final rendered:RNode<Native>;
+  final rendered:RChildren<Native>;
 
   public function new(parent, applicator) {
     this.parent = parent;
     this.applicator = applicator;
-    this.rendered = process(c -> new RMany(this, [], c));
+    this.rendered = process(c -> new RChildren(this, [], c));
   }
 
   function process<X>(f):X {
@@ -26,5 +26,5 @@ class Root<Native> implements Parent {
     }
 
   public function render(v:VNode<Native>)
-    process(c -> rendered.update(new VMany([v]), c));
+    process(c -> rendered.update([v], c));
 }
