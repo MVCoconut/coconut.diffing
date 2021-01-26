@@ -12,7 +12,7 @@ class Dummy {
   public function getChildIndex(n:Dummy)
     return children.indexOf(n);
 
-  public function insert(index, n:Dummy) {
+  public function insert(index, n:Dummy)
     if (n.parent == this) {
       var prev = children.indexOf(n);
       if (prev != index) {
@@ -24,15 +24,17 @@ class Dummy {
       children.insert(index, n);
       n.parent = this;
     }
-  }
 
   public function render()
-    return
-      if (tag == null) '';
-      else ['<$tag'].concat([for (k => v in attr) '$k="$v"']).join(' ') + switch children {
-        case []: ' />';
-        case c: '>' + [for (c in children) c.render()].join('') + '</$tag>';
-      }
+    return switch tag {
+      case null: '';
+      case '': attr['text'];
+      case tag:
+        ['<$tag'].concat([for (k => v in attr) '$k="$v"']).join(' ') + switch children {
+          case []: ' />';
+          case c: '>' + [for (c in children) c.render()].join('') + '</$tag>';
+        }
+    }
 
   public function remove(n:Dummy)
     if (n.parent == this) {

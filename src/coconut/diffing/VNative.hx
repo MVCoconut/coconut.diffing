@@ -38,6 +38,7 @@ class RNative<Data, Native, Concrete:Native> implements RNode<Native> {
     var next = Cast.down(next, VNative);
 
     if (next.type != last.type) {
+      trace(next, last);
       throw 'assert';
       next = last;
     }

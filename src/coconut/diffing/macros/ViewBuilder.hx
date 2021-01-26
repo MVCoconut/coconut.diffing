@@ -29,7 +29,7 @@ class ViewBuilder {
           case null:
             __factory = new coconut.diffing.WidgetFactory(
               $i{ctx.target.target.name}.new,
-              function (attr, v) (cast v:$t).__initAttributes(attr) //TODO: unhardcode method name ... should probably come from ctx
+              function (v, attr) v.__initAttributes(attr) //TODO: unhardcode method name ... should probably come from ctx
             );
           case v: v;
         }
