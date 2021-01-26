@@ -9,10 +9,13 @@ class VNativeInst<Native> implements VNode<Native> implements RNode<Native> {
     this.native = native;
   }
 
-  public function render(cursor:Cursor<Native>) {//TODO: consider detecting double mounting
+  public function render(_, cursor:Cursor<Native>) {//TODO: consider detecting double mounting
     cursor.insert(native);
     return this;
   }
+
+  public function reiterate(applicator:Applicator<Native>)
+    return applicator.siblings(native);
 
   public function update(next:VNode<Native>, cursor:Cursor<Native>):Void {
     var next = Cast.down(next, VNativeInst);
