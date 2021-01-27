@@ -57,4 +57,9 @@ class KeyMap<T> {
     if (strings != null) for (v in strings) f(v);
     if (objs != null) for (v in objs) f(v);
   }
+
+  public inline function eachEntry(f:Key->T->Void) {
+    if (strings != null) for (k => v in strings) f(k, v);
+    if (objs != null) for (k => v in objs) f(k, v);
+  }
 }

@@ -1,6 +1,8 @@
 -cp tests
--main Test
+-lib tink_unittest
+-main TodoMvc
 -lib coconut.diffing
+-D no-deprecation-warnings
 --interp
 # -js bin/js/tests.js
 # -dce full

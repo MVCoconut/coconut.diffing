@@ -11,7 +11,7 @@ class VWidget<Data, Native, Concrete:Widget<Native>> implements VNode<Native> {
   public final ref:Null<coconut.ui.Ref<Concrete>>;
   public final key:Null<Key>;
 
-  public function new(factory, data, ?key:Key, ?ref) {
+  public function new(factory, data, ?key, ?ref) {
     this.factory = factory;
     this.type = factory.type;
     this.data = data;
@@ -96,20 +96,26 @@ class WidgetLifeCycle<Native> extends Parent implements Invalidatable {
   public function reiterate(applicator)
     return rendered.reiterate(applicator);
 
-  public function rerender(?cursor)
+  public function rerender(?cursor) {
     rendered.update(poll(), cursor);
+  }
 
   override public function update() {
     if (owner == null) return;
+    // valid = true;
     rerender();
     super.update();
   }
 
+  // var valid = true;
   public function invalidate()
-    invalidateParent();
+    // if (valid) {
+      // valid = false;
+      invalidateParent();
+    // }
 
   public function destroy(cursor:Cursor<Native>) {
-    link.dissolve();
+    link.cancel();
     rendered.delete(cursor);
     owner = null;
   }
