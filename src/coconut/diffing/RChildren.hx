@@ -1,19 +1,24 @@
 package coconut.diffing;
 
+import coconut.diffing.Key.KeyMap;
+
 class RChildren<Native> {
   var byType = new Map<TypeId, Array<RNode<Native>>>();
+  var byKey = new KeyMap<RNode<Native>>();
   var counts = new Map<TypeId, Int>();
   final parent:Parent;
 
   public function new(parent:Parent, children:ReadOnlyArray<VNode<Native>>, cursor:Cursor<Native>) {
     this.parent = parent;
-    for (c in children) {
-      var r = c.render(parent, cursor);
-      switch byType[r.type] {
-        case null: byType[r.type] = [r];
-        case a: a.push(r);
+    if (children != null)
+      for (c in children) if (c != null) {
+        var r = c.render(parent, cursor);
+        switch [c.key, byType[r.type]] {
+          case [null, null]: byType[r.type] = [r];
+          case [null, a]: a.push(r);
+          case [k, _]: byKey.set(k, r);
+        }
       }
-    }
   }
   public function update(children:ReadOnlyArray<VNode<Native>>, cursor:Cursor<Native>) {
     for (k => _ in byType)
@@ -22,21 +27,35 @@ class RChildren<Native> {
     inline function insert(v:VNode<Native>)
       byType[v.type][counts[v.type]++] = v.render(parent, cursor);
 
-    for (v in children)
-      switch byType[v.type] {
-        case null:
-          byType[v.type] = [];
-          counts[v.type] = 0;
-          insert(v);
-        case rs:
-          switch rs[counts[v.type]] {
-            case null: insert(v);
-            case r:
-              counts[v.type]++;
-              r.update(v, cursor);
-          }
-      }
-
+    if (children != null)
+      for (v in children) if (v != null)
+        switch [v.key, byType[v.type]] {
+          case [null, null]:
+            byType[v.type] = [];
+            counts[v.type] = 0;
+            insert(v);
+          case [null, rs]:
+            switch rs[counts[v.type]] {
+              case null: insert(v);
+              case r:
+                counts[v.type]++;
+                r.update(v, cursor);
+            }
+          case [k, _]:
+            inline function insert(v:VNode<Native>)
+              byKey.set(k, v.render(parent, cursor));
+            switch byKey.get(k) {
+              case null:
+                insert(v);
+              case old:
+                if (old.type == v.type)
+                  old.update(v, cursor);
+                else {
+                  old.delete(cursor);
+                  insert(v);
+                }
+            }
+        }
     inline function remove(r:RNode<Native>)
       r.delete(cursor);
 
@@ -53,7 +72,6 @@ class RChildren<Native> {
   public function delete(cursor:Cursor<Native>):Void {
     for (stack in byType)
       for (r in stack) r.delete(cursor);
-    byType = null;
-    counts = null;
+    // TODO: perhaps clear maps
   }
 }

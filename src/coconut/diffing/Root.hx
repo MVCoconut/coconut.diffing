@@ -3,19 +3,14 @@ package coconut.diffing;
 class Root<Native> implements Parent {
   final parent:Native;
   final applicator:Applicator<Native>;
-  final rendered:RChildren<Native>;
+  final rendered:RCell<Native>;
 
   public function new(parent, applicator) {
     this.parent = parent;
     this.applicator = applicator;
-    this.rendered = process(c -> new RChildren(this, [], c));
-  }
-
-  function process<X>(f):X {
     var cursor = applicator.children(parent);
-    var ret = f(cursor);
+    this.rendered = new RCell(this, null, cursor);
     cursor.close();
-    return ret;
   }
 
   static final byParent = new Map<{}, Root<Dynamic>>();
@@ -26,5 +21,5 @@ class Root<Native> implements Parent {
     }
 
   public function render(v:VNode<Native>)
-    process(c -> rendered.update([v], c));
+    this.rendered.update(v);
 }

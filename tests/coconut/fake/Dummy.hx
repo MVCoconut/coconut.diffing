@@ -32,7 +32,7 @@ class Dummy {
       case tag:
         ['<$tag'].concat([for (k => v in attr) '$k="$v"']).join(' ') + switch children {
           case []: ' />';
-          case c: '>' + [for (c in children) c.render()].join('') + '</$tag>';
+          case c: '>' + [for (c in children) if (c == null) '#NULL' else c.render()].join('') + '</$tag>';
         }
     }
 

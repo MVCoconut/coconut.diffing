@@ -4,6 +4,7 @@ class VMany<Native> implements VNode<Native> {
   static final TYPE = new TypeId();
   static final EMPTY:ReadOnlyArray<Dynamic> = [];
   public final type = TYPE;
+  public final key:Null<Key> = null;
   public final children:ReadOnlyArray<VNode<Native>>;
 
   public function new(?children)
@@ -31,9 +32,7 @@ class RMany<Native> implements RNode<Native> {
   }
 
   public function reiterate(applicator:Applicator<Native>) {
-    var ret = applicator.siblings(first);
-    ret.insert(first);
-    return ret;
+    return applicator.siblings(first);
   }
 
   public function update(next:VNode<Native>, cursor:Cursor<Native>) {

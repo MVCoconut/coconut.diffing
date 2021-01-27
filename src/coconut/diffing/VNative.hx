@@ -4,14 +4,17 @@ class VNative<Data, Native, Concrete:Native> implements VNode<Native> {
 
   public final type:TypeId;
   public final data:Data;
+  public final key:Null<Key>;
+
   public final factory:Factory<Data, Concrete>;
   public final ref:Null<coconut.ui.Ref<Concrete>>;
   public final children:ReadOnlyArray<VNode<Native>>;
 
-  public function new(factory, data, ?ref, ?children) {
+  public function new(factory, data, ?key, ?ref, ?children) {
     this.factory = factory;
     this.type = factory.type;
     this.data = data;
+    this.key = key;
     this.ref = ref;
     this.children = children;
   }

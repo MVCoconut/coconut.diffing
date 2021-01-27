@@ -17,8 +17,8 @@ class KeyMap<T> {
   public function new() {}
 
   public function get(key:Key):T
-    return 
-      if (@:privateAccess key.isString()) 
+    return
+      if (@:privateAccess key.isString())
         if (strings == null) null;
         else {
           var key:String = cast key;
@@ -26,7 +26,7 @@ class KeyMap<T> {
           if (ret != null) strings.remove(key);
           ret;
         }
-      else 
+      else
         if (objs == null) null;
         else {
           var ret = objs.get(key);
@@ -34,28 +34,27 @@ class KeyMap<T> {
           ret;
         }
 
-  public function set(key:Key, value:T) 
+  public function set(key:Key, value:T)
     if (@:privateAccess key.isString()) {
       var key:String = cast key;
       if (strings == null) strings = [key => value];
       else strings.set(key, value);
     }
-    else 
+    else
       if (objs == null) objs = [key => value];
       else objs.set(key, value);
-  
-  public function exists(key:Key):Bool 
-    return 
-      if (@:privateAccess key.isString()) 
+
+  public function exists(key:Key):Bool
+    return
+      if (@:privateAccess key.isString())
         if (strings == null) false;
         else strings.exists(cast key);
-      else 
+      else
         if (objs == null) false;
         else objs.exists(key);
-   
+
   public inline function each(f:T->Void) {
     if (strings != null) for (v in strings) f(v);
     if (objs != null) for (v in objs) f(v);
   }
-  
 }

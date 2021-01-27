@@ -55,7 +55,7 @@ class RWidget<Data, Native, Concrete:Widget<Native>> implements RNode<Native> {
 class WidgetLifeCycle<Native> implements Invalidatable {
 
   final owner:Widget<Native>;
-  final rendered:RNode<Native>;
+  final rendered:RCell<Native>;
   final applicator:Applicator<Native>;
   final link:CallbackLink;
   final parent:Parent;
@@ -64,7 +64,7 @@ class WidgetLifeCycle<Native> implements Invalidatable {
     this.owner = owner;
     this.parent = parent;
     this.applicator = cursor.applicator;
-    this.rendered = poll().render(parent, cursor);
+    this.rendered = new RCell(parent, poll(), cursor);
     this.link = (owner._coco_vStructure:ObservableObject<VNode<Native>>).onInvalidate(this);
   }
 
@@ -74,11 +74,11 @@ class WidgetLifeCycle<Native> implements Invalidatable {
   public function reiterate(applicator)
     return rendered.reiterate(applicator);
 
-  public function update(cursor)
+  public function update(?cursor)
     rendered.update(poll(), cursor);
 
   public function invalidate()
-    update(rendered.reiterate(applicator));
+    update();
 
   public function destroy(cursor:Cursor<Native>) {
     link.dissolve();
