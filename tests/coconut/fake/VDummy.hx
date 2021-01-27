@@ -5,7 +5,7 @@ class VDummy extends VNative<Attr, Dummy, Dummy> {
   static final byTag = new Map<String, (attr:Attr, ?children:Children)->VDummy>();
 
   function new(factory:DummyFactory, data, ?children:Children) {
-    super(factory, data, null, cast children);
+    super(factory, data, null, null, cast children);
   }
 
   public function toString()

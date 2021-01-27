@@ -3,6 +3,7 @@ package coconut.diffing;
 class VNativeInst<Native> implements VNode<Native> implements RNode<Native> {
   static final TYPE = new TypeId();
   public final type:TypeId = TYPE;
+  public final key:Key = null;// perhaps this should simply be the instance itself
   final native:Native;
 
   public function new(native) {

@@ -1,13 +1,10 @@
 package coconut.diffing;
 
-class Root<Native> implements Parent {
-  final parent:Native;
-  final applicator:Applicator<Native>;
+class Root<Native> extends Parent {
   final rendered:RCell<Native>;
 
-  public function new(parent, applicator) {
-    this.parent = parent;
-    this.applicator = applicator;
+  public function new(parent, applicator:Applicator<Native>) {
+    super(null);
     var cursor = applicator.children(parent);
     this.rendered = new RCell(this, null, cursor);
     cursor.close();

@@ -39,18 +39,22 @@ class RNative<Data, Native, Concrete:Native> implements RNode<Native> {
       cursor.close();
     }
     cursor.insert(native);
+    switch v.ref {
+      case null:
+      case f: f(native);
+    }
   }
 
   public function update(next:VNode<Native>, cursor:Cursor<Native>) {
     var next = Cast.down(next, VNative);
 
     if (next.type != last.type) {
-      trace(next, last);
       throw 'assert';
-      next = last;
+      next = last;// just for inference
     }
 
     next.factory.update(native, next.data, last.data);
+    var prev = last;
     last = next;
 
     {
@@ -59,6 +63,16 @@ class RNative<Data, Native, Concrete:Native> implements RNode<Native> {
       cursor.close();
     }
     cursor.insert(native);
+    if (last.ref != next.ref) {
+      switch last.ref {
+        case null:
+        case f: f(null);
+      }
+      switch next.ref {
+        case null:
+        case f: f(native);
+      }
+    }
   }
 
   public function reiterate(applicator:Applicator<Native>)
@@ -71,6 +85,10 @@ class RNative<Data, Native, Concrete:Native> implements RNode<Native> {
       cursor.close();
     }
     cursor.markForDeletion(native);
+    switch last.ref {
+      case null:
+      case f: f(null);
+    }
   }
 
 }
