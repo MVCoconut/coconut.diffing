@@ -3,6 +3,8 @@ package coconut.fake;
 class DummyCursor implements Cursor<Dummy> {
 
   public final applicator:Applicator<Dummy>;
+  static var idCounter = 0;
+  // static final inserted = new Map();
   var deleted = [];
   var index:Int;
   final target:Dummy;
@@ -13,8 +15,14 @@ class DummyCursor implements Cursor<Dummy> {
     this.index = index;
   }
 
-  public function insert(native:Dummy)
+  public function insert(native:Dummy) {
     target.insert(index++, native);
+    if (native.get('className') == "todo-item-description") {
+      // var key = native.innerHTML;
+      // switch inserted[]
+    }
+      // trace(id, native.render());
+  }
 
   public function close() {
     target.removeMany(deleted);

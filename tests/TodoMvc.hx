@@ -38,6 +38,9 @@ class TodoMvc {
     function update(value) {
       items.set(value);
       Renderer.updateAll();
+      var footerCount = Std.parseInt(byClass("footer")[0].innerHTML);
+      if (footerCount != items.value.length)// don't wanna spam so much
+        asserts.assert(footerCount == items.value.length);
     }
 
     function add(desc) {
@@ -54,7 +57,9 @@ class TodoMvc {
     asserts.assert(descriptions() == 'b,a');
     add('c');
     asserts.assert(descriptions() == 'c,b,a');
-    // trace(byClass("footer")[0].innerHTML);
+    add('d');
+    asserts.assert(descriptions() == 'd,c,b,a');
+
     return asserts.done();
   }
   static function main() {
@@ -67,6 +72,9 @@ class TodoMvc {
 class TodoItem implements Model {
   @:editable var done:Bool = false;
   @:editable var description:String;
+  public function toString() {
+    return 'Todo($description)';
+  }
 }
 
 class TodoListView extends View {

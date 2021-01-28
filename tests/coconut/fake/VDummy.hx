@@ -2,10 +2,10 @@ package coconut.fake;
 
 @:allow(RDummy)
 class VDummy extends VNative<Attr, Dummy, Dummy> {
-  static final byTag = new Map<String, (attr:Attr, ?children:Children)->VDummy>();
+  static final byTag = new Map<String, (meta:HxxMeta, attr:Attr, ?children:Children)->VDummy>();
 
-  function new(factory:DummyFactory, data, ?children:Children) {
-    super(factory, data, null, null, cast children);
+  function new(factory:DummyFactory, meta:HxxMeta, data, ?children:Children) {
+    super(factory, data, meta.key, meta.ref, cast children);
   }
 
   public function toString()
@@ -15,9 +15,15 @@ class VDummy extends VNative<Attr, Dummy, Dummy> {
     return switch byTag[tag] {
       case null:
         var factory = new DummyFactory(new TypeId(), tag);
-        byTag[tag] = (attr, ?children) -> new VDummy(factory, attr, children);
+        byTag[tag] = (meta:HxxMeta, attr, ?children) -> new VDummy(factory, meta, attr, children);
       case v: v;
     }
+}
+
+
+private typedef HxxMeta = {
+  @:optional var key(default, never):Key;
+  @:optional var ref(default, never):coconut.ui.Ref<Dummy>;
 }
 
 class DummyFactory implements Factory<Attr, Dummy> {

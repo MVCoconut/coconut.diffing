@@ -28,6 +28,7 @@ class RChildren<Native> {
     }
     m.set(k, v);
   }
+
   public function update(children:ReadOnlyArray<VNode<Native>>, cursor:Cursor<Native>) {
     for (k => _ in byType)
       counts[k] = 0;
@@ -37,7 +38,8 @@ class RChildren<Native> {
     inline function getKey(k)
       return switch oldKeyed {
         case null: null;
-        case m: m.get(k);
+        case m:
+          m.get(k);
       }
 
     inline function insert(v:VNode<Native>)
@@ -65,11 +67,10 @@ class RChildren<Native> {
                 insert(v);
               case old:
                 if (old.type == v.type) {
-                  trace('here!');
                   old.update(v, cursor);
+                  setKey(k, old);
                 }
                 else {
-                  throw 'not implemented';
                   old.delete(cursor);
                   insert(v);
                 }
