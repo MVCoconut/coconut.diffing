@@ -39,19 +39,21 @@ class TodoMvc {
       items.set(value);
       Renderer.updateAll();
     }
+
+    function add(desc) {
+      update(items.value.prepend(new TodoItem({ description: desc })));
+    }
     Renderer.mount(root, '<TodoListView list=${items} keyed=${keyed} />');
     function descriptions()
       return [for (d in byClass("todo-item-description")) d.innerHTML].join(',');
 
     asserts.assert(descriptions() == '');
-    update([new TodoItem({ description: 'a' })]);
+    add('a');
     asserts.assert(descriptions() == 'a');
-    update([new TodoItem({ description: 'a' }), new TodoItem({ description: 'b' })]);
-    asserts.assert(descriptions() == 'a,b');
-    items.value.first().sure().description = 'c';
-    asserts.assert(descriptions() == 'a,b');
-    Renderer.updateAll();
-    asserts.assert(descriptions() == 'c,b');
+    add('b');
+    asserts.assert(descriptions() == 'b,a');
+    add('c');
+    asserts.assert(descriptions() == 'c,b,a');
     // trace(byClass("footer")[0].innerHTML);
     return asserts.done();
   }
