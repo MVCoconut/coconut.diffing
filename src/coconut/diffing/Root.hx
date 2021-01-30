@@ -5,9 +5,7 @@ class Root<Native> extends Parent {
 
   public function new(parent, applicator:Applicator<Native>) {
     super(null);
-    var cursor = applicator.children(parent);
-    this.rendered = new RCell(this, null, cursor);
-    cursor.close();
+    this.rendered = new RCell(this, null, applicator.children(parent));
   }
 
   static final byParent = new Map<{}, Root<Dynamic>>();

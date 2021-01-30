@@ -42,6 +42,9 @@ class RWidget<Data, Native, Concrete:Widget<Native>> implements RNode<Native> {
     }
   }
 
+  public function count()
+    return lifeCycle.count();
+
   public function update(next:VNode<Native>, cursor:Cursor<Native>) {
     var next:VWidget<Data, Native, Concrete> = Cast.down(next, VWidget);
 
@@ -102,17 +105,15 @@ class WidgetLifeCycle<Native> extends Parent implements Invalidatable {
 
   override public function update() {
     if (owner == null) return;
-    // valid = true;
     rerender();
     super.update();
   }
 
-  // var valid = true;
+  public inline function count()
+    return rendered.count();
+
   public function invalidate()
-    // if (valid) {
-      // valid = false;
-      invalidateParent();
-    // }
+    invalidateParent();
 
   public function destroy(cursor:Cursor<Native>) {
     link.cancel();

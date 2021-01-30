@@ -19,7 +19,7 @@ class REmpty<Native> implements RNode<Native> {
   final marker:Native;
 
   public function new(cursor:Cursor<Native>)
-    cursor.insert(this.marker = cursor.applicator.emptyMarker());
+    cursor.insert(this.marker = cursor.applicator.createMarker());
 
   public function reiterate(applicator:Applicator<Native>):Cursor<Native>
     return applicator.siblings(marker);
@@ -27,8 +27,13 @@ class REmpty<Native> implements RNode<Native> {
   public function update(next:VNode<Native>, cursor:Cursor<Native>):Void
     cursor.insert(marker);
 
-  public function delete(cursor:Cursor<Native>):Void
-    cursor.markForDeletion(marker);
+  public function delete(cursor:Cursor<Native>):Void {
+    cursor.delete(1);
+    cursor.applicator.releaseMarker(marker);
+  }
 
+  public function count() {
+    return 1;
+  }
 
 }

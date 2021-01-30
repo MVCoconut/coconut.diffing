@@ -33,11 +33,7 @@ class RNative<Data, Native, Concrete:Native> implements RNode<Native> {
     this.last = v;
     this.type = v.type;
     this.native = v.factory.create(v.data);
-    {
-      var cursor = cursor.applicator.children(native);
-      this.children = new RChildren(parent, v.children, cursor);
-      cursor.close();
-    }
+    this.children = new RChildren(parent, v.children, cursor.applicator.children(native));
     cursor.insert(native);
     switch v.ref {
       case null:
@@ -57,11 +53,7 @@ class RNative<Data, Native, Concrete:Native> implements RNode<Native> {
     var prev = last;
     last = next;
 
-    {
-      var cursor = cursor.applicator.children(native);
-      children.update(next.children, cursor);
-      cursor.close();
-    }
+    children.update(next.children, cursor.applicator.children(native));
     cursor.insert(native);
     if (last.ref != next.ref) {
       switch last.ref {
@@ -79,16 +71,15 @@ class RNative<Data, Native, Concrete:Native> implements RNode<Native> {
     return applicator.siblings(native);
 
   public function delete(cursor:Cursor<Native>) {
-    {
-      var cursor = cursor.applicator.children(native);
-      children.delete(cursor);
-      cursor.close();
-    }
-    cursor.markForDeletion(native);
+    children.delete(cursor.applicator.children(native));
+    cursor.delete(1);
     switch last.ref {
       case null:
       case f: f(null);
     }
   }
+
+  public function count()
+    return 1;
 
 }

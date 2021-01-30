@@ -20,32 +20,30 @@ class RCell<Native> {
     return rendered.reiterate(applicator);
 
   public function update(virtual:VNode<Native>, ?cursor:Cursor<Native>)
-    if (virtual != this.virtual)
-      withCursor(cursor, cursor -> {
-        if (virtual == null)
-          virtual = empty;
-        var last = this.virtual;
+    if (virtual != this.virtual) {
+      var cursor = ensure(cursor);
+      if (virtual == null)
+        virtual = empty;
+      var last = this.virtual;
 
-        this.virtual = virtual;
+      this.virtual = virtual;
 
-        if (last.type == virtual.type)
-          this.rendered.update(virtual, cursor);
-        else {
-          this.rendered.delete(cursor);
-          this.rendered = virtual.render(parent, cursor);
-        }
-      });
-
-  inline function withCursor(cursor, f)
-    switch cursor {
-      case null:
-        var cursor = reiterate(applicator);
-        f(cursor);
-        cursor.close();
-      case c:
-        f(c);
+      if (last.type == virtual.type)
+        this.rendered.update(virtual, cursor);
+      else {
+        this.rendered.delete(cursor);
+        this.rendered = virtual.render(parent, cursor);
+      }
     }
 
+  inline function ensure(?cursor:Cursor<Native>)
+    return
+      if (cursor == null) reiterate(applicator);
+      else cursor;
+
   public function delete(?cursor)
-    withCursor(cursor, cursor -> this.rendered.delete(cursor));
+    this.rendered.delete(ensure(cursor));
+
+  public inline function count()
+    return rendered.count();
 }

@@ -62,4 +62,11 @@ class KeyMap<T> {
     if (strings != null) for (k => v in strings) f(k, v);
     if (objs != null) for (k => v in objs) f(k, v);
   }
+
+  public inline function count() {
+    var ret = 0;
+    if (strings != null) for (k in strings.keys()) ret++;
+    if (objs != null) for (k in objs.keys()) ret++;
+    return ret;
+  }
 }

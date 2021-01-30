@@ -27,7 +27,7 @@ class RMany<Native> implements RNode<Native> {
   final children:RChildren<Native>;
 
   public function new(parent:Parent, children:ReadOnlyArray<VNode<Native>>, cursor:Cursor<Native>) {
-    cursor.insert(this.first = cursor.applicator.emptyMarker());
+    cursor.insert(this.first = cursor.applicator.createMarker());
     this.children = new RChildren(parent, children, cursor);
   }
 
@@ -40,8 +40,11 @@ class RMany<Native> implements RNode<Native> {
     children.update(Cast.down(next, VMany).children, cursor);
   }
 
+  public function count()
+    return 1 + children.count();
+
   public function delete(cursor:Cursor<Native>):Void {
-    cursor.markForDeletion(first);
-    children.delete(cursor);
+    cursor.delete(count());
+    cursor.applicator.releaseMarker(first);
   }
 }

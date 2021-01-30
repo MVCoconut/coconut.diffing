@@ -4,8 +4,6 @@ class DummyCursor implements Cursor<Dummy> {
 
   public final applicator:Applicator<Dummy>;
   static var idCounter = 0;
-  // static final inserted = new Map();
-  var deleted = [];
   var index:Int;
   final target:Dummy;
 
@@ -17,19 +15,11 @@ class DummyCursor implements Cursor<Dummy> {
 
   public function insert(native:Dummy) {
     target.insert(index++, native);
-    if (native.get('className') == "todo-item-description") {
-      // var key = native.innerHTML;
-      // switch inserted[]
-    }
-      // trace(id, native.render());
   }
 
-  public function close() {
-    target.removeMany(deleted);
+  public function delete(count:Int) {
+    target.removeRange(index, count);
   }
-
-  public function markForDeletion(native:Dummy)
-    deleted.push(native);
 }
 
 class DummyApplicator implements Applicator<Dummy> {
@@ -43,8 +33,12 @@ class DummyApplicator implements Applicator<Dummy> {
         p.remove(n);
     }
 
-  public function emptyMarker()
+  public function createMarker()
     return new Dummy(null);
+
+  public function releaseMarker(marker) {
+
+  }
 
   public function siblings(n:Dummy)
     return switch n.parent {

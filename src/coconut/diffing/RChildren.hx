@@ -45,6 +45,10 @@ class RChildren<Native> {
     inline function insert(v:VNode<Native>)
       byType[v.type][counts[v.type]++] = v.render(parent, cursor);
 
+    var deleteCount = 0;
+    inline function delete(r:RNode<Native>)
+      deleteCount += r.count();
+
     if (children != null)
       for (v in children) if (v != null)
         switch [v.key, byType[v.type]] {
@@ -71,7 +75,7 @@ class RChildren<Native> {
                   setKey(k, old);
                 }
                 else {
-                  old.delete(cursor);
+                  delete(old);
                   insert(v);
                 }
             }
@@ -82,20 +86,30 @@ class RChildren<Native> {
         case _.length - count => 0:
         case a:
           for (i in count...a.length)
-            a[i].delete(cursor);
+            delete(a[i]);
           a.resize(count);
       }
 
     if (oldKeyed != null)
       switch byKey {
-        case null: oldKeyed.each(r -> r.delete(cursor));
-        case m: oldKeyed.eachEntry((k, r) -> if (!m.exists(k)) r.delete(cursor));
+        case null: oldKeyed.each(r -> delete(r));
+        case m: oldKeyed.eachEntry((k, r) -> if (!m.exists(k)) delete(r));
       }
+
+    cursor.delete(deleteCount);
+  }
+
+  public function count() {
+    var ret = switch byKey {
+      case null: 0;
+      case m: m.count();
+    }
+    for (c in counts) ret += c;
+    return ret;
   }
 
   public function delete(cursor:Cursor<Native>):Void {
-    for (stack in byType)
-      for (r in stack) r.delete(cursor);
+    cursor.delete(count());
     // TODO: perhaps clear maps
   }
 }

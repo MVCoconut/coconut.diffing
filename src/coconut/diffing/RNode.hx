@@ -5,5 +5,5 @@ interface RNode<Native> {
   function reiterate(applicator:Applicator<Native>):Cursor<Native>;
   function update(next:VNode<Native>, cursor:Cursor<Native>):Void;
   function delete(cursor:Cursor<Native>):Void;
-  // function each(f:Native->Void):Void;
+  function count():Int;
 }

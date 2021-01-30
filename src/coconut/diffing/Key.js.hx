@@ -4,6 +4,7 @@ import tink.state.internal.ObjectMap;
 
 typedef Key = Dynamic;
 
+@:forward(count)
 abstract KeyMap<T>(ObjectMap<Dynamic, T>) {
   public inline function new()
     this = new ObjectMap();

@@ -63,8 +63,7 @@ class Dummy {
       n.parent = null;
     }
 
-  public function removeMany(many:Array<Dummy>) {
-    for (m in many)
-      remove(m);// not exactly optimal
+  public function removeRange(start:Int, length:Int) {
+    children.splice(start, length);
   }
 }
