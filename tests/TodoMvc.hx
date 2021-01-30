@@ -50,7 +50,6 @@ class TodoMvc {
   function add(desc)
     update(items.value.prepend(new TodoItem({ description: desc })));
 
-  @:include
   @:variant(false)
   @:variant(true)
   public function testInsertion(keyed:Bool) {

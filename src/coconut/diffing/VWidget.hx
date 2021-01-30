@@ -65,6 +65,10 @@ class RWidget<Data, Native, Concrete:Widget<Native>> implements RNode<Native> {
     lifeCycle.rerender(cursor);
   }
 
+  public function justInsert(cursor) {
+    lifeCycle.justInsert(cursor);
+  }
+
   public function reiterate(applicator:Applicator<Native>)
     return lifeCycle.reiterate(applicator);
 
@@ -99,9 +103,11 @@ class WidgetLifeCycle<Native> extends Parent implements Invalidatable {
   public function reiterate(applicator)
     return rendered.reiterate(applicator);
 
-  public function rerender(?cursor) {
+  public function justInsert(cursor)
+    rerender(cursor);
+
+  public function rerender(?cursor)
     rendered.update(poll(), cursor);
-  }
 
   override public function update() {
     if (owner == null) return;

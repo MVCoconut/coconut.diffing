@@ -25,6 +25,9 @@ class REmpty<Native> implements RNode<Native> {
     return applicator.siblings(marker);
 
   public function update(next:VNode<Native>, cursor:Cursor<Native>):Void
+    inline justInsert(cursor);
+
+  public function justInsert(cursor)
     cursor.insert(marker);
 
   public function delete(cursor:Cursor<Native>):Void {

@@ -6,6 +6,7 @@ class RChildren<Native> {
   var byType = new Map<TypeId, Array<RNode<Native>>>();
   var byKey:Null<KeyMap<RNode<Native>>>;
   var counts = new Map<TypeId, Int>();
+  var order = new Array<RNode<Native>>();
   final parent:Parent;
 
   public function new(parent:Parent, children:ReadOnlyArray<VNode<Native>>, cursor:Cursor<Native>) {
@@ -18,6 +19,7 @@ class RChildren<Native> {
           case [null, a]: a.push(r);
           case [k, _]: setKey(k, r);
         }
+        order.push(r);
       }
   }
 
@@ -27,6 +29,7 @@ class RChildren<Native> {
       case v: v;
     }
     m.set(k, v);
+    return v;
   }
 
   public function update(children:ReadOnlyArray<VNode<Native>>, cursor:Cursor<Native>) {
@@ -43,15 +46,16 @@ class RChildren<Native> {
       }
 
     inline function insert(v:VNode<Native>)
-      byType[v.type][counts[v.type]++] = v.render(parent, cursor);
+      return byType[v.type][counts[v.type]++] = v.render(parent, cursor);
 
     var deleteCount = 0;
     inline function delete(r:RNode<Native>)
       deleteCount += r.count();
 
+    var index = 0;
     if (children != null)
       for (v in children) if (v != null)
-        switch [v.key, byType[v.type]] {
+        order[index++] = switch [v.key, byType[v.type]] {
           case [null, null]:
             byType[v.type] = [];
             counts[v.type] = 0;
@@ -62,10 +66,11 @@ class RChildren<Native> {
               case r:
                 counts[v.type]++;
                 r.update(v, cursor);
+                r;
             }
           case [k, _]:
             inline function insert(v:VNode<Native>)
-              setKey(k, v.render(parent, cursor));
+              return setKey(k, v.render(parent, cursor));
             switch getKey(k) {
               case null:
                 insert(v);
@@ -80,6 +85,8 @@ class RChildren<Native> {
                 }
             }
         }
+
+    order.resize(index);
 
     for (id => count in counts)
       switch byType[id] {
@@ -97,6 +104,11 @@ class RChildren<Native> {
       }
 
     cursor.delete(deleteCount);
+  }
+
+  public function justInsert(cursor:Cursor<Native>) {
+    for (r in order)
+      r.justInsert(cursor);
   }
 
   public function count() {

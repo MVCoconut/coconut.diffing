@@ -19,9 +19,11 @@ class RCell<Native> {
   public inline function reiterate(applicator)
     return rendered.reiterate(applicator);
 
-  public function update(virtual:VNode<Native>, ?cursor:Cursor<Native>)
-    if (virtual != this.virtual) {
-      var cursor = ensure(cursor);
+  public function update(virtual:VNode<Native>, ?cursor:Cursor<Native>) {
+    var cursor = ensure(cursor);
+    if (virtual == this.virtual)
+      rendered.justInsert(cursor);
+    else {
       if (virtual == null)
         virtual = empty;
       var last = this.virtual;
@@ -35,6 +37,7 @@ class RCell<Native> {
         this.rendered = virtual.render(parent, cursor);
       }
     }
+  }
 
   inline function ensure(?cursor:Cursor<Native>)
     return

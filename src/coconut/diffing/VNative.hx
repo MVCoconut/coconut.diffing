@@ -41,13 +41,18 @@ class RNative<Data, Native, Concrete:Native> implements RNode<Native> {
     }
   }
 
+  public function justInsert(cursor:Cursor<Native>)
+    cursor.insert(native);
+
   public function update(next:VNode<Native>, cursor:Cursor<Native>) {
     var next = Cast.down(next, VNative);
-
-    if (next.type != last.type) {
-      throw 'assert';
-      next = last;// just for inference
+    if (next == last) {
+      justInsert(cursor);
+      return;
     }
+
+    if (next.type != last.type)
+      throw 'assert';
 
     next.factory.update(native, next.data, last.data);
     var prev = last;

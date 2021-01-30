@@ -21,8 +21,6 @@ class VMany<Native> implements VNode<Native> {
 class RMany<Native> implements RNode<Native> {
   public final type = VMany.TYPE;
 
-  var byType = new Map<TypeId, Array<RNode<Native>>>();
-  var counts = new Map<TypeId, Int>();
   final first:Native;
   final children:RChildren<Native>;
 
@@ -42,6 +40,11 @@ class RMany<Native> implements RNode<Native> {
 
   public function count()
     return 1 + children.count();
+
+  public inline function justInsert(cursor:Cursor<Native>) {
+    cursor.insert(first);
+    children.justInsert(cursor);
+  }
 
   public function delete(cursor:Cursor<Native>):Void {
     cursor.delete(count());

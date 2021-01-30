@@ -53,6 +53,9 @@ class Dummy {
         }
     }
 
+  public function toString()
+    return render();
+
   public var innerHTML(get, never):String;
   function get_innerHTML()
     return [for (c in children) if (c == null) '#NULL' else c.render()].join('');
