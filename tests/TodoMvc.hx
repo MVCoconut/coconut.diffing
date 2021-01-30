@@ -50,28 +50,33 @@ class TodoMvc {
   function add(desc)
     update(items.value.prepend(new TodoItem({ description: desc })));
 
+  @:include
   @:variant(false)
   @:variant(true)
   public function testInsertion(keyed:Bool) {
 
     Renderer.mount(root, '<TodoListView list=${items} keyed=${keyed} />');
-    function descriptions()
+    function found()
       return [for (d in byClass("todo-item-description")) d.innerHTML].join(',');
 
-    asserts.assert(descriptions() == '');
+    function expected()
+      return [for (item in items.value) item.description].join(',');
+    asserts.assert(found() == expected());
     add('a');
-    asserts.assert(descriptions() == 'a');
+    asserts.assert(found() == expected());
     add('b');
-    asserts.assert(descriptions() == 'b,a');
+    asserts.assert(found() == expected());
     add('c');
-    asserts.assert(descriptions() == 'c,b,a');
+    asserts.assert(found() == expected());
     add('d');
-    asserts.assert(descriptions() == 'd,c,b,a');
+    asserts.assert(found() == expected());
+    var index = 0;
+    update([for (item in items.value) if (index++ % 2 == 0) item]);
+    asserts.assert(found() == expected());
 
     return asserts.done();
   }
 
-  @:include
   public function testUpdates() {
     var filter = new State(Complete);
     add('a');
