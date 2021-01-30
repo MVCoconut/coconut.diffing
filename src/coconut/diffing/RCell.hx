@@ -33,8 +33,9 @@ class RCell<Native> {
       if (last.type == virtual.type)
         this.rendered.update(virtual, cursor);
       else {
-        this.rendered.delete(cursor);
+        var old = this.rendered;
         this.rendered = virtual.render(parent, cursor);
+        old.delete(cursor);
       }
     }
   }
