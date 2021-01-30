@@ -18,6 +18,9 @@ class VNativeInst<Native> implements VNode<Native> implements RNode<Native> {
   public function reiterate(applicator:Applicator<Native>)
     return applicator.siblings(native);
 
+  public function justInsert(cursor)
+    cursor.insert(native);
+
   public function update(next:VNode<Native>, cursor:Cursor<Native>):Void {
     var next = Cast.down(next, VNativeInst);
     cursor.insert(next.native);
@@ -25,8 +28,9 @@ class VNativeInst<Native> implements VNode<Native> implements RNode<Native> {
       delete(cursor);
   }
 
-  public function delete(cursor:Cursor<Native>):Void {
-    cursor.markForDeletion(native);
-  }
+  public function delete(cursor:Cursor<Native>):Void
+    cursor.delete(1);
 
+  public function count()
+    return 1;
 }
