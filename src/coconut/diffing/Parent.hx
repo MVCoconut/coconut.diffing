@@ -1,29 +1,31 @@
 package coconut.diffing;
 
+import coconut.ui.internal.ImplicitContext;
+
 class Parent implements Child {
   final pendingUpdates = new Array<Child>();
   final parent:Null<Parent>;
+  final context:ImplicitContext;
 
-  public function new(?parent)
+  public function new(context:ImplicitContext, ?parent) {
+    this.context = context;
     this.parent = parent;
+  }
 
   function scheduleUpdate(child:Child) {
     if (pendingUpdates.push(child) == 1)
       invalidateParent();
   }
 
-  function update()
-    switch pendingUpdates.length {
-      case 0:
-      case v:
-        for (c in pendingUpdates.splice(0, v))
-          c.update();
-    }
+  function performUpdate()
+    while (pendingUpdates.length > 0)
+      for (c in pendingUpdates.splice(0, pendingUpdates.length))
+        c.performUpdate();
 
   function invalidateParent()
     switch parent {
       case null:
-        tink.state.Observable.schedule(update);
+        tink.state.Observable.schedule(performUpdate);
       case v:
         v.scheduleUpdate(this);
     }
@@ -31,5 +33,5 @@ class Parent implements Child {
 }
 
 interface Child {
-  private function update():Void;
+  private function performUpdate():Void;
 }

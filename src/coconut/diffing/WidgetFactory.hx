@@ -1,9 +1,11 @@
 package coconut.diffing;
 
-class WidgetFactory<Attr, Native, Concrete:Widget<Native>> implements Factory<Attr, Concrete> {
+import coconut.ui.internal.ImplicitContext;
+
+class WidgetFactory<Attr, Native, Concrete:Widget<Native>> {
   public final type:TypeId = new TypeId();
 
-  final _create:(data:Attr)->Concrete;
+  final _create:(data:Attr, ctx:ImplicitContext)->Concrete;
   final _update:(target:Concrete, next:Attr)->Void;
 
   public function new(create, update) {
@@ -11,10 +13,10 @@ class WidgetFactory<Attr, Native, Concrete:Widget<Native>> implements Factory<At
     this._update = update;
   }
 
-  public function create(data:Attr):Concrete
-    return _create(data);
+  public function create(data:Attr, context:ImplicitContext):Concrete
+    return _create(data, context);
 
-  public function update(target:Concrete, next:Attr, prev:Attr)
+  public function update(target:Concrete, next:Attr)
     _update(target, next);
 
 }

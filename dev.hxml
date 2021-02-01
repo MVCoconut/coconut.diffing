@@ -3,6 +3,7 @@
 -main TodoMvc
 -lib coconut.diffing
 -D no-deprecation-warnings
+coconut.diffing.Implicit
 --interp
 # -js bin/js/tests.js
 # -dce full

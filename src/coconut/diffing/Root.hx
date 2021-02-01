@@ -1,10 +1,12 @@
 package coconut.diffing;
 
+import coconut.ui.internal.ImplicitContext;
+
 class Root<Native> extends Parent {
   final rendered:RCell<Native>;
 
   public function new(parent, applicator:Applicator<Native>) {
-    super(null);
+    super(new ImplicitContext());
     this.rendered = new RCell(this, null, applicator.children(parent));
   }
 

@@ -7,7 +7,7 @@ import tink.state.Observable;
 class VWidget<Data, Native, Concrete:Widget<Native>> implements VNode<Native> {
   public final type:TypeId;
   public final data:Data;
-  public final factory:Factory<Data, Concrete>;
+  public final factory:WidgetFactory<Data, Native, Concrete>;
   public final ref:Null<coconut.ui.Ref<Concrete>>;
   public final key:Null<Key>;
 
@@ -30,11 +30,12 @@ class RWidget<Data, Native, Concrete:Widget<Native>> implements RNode<Native> {
 
   var last:VWidget<Data, Native, Concrete>;
   public final type:TypeId;
-  public function new(parent, v:VWidget<Data, Native, Concrete>, cursor:Cursor<Native>) {
+  public function new(parent:Parent, v:VWidget<Data, Native, Concrete>, cursor:Cursor<Native>) {
     this.last = v;
     this.type = v.type;
-    this.widget = v.factory.create(v.data);
-    this.lifeCycle = new WidgetLifeCycle(widget, parent, cursor);
+    var context = @:privateAccess parent.context;
+    this.widget = v.factory.create(v.data, context);
+    this.lifeCycle = new WidgetLifeCycle(widget, context, parent, cursor);
 
     switch v.ref {
       case null:
@@ -46,7 +47,10 @@ class RWidget<Data, Native, Concrete:Widget<Native>> implements RNode<Native> {
     return lifeCycle.count();
 
   public function update(next:VNode<Native>, cursor:Cursor<Native>) {
+
     var next:VWidget<Data, Native, Concrete> = Cast.down(next, VWidget);
+    if (last == next)
+      return justInsert(cursor);
 
     if (next.ref != last.ref) {
       switch last.ref {
@@ -55,13 +59,12 @@ class RWidget<Data, Native, Concrete:Widget<Native>> implements RNode<Native> {
       }
       switch  next.ref {
         case null:
-        case f: f(null);
+        case f: f(widget);
       }
     }
 
-    var prev = last.data;
     last = next;
-    next.factory.update(widget, next.data, prev);
+    next.factory.update(widget, next.data);
     lifeCycle.rerender(cursor);
   }
 
@@ -89,8 +92,8 @@ class WidgetLifeCycle<Native> extends Parent implements Invalidatable {
   final applicator:Applicator<Native>;
   final link:CallbackLink;
 
-  public function new(owner, parent, cursor:Cursor<Native>) {
-    super(parent);
+  public function new(owner, context, parent, cursor:Cursor<Native>) {
+    super(context, parent);
     this.owner = owner;
     this.applicator = cursor.applicator;
     this.rendered = new RCell(this, poll(), cursor);
@@ -109,10 +112,10 @@ class WidgetLifeCycle<Native> extends Parent implements Invalidatable {
   public function rerender(?cursor)
     rendered.update(poll(), cursor);
 
-  override public function update() {
+  override public function performUpdate() {
     if (owner == null) return;
     rerender();
-    super.update();
+    super.performUpdate();
   }
 
   public inline function count()
@@ -121,7 +124,7 @@ class WidgetLifeCycle<Native> extends Parent implements Invalidatable {
   public function invalidate()
     invalidateParent();
 
-  public function destroy(cursor:Cursor<Native>) {
+  public inline function destroy(cursor:Cursor<Native>) {
     link.cancel();
     rendered.delete(cursor);
     owner = null;

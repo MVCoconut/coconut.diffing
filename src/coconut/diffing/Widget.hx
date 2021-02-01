@@ -4,6 +4,7 @@ import tink.state.Observable;
 
 class Widget<Native> {
 
+  @:noCompletion var _coco_implicits:coconut.ui.internal.ImplicitContext;
   @:noCompletion var _coco_viewMounted:Void->Void;
   @:noCompletion var _coco_viewUpdated:Void->Void;
   @:noCompletion var _coco_viewUnmounting:Void->Void;

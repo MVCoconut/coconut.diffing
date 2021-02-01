@@ -20,6 +20,10 @@ class ViewBuilder {
 
   static public function postprocess(renders:ComplexType, ctx:coconut.ui.macros.ViewBuilder.ViewInfo) {
     var t = ctx.target.target.name.asComplexType([for(p in ctx.target.target.params) TPType(p.t.toComplex())]);
+    var ctor = ctx.target.getConstructor();
+    ctor.addArg('implicits', macro : coconut.ui.internal.ImplicitContext, true);
+    ctor.addStatement(macro _coco_implicits = implicits, true);
+
     var attributes = TAnonymous(ctx.attributes);
 
     var def = macro class {

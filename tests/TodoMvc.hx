@@ -15,7 +15,7 @@ class TodoMvc {
   var root:#if coconut.vdom js.html.Element #else Dummy #end;
   var items:State<List<TodoItem>>;
 
-  function new() {
+  public function new() {
 
   }
   @:before public function init() {

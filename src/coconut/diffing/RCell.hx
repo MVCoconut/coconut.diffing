@@ -21,7 +21,8 @@ class RCell<Native> {
 
   public function update(virtual:VNode<Native>, ?cursor:Cursor<Native>) {
     var cursor = ensure(cursor);
-    if (virtual == this.virtual)
+    var unchanged = virtual == this.virtual;
+    if (unchanged)
       rendered.justInsert(cursor);
     else {
       if (virtual == null)
@@ -38,6 +39,7 @@ class RCell<Native> {
         old.delete(cursor);
       }
     }
+    return !unchanged;
   }
 
   inline function ensure(?cursor:Cursor<Native>)
