@@ -1,8 +1,8 @@
 package coconut.diffing;
 
-import tink.CoreApi.CallbackLink;
 import tink.state.internal.*;
 import tink.state.Observable;
+using tink.CoreApi;
 
 class VWidget<Data, Native, Concrete:Widget<Native>> implements VNode<Native> {
   public final type:TypeId;
@@ -98,6 +98,7 @@ class WidgetLifeCycle<Native> extends Parent implements Invalidatable {
     this.applicator = cursor.applicator;
     this.rendered = new RCell(this, poll(), cursor, later);
     this.link = (owner._coco_vStructure:ObservableObject<VNode<Native>>).onInvalidate(this);
+    later(owner._coco_viewMounted);
   }
 
   function poll()
@@ -110,7 +111,8 @@ class WidgetLifeCycle<Native> extends Parent implements Invalidatable {
     rerender(later, cursor);
 
   public function rerender(later, ?cursor)
-    rendered.update(poll(), cursor, later);
+    if (rendered.update(poll(), cursor, later))
+      later(owner._coco_viewUpdated);
 
   override public function performUpdate(later) {
     if (owner == null) return;
@@ -125,6 +127,10 @@ class WidgetLifeCycle<Native> extends Parent implements Invalidatable {
     invalidateParent();
 
   public inline function destroy(cursor:Cursor<Native>) {
+    switch owner._coco_viewUnmounting {
+      case null:
+      case f: f();
+    }
     link.cancel();
     rendered.delete(cursor);
     owner = null;
