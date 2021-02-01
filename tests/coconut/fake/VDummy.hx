@@ -1,7 +1,7 @@
 package coconut.fake;
 
 @:allow(RDummy)
-class VDummy extends VNative<Attr, Dummy, Dummy> {
+class VDummy extends VNative<Attr, Dummy, Dummy, RenderResult> {
   static final byTag = new Map<String, (meta:HxxMeta, attr:Attr, ?children:Children)->VDummy>();
 
   function new(factory:DummyFactory, meta:HxxMeta, data, ?children:Children) {

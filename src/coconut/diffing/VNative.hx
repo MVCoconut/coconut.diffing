@@ -1,6 +1,6 @@
 package coconut.diffing;
 
-class VNative<Data, Native, Concrete:Native> implements VNode<Native> {
+class VNative<Data, Native, Concrete:Native, RenderResult:VNode<Native>> implements VNode<Native> {
 
   public final type:TypeId;
   public final data:Data;
@@ -8,7 +8,7 @@ class VNative<Data, Native, Concrete:Native> implements VNode<Native> {
 
   public final factory:Factory<Data, Concrete>;
   public final ref:Null<coconut.ui.Ref<Concrete>>;
-  public final children:ReadOnlyArray<VNode<Native>>;
+  public final children:Children<RenderResult>;
 
   public function new(factory, data, ?key, ?ref, ?children) {
     this.factory = factory;
@@ -24,11 +24,11 @@ class VNative<Data, Native, Concrete:Native> implements VNode<Native> {
   }
 }
 
-class RNative<Data, Native, Concrete:Native> implements RNode<Native> {
+class RNative<Data, Native, Concrete:Native, RenderResult:VNode<Native>> implements RNode<Native> {
   public final type:TypeId;
   final native:Concrete;
-  final children:RChildren<Native>;
-  var last:VNative<Data, Native, Concrete>;
+  final children:RChildren<Native, RenderResult>;
+  var last:VNative<Data, Native, Concrete, RenderResult>;
   public function new(parent, v, cursor:Cursor<Native>, later) {
     this.last = v;
     this.type = v.type;

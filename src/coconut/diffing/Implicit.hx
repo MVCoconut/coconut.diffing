@@ -6,9 +6,11 @@ import coconut.ui.internal.*;
 import coconut.ui.internal.ImplicitContext;
 import coconut.diffing.VNode;
 
-class Implicit<Native> implements VNode<Native> {
-  final children:Children<VNode<Native>> = null;
+class Implicit<Native, RenderResult:VNode<Native>> implements VNode<Native> {
+
+  final children:Children<RenderResult> = null;
   final defaults:ImplicitValues;
+
   static final TYPE = new TypeId();
 
   public final type:TypeId = TYPE;
@@ -25,14 +27,14 @@ class Implicit<Native> implements VNode<Native> {
 }
 
 @:access(coconut.diffing.Implicit)
-private class RImplicit<Native> extends Parent implements RNode<Native> {
+private class RImplicit<Native, RenderResult:VNode<Native>> extends Parent implements RNode<Native> {
   public final type = Implicit.TYPE;
 
-  final children:RMany<Native>;
-  public function new(v:Implicit<Native>, parent:Parent, cursor, later) {
+  final children:RMany<Native, RenderResult>;
+  public function new(v:Implicit<Native, RenderResult>, parent:Parent, cursor, later) {
     super(new ImplicitContext(parent.context), parent);
     this.context.update(v.defaults);
-    this.children = new RMany(this, cast v.children, cursor, later);
+    this.children = new RMany(this, v.children, cursor, later);
   }
 
   public function reiterate(applicator)
@@ -41,7 +43,7 @@ private class RImplicit<Native> extends Parent implements RNode<Native> {
   public function update(next, cursor, later) {
     var next = Cast.down(next, Implicit);
     context.update(next.defaults);
-    return children.update(new VMany(cast next.children), cursor, later);
+    return children.update(new VMany(next.children), cursor, later);
   }
 
   public function justInsert(cursor, later)

@@ -1,30 +1,26 @@
 package coconut.diffing;
 
-class VMany<Native> implements VNode<Native> {
+class VMany<Native, RenderResult:VNode<Native>> implements VNode<Native> {
   static final TYPE = new TypeId();
-  static final EMPTY:ReadOnlyArray<Dynamic> = [];
   public final type = TYPE;
   public final key:Null<Key> = null;
-  public final children:ReadOnlyArray<VNode<Native>>;
+  public final children:Children<RenderResult>;
 
-  public function new(?children)
-    this.children = switch children {
-      case null: cast EMPTY;
-      case v: v;
-    }
+  public function new(children)
+    this.children = children;
 
   public function render(parent, cursor, later):RNode<Native>
     return new RMany(parent, children, cursor, later);
 }
 
 @:access(coconut.diffing.VMany)
-class RMany<Native> implements RNode<Native> {
+class RMany<Native, RenderResult:VNode<Native>> implements RNode<Native> {
   public final type = VMany.TYPE;
 
   final first:Native;
-  final children:RChildren<Native>;
+  final children:RChildren<Native, RenderResult>;
 
-  public function new(parent:Parent, children:ReadOnlyArray<VNode<Native>>, cursor:Cursor<Native>, later) {
+  public function new(parent:Parent, children:Children<RenderResult>, cursor:Cursor<Native>, later) {
     cursor.insert(this.first = cursor.applicator.createMarker());
     this.children = new RChildren(parent, children, cursor, later);
   }
@@ -38,7 +34,7 @@ class RMany<Native> implements RNode<Native> {
     children.update(Cast.down(next, VMany).children, cursor, later);
   }
 
-  public inline function justInsert(cursor:Cursor<Native>, later) {
+  public function justInsert(cursor:Cursor<Native>, later) {
     cursor.insert(first);
     children.justInsert(cursor, later);
   }
