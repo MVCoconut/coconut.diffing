@@ -38,16 +38,13 @@ class RMany<Native> implements RNode<Native> {
     children.update(Cast.down(next, VMany).children, cursor, later);
   }
 
-  public function count()
-    return 1 + children.count();
-
   public inline function justInsert(cursor:Cursor<Native>, later) {
     cursor.insert(first);
     children.justInsert(cursor, later);
   }
 
-  public function delete(cursor:Cursor<Native>):Void {
-    cursor.delete(count());
-    cursor.applicator.releaseMarker(first);
+  public function destroy(applicator:Applicator<Native>) {
+    applicator.releaseMarker(first);
+    return children.destroy(applicator) + 1;
   }
 }

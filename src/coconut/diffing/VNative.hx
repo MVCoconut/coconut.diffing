@@ -75,16 +75,13 @@ class RNative<Data, Native, Concrete:Native> implements RNode<Native> {
   public function reiterate(applicator:Applicator<Native>)
     return applicator.siblings(native);
 
-  public function delete(cursor:Cursor<Native>) {
-    children.delete(cursor.applicator.children(native));
-    cursor.delete(1);
+  public function destroy(applicator:Applicator<Native>) {
+    applicator.children(native).delete(children.destroy(applicator));
     switch last.ref {
       case null:
       case f: f(null);
     }
-  }
-
-  public function count()
     return 1;
+  }
 
 }

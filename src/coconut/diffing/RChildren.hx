@@ -48,9 +48,10 @@ class RChildren<Native> {
     inline function insert(v:VNode<Native>)
       return byType[v.type][counts[v.type]++] = v.render(parent, cursor, later);
 
-    var deleteCount = 0;
+    var deleteCount = 0,
+        applicator = cursor.applicator;
     inline function delete(r:RNode<Native>)
-      deleteCount += r.count();
+      deleteCount += r.destroy(applicator);
 
     var index = 0;
     if (children != null)
@@ -106,22 +107,15 @@ class RChildren<Native> {
     cursor.delete(deleteCount);
   }
 
-  public function justInsert(cursor:Cursor<Native>, later) {
+  public function justInsert(cursor:Cursor<Native>, later)
     for (r in order)
       r.justInsert(cursor, later);
-  }
 
-  public function count() {
-    var ret = switch byKey {
-      case null: 0;
-      case m: m.count();
-    }
-    for (c in counts) ret += c;
+  public function destroy(applicator):Int {
+    var ret = 0;
+    for (r in order)
+      ret += r.destroy(applicator);
     return ret;
-  }
-
-  public function delete(cursor:Cursor<Native>):Void {
-    cursor.delete(count());
     // TODO: perhaps clear maps
   }
 }

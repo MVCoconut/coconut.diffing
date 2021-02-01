@@ -43,9 +43,6 @@ class RWidget<Data, Native, Concrete:Widget<Native>> implements RNode<Native> {
     }
   }
 
-  public function count()
-    return lifeCycle.count();
-
   public function update(next:VNode<Native>, cursor:Cursor<Native>, later) {
 
     var next:VWidget<Data, Native, Concrete> = Cast.down(next, VWidget);
@@ -75,12 +72,12 @@ class RWidget<Data, Native, Concrete:Widget<Native>> implements RNode<Native> {
   public function reiterate(applicator:Applicator<Native>)
     return lifeCycle.reiterate(applicator);
 
-  public function delete(cursor:Cursor<Native>) {
-    lifeCycle.destroy(cursor);
+  public function destroy(applicator:Applicator<Native>) {
     switch last.ref {
       case null:
       case f: f(null);
     }
+    return lifeCycle.destroy(applicator);
   }
 }
 
@@ -120,19 +117,16 @@ class WidgetLifeCycle<Native> extends Parent implements Invalidatable {
     super.performUpdate(later);
   }
 
-  public inline function count()
-    return rendered.count();
-
   public function invalidate()
     invalidateParent();
 
-  public inline function destroy(cursor:Cursor<Native>) {
+  public inline function destroy(applicator:Applicator<Native>) {
     switch owner._coco_viewUnmounting {
       case null:
       case f: f();
     }
     link.cancel();
-    rendered.delete(cursor);
     owner = null;
+    return rendered.destroy(applicator);
   }
 }

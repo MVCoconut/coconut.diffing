@@ -10,7 +10,7 @@ class VNativeInst<Native> implements VNode<Native> implements RNode<Native> {
     this.native = native;
   }
 
-  public function render(_, cursor:Cursor<Native>) {//TODO: consider detecting double mounting
+  public function render(_, cursor:Cursor<Native>, later) {//TODO: consider detecting double mounting
     cursor.insert(native);
     return this;
   }
@@ -18,19 +18,16 @@ class VNativeInst<Native> implements VNode<Native> implements RNode<Native> {
   public function reiterate(applicator:Applicator<Native>)
     return applicator.siblings(native);
 
-  public function justInsert(cursor)
+  public function justInsert(cursor, _)
     cursor.insert(native);
 
-  public function update(next:VNode<Native>, cursor:Cursor<Native>):Void {
+  public function update(next:VNode<Native>, cursor:Cursor<Native>, _):Void {
     var next = Cast.down(next, VNativeInst);
     cursor.insert(next.native);
     if (next.native != native)
-      delete(cursor);
+      cursor.delete(1);
   }
 
-  public function delete(cursor:Cursor<Native>):Void
-    cursor.delete(1);
-
-  public function count()
+  public function destroy(_):Int
     return 1;
 }

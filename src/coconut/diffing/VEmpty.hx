@@ -30,12 +30,8 @@ class REmpty<Native> implements RNode<Native> {
   public function justInsert(cursor, _)
     cursor.insert(marker);
 
-  public function delete(cursor:Cursor<Native>):Void {
-    cursor.delete(1);
-    cursor.applicator.releaseMarker(marker);
-  }
-
-  public function count() {
+  public function destroy(applicator:Applicator<Native>) {
+    applicator.releaseMarker(marker);
     return 1;
   }
 

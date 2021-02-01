@@ -47,9 +47,7 @@ private class RImplicit<Native> extends Parent implements RNode<Native> {
   public function justInsert(cursor, later)
     return children.justInsert(cursor, later);
 
-  public function delete(cursor) // TODO: consider destroying context here
-    return children.delete(cursor);
+  public function destroy(applicator) // TODO: consider destroying context here
+    return children.destroy(applicator);
 
-  public function count():Int
-    return children.count();
 }
