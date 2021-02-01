@@ -8,7 +8,7 @@ class VEmpty<Native> implements VNode<Native>  {
 
   public function new() {}
 
-  public function render(_, cursor:Cursor<Native>):RNode<Native> {
+  public function render(_, cursor:Cursor<Native>, _):RNode<Native> {
     return new REmpty(cursor);
   }
 }
@@ -24,10 +24,10 @@ class REmpty<Native> implements RNode<Native> {
   public function reiterate(applicator:Applicator<Native>):Cursor<Native>
     return applicator.siblings(marker);
 
-  public function update(next:VNode<Native>, cursor:Cursor<Native>):Void
-    inline justInsert(cursor);
+  public function update(next:VNode<Native>, cursor:Cursor<Native>, later)
+    inline justInsert(cursor, later);
 
-  public function justInsert(cursor)
+  public function justInsert(cursor, _)
     cursor.insert(marker);
 
   public function delete(cursor:Cursor<Native>):Void {

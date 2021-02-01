@@ -19,8 +19,8 @@ class Implicit<Native> implements VNode<Native> {
     this.defaults = attr.defaults;
   }
 
-  public function render(parent:Parent, cursor:Cursor<Native>):RNode<Native>
-    return new RImplicit(this, parent, cursor);
+  public function render(parent:Parent, cursor:Cursor<Native>, later):RNode<Native>
+    return new RImplicit(this, parent, cursor, later);
 
 }
 
@@ -29,23 +29,23 @@ private class RImplicit<Native> extends Parent implements RNode<Native> {
   public final type = Implicit.TYPE;
 
   final children:RMany<Native>;
-  public function new(v:Implicit<Native>, parent:Parent, cursor) {
+  public function new(v:Implicit<Native>, parent:Parent, cursor, later) {
     super(new ImplicitContext(parent.context), parent);
     this.context.update(v.defaults);
-    this.children = new RMany(this, cast v.children, cursor);
+    this.children = new RMany(this, cast v.children, cursor, later);
   }
 
   public function reiterate(applicator)
     return children.reiterate(applicator);
 
-  public function update(next, cursor) {
+  public function update(next, cursor, later) {
     var next = Cast.down(next, Implicit);
     context.update(next.defaults);
-    return children.update(new VMany(cast next.children), cursor);
+    return children.update(new VMany(cast next.children), cursor, later);
   }
 
-  public function justInsert(cursor)
-    return children.justInsert(cursor);
+  public function justInsert(cursor, later)
+    return children.justInsert(cursor, later);
 
   public function delete(cursor) // TODO: consider destroying context here
     return children.delete(cursor);

@@ -5,9 +5,10 @@ import coconut.ui.internal.ImplicitContext;
 class Root<Native> extends Parent {
   final rendered:RCell<Native>;
 
-  public function new(parent, applicator:Applicator<Native>) {
+  public function new(parent, applicator:Applicator<Native>, ?content) {
     super(new ImplicitContext());
-    this.rendered = new RCell(this, null, applicator.children(parent));
+    var rendered = Parent.withLater(later -> new RCell(this, content, applicator.children(parent), later));
+    this.rendered = rendered;
   }
 
   static final byParent = new Map<{}, Root<Dynamic>>();
@@ -18,5 +19,5 @@ class Root<Native> extends Parent {
     }
 
   public function render(v:VNode<Native>)
-    this.rendered.update(v);
+    Parent.withLater(later -> this.rendered.update(v, later));
 }

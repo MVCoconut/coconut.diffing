@@ -19,8 +19,8 @@ class VWidget<Data, Native, Concrete:Widget<Native>> implements VNode<Native> {
     this.key = key;
   }
 
-  public function render(parent, cursor) {
-    return new RWidget(parent, this, cursor);
+  public function render(parent, cursor, later) {
+    return new RWidget(parent, this, cursor, later);
   }
 }
 
@@ -30,12 +30,12 @@ class RWidget<Data, Native, Concrete:Widget<Native>> implements RNode<Native> {
 
   var last:VWidget<Data, Native, Concrete>;
   public final type:TypeId;
-  public function new(parent:Parent, v:VWidget<Data, Native, Concrete>, cursor:Cursor<Native>) {
+  public function new(parent:Parent, v:VWidget<Data, Native, Concrete>, cursor:Cursor<Native>, later) {
     this.last = v;
     this.type = v.type;
     var context = @:privateAccess parent.context;
     this.widget = v.factory.create(v.data, context);
-    this.lifeCycle = new WidgetLifeCycle(widget, context, parent, cursor);
+    this.lifeCycle = new WidgetLifeCycle(widget, context, parent, cursor, later);
 
     switch v.ref {
       case null:
@@ -46,11 +46,11 @@ class RWidget<Data, Native, Concrete:Widget<Native>> implements RNode<Native> {
   public function count()
     return lifeCycle.count();
 
-  public function update(next:VNode<Native>, cursor:Cursor<Native>) {
+  public function update(next:VNode<Native>, cursor:Cursor<Native>, later) {
 
     var next:VWidget<Data, Native, Concrete> = Cast.down(next, VWidget);
     if (last == next)
-      return justInsert(cursor);
+      return justInsert(cursor, later);
 
     if (next.ref != last.ref) {
       switch last.ref {
@@ -65,11 +65,11 @@ class RWidget<Data, Native, Concrete:Widget<Native>> implements RNode<Native> {
 
     last = next;
     next.factory.update(widget, next.data);
-    lifeCycle.rerender(cursor);
+    lifeCycle.rerender(later, cursor);
   }
 
-  public function justInsert(cursor) {
-    lifeCycle.justInsert(cursor);
+  public function justInsert(cursor, later) {
+    lifeCycle.justInsert(cursor, later);
   }
 
   public function reiterate(applicator:Applicator<Native>)
@@ -92,11 +92,11 @@ class WidgetLifeCycle<Native> extends Parent implements Invalidatable {
   final applicator:Applicator<Native>;
   final link:CallbackLink;
 
-  public function new(owner, context, parent, cursor:Cursor<Native>) {
+  public function new(owner, context, parent, cursor:Cursor<Native>, later) {
     super(context, parent);
     this.owner = owner;
     this.applicator = cursor.applicator;
-    this.rendered = new RCell(this, poll(), cursor);
+    this.rendered = new RCell(this, poll(), cursor, later);
     this.link = (owner._coco_vStructure:ObservableObject<VNode<Native>>).onInvalidate(this);
   }
 
@@ -106,16 +106,16 @@ class WidgetLifeCycle<Native> extends Parent implements Invalidatable {
   public function reiterate(applicator)
     return rendered.reiterate(applicator);
 
-  public function justInsert(cursor)
-    rerender(cursor);
+  public function justInsert(cursor, later)
+    rerender(later, cursor);
 
-  public function rerender(?cursor)
-    rendered.update(poll(), cursor);
+  public function rerender(later, ?cursor)
+    rendered.update(poll(), cursor, later);
 
-  override public function performUpdate() {
+  override public function performUpdate(later) {
     if (owner == null) return;
-    rerender();
-    super.performUpdate();
+    rerender(later);
+    super.performUpdate(later);
   }
 
   public inline function count()

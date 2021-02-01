@@ -13,8 +13,8 @@ class VMany<Native> implements VNode<Native> {
       case v: v;
     }
 
-  public function render(parent, cursor):RNode<Native>
-    return new RMany(parent, children, cursor);
+  public function render(parent, cursor, later):RNode<Native>
+    return new RMany(parent, children, cursor, later);
 }
 
 @:access(coconut.diffing.VMany)
@@ -24,26 +24,26 @@ class RMany<Native> implements RNode<Native> {
   final first:Native;
   final children:RChildren<Native>;
 
-  public function new(parent:Parent, children:ReadOnlyArray<VNode<Native>>, cursor:Cursor<Native>) {
+  public function new(parent:Parent, children:ReadOnlyArray<VNode<Native>>, cursor:Cursor<Native>, later) {
     cursor.insert(this.first = cursor.applicator.createMarker());
-    this.children = new RChildren(parent, children, cursor);
+    this.children = new RChildren(parent, children, cursor, later);
   }
 
   public function reiterate(applicator:Applicator<Native>) {
     return applicator.siblings(first);
   }
 
-  public function update(next:VNode<Native>, cursor:Cursor<Native>) {
+  public function update(next:VNode<Native>, cursor:Cursor<Native>, later) {
     cursor.insert(first);
-    children.update(Cast.down(next, VMany).children, cursor);
+    children.update(Cast.down(next, VMany).children, cursor, later);
   }
 
   public function count()
     return 1 + children.count();
 
-  public inline function justInsert(cursor:Cursor<Native>) {
+  public inline function justInsert(cursor:Cursor<Native>, later) {
     cursor.insert(first);
-    children.justInsert(cursor);
+    children.justInsert(cursor, later);
   }
 
   public function delete(cursor:Cursor<Native>):Void {

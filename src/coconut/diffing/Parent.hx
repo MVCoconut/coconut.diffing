@@ -17,15 +17,23 @@ class Parent implements Child {
       invalidateParent();
   }
 
-  function performUpdate()
+  static public function withLater<X>(f:(later:(task:()->Void)->Void)->X) {
+    var tasks = [];
+    var ret = f(function (task) tasks.push(task));
+    for (t in tasks)
+      t();
+    return ret;
+  }
+
+  function performUpdate(later)
     while (pendingUpdates.length > 0)
       for (c in pendingUpdates.splice(0, pendingUpdates.length))
-        c.performUpdate();
+        c.performUpdate(later);
 
   function invalidateParent()
     switch parent {
       case null:
-        tink.state.Observable.schedule(performUpdate);
+        tink.state.Observable.schedule(() -> withLater(performUpdate));
       case v:
         v.scheduleUpdate(this);
     }
@@ -33,5 +41,5 @@ class Parent implements Child {
 }
 
 interface Child {
-  private function performUpdate():Void;
+  private function performUpdate(later:(task:()->Void)->Void):Void;
 }
