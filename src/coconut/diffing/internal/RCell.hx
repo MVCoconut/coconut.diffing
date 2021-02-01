@@ -1,4 +1,4 @@
-package coconut.diffing;
+package coconut.diffing.internal;
 
 class RCell<Native> {
   final empty:VNode<Native> = new VEmpty();

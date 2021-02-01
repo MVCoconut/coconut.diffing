@@ -1,4 +1,4 @@
-package coconut.diffing;
+package coconut.diffing.internal;
 
 class VEmpty<Native> implements VNode<Native>  {
 

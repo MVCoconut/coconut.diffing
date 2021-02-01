@@ -1,4 +1,4 @@
-package coconut.diffing;
+package coconut.diffing.internal;
 
 import coconut.ui.internal.ImplicitContext;
 

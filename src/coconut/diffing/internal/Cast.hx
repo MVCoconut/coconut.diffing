@@ -1,4 +1,4 @@
-package coconut.diffing;
+package coconut.diffing.internal;
 
 class Cast {
   static public function down<X>(v:Dynamic, c:Class<X>):X

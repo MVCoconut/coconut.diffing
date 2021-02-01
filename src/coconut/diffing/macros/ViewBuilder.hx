@@ -31,7 +31,7 @@ class ViewBuilder {
       @:noCompletion static inline function get___factory()
         return switch __factory {
           case null:
-            __factory = new coconut.diffing.WidgetFactory(
+            __factory = new coconut.diffing.internal.WidgetFactory(
               $i{ctx.target.target.name}.new,
               function (v, attr) v.__initAttributes(attr) //TODO: unhardcode method name ... should probably come from ctx
             );
@@ -45,7 +45,7 @@ class ViewBuilder {
         },
         attributes:$attributes
       ):$renders
-        return new coconut.diffing.VWidget(__factory, attributes, hxxMeta.key, hxxMeta.ref);
+        return new coconut.diffing.internal.VWidget(__factory, attributes, hxxMeta.key, hxxMeta.ref);
     }
 
     {

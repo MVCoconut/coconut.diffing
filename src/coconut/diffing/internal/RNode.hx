@@ -1,4 +1,4 @@
-package coconut.diffing;
+package coconut.diffing.internal;
 
 interface RNode<Native> {
   final type:TypeId;//TODO: figure out if this is needed
