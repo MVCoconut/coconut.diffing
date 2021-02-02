@@ -1,16 +1,22 @@
 package coconut.fake;
 
 class Tags {
-  static final DIV = VDummy.forTag('div');
-  static public inline function div(hxxMeta, attr:{ ?id:String, ?className:String, ?onclick:String }, ?children)
-    return DIV(hxxMeta, attr, children);
+  static final DIV = new DummyFactory('div');
 
-  static final BUTTON = VDummy.forTag('button');
+  static public inline function div(hxxMeta:HxxMeta, attr:{ ?id:String, ?className:String, ?onclick:String }, ?children:Children)
+    return DIV.instantiate(attr, hxxMeta.key, hxxMeta.ref, children);
+
+  static final BUTTON = new DummyFactory('button');
   static public inline function button(hxxMeta, attr:{ ?id:String, ?className:String, ?onclick:String }, ?children)
-    return BUTTON(hxxMeta, attr, children);
+    return BUTTON.instantiate(attr, hxxMeta.key, hxxMeta.ref, children);
 
-  static final CHECKBOX = VDummy.forTag('checkbox');
+  static final CHECKBOX = new DummyFactory('checkbox');
   static public inline function checkbox(hxxMeta, attr:{ ?checked:Bool})
-    return CHECKBOX(hxxMeta, if (attr.checked) { checked: "checked" } else {});
+    return CHECKBOX.instantiate(if (attr.checked) { checked: "checked" } else {}, hxxMeta.key, hxxMeta.ref);
 
+}
+
+private typedef HxxMeta = {
+  @:optional var key(default, never):Key;
+  @:optional var ref(default, never):coconut.ui.Ref<Dummy>;
 }

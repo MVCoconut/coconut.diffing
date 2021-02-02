@@ -14,15 +14,15 @@ class Widget<Native> {
   @:noCompletion final _coco_toString:()->String;
   #end
 
-  public function new(
-    rendered:Observable<VNode<Native>>,
+  public function new<RenderResult:VNode<Native>>(
+    rendered:Observable<RenderResult>,
     mounted:Void->Void,
     updated:Void->Void,
     unmounting:Void->Void
     #if tink_state.debug , toString #end
   ) {
     #if tink_state.debug this._coco_toString = toString; #end
-    this._coco_vStructure = rendered;
+    this._coco_vStructure = cast rendered;
 
     this._coco_viewMounted = mounted;
     this._coco_viewUpdated = updated;
