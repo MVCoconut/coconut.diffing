@@ -2,14 +2,14 @@ package coconut.diffing.internal;
 
 import coconut.diffing.Key.KeyMap;
 
-class RChildren<Native, RenderResult:VNode<Native>> {
+class RChildren<Native> {
   var byType = new Map<TypeId, Array<RNode<Native>>>();
   var byKey:Null<KeyMap<RNode<Native>>>;
   var counts = new Map<TypeId, Int>();
   var order = new Array<RNode<Native>>();
   final parent:Parent;
 
-  public function new(parent:Parent, children:Children<RenderResult>, cursor:Cursor<Native>, later) {
+  public function new(parent:Parent, children:Children<VNode<Native>>, cursor:Cursor<Native>, later) {
     this.parent = parent;
     for (c in children) if (c != null) {
       var r = c.render(parent, cursor, later);
@@ -31,7 +31,7 @@ class RChildren<Native, RenderResult:VNode<Native>> {
     return v;
   }
 
-  public function update(children:Children<RenderResult>, cursor:Cursor<Native>, later) {
+  public function update(children:Children<VNode<Native>>, cursor:Cursor<Native>, later) {
     for (k => _ in byType)
       counts[k] = 0;
 

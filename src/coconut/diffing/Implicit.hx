@@ -1,14 +1,12 @@
 package coconut.diffing;
 
 import coconut.diffing.VMany.RMany;
-import coconut.data.Value;
-import coconut.ui.internal.*;
 import coconut.ui.internal.ImplicitContext;
 import coconut.diffing.VNode;
 
 class Implicit<Native, RenderResult:VNode<Native>> implements VNode<Native> {
 
-  final children:Children<RenderResult> = null;
+  final children:Children<VNode<Native>>;
   final defaults:ImplicitValues;
 
   static final TYPE = new TypeId();
@@ -16,7 +14,7 @@ class Implicit<Native, RenderResult:VNode<Native>> implements VNode<Native> {
   public final type:TypeId = TYPE;
   public final key:Null<Key> = null;
 
-  public function new(attr) {
+  public function new(attr:{ defaults: ImplicitValues, children:Children<RenderResult> }) {
     this.children = attr.children;
     this.defaults = attr.defaults;
   }
@@ -27,11 +25,11 @@ class Implicit<Native, RenderResult:VNode<Native>> implements VNode<Native> {
 }
 
 @:access(coconut.diffing.Implicit)
-private class RImplicit<Native, RenderResult:VNode<Native>> extends Parent implements RNode<Native> {
+private class RImplicit<Native> extends Parent implements RNode<Native> {
   public final type = Implicit.TYPE;
 
-  final children:RMany<Native, RenderResult>;
-  public function new(v:Implicit<Native, RenderResult>, parent:Parent, cursor, later) {
+  final children:RMany<Native, VNode<Native>>;
+  public function new<RenderResult:VNode<Native>>(v:Implicit<Native, RenderResult>, parent:Parent, cursor, later) {
     super(new ImplicitContext(parent.context), parent);
     this.context.update(v.defaults);
     this.children = new RMany(this, v.children, cursor, later);

@@ -27,7 +27,7 @@ class VNative<Data, Native, Concrete:Native, RenderResult:VNode<Native>> impleme
 class RNative<Data, Native, Concrete:Native, RenderResult:VNode<Native>> implements RNode<Native> {
   public final type:TypeId;
   final native:Concrete;
-  final children:RChildren<Native, RenderResult>;
+  final children:RChildren<Native>;
   var last:VNative<Data, Native, Concrete, RenderResult>;
   public function new(parent, v, cursor:Cursor<Native>, later) {
     this.last = v;

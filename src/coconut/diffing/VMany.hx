@@ -18,7 +18,7 @@ class RMany<Native, RenderResult:VNode<Native>> implements RNode<Native> {
   public final type = VMany.TYPE;
 
   final first:Native;
-  final children:RChildren<Native, RenderResult>;
+  final children:RChildren<Native>;
 
   public function new(parent:Parent, children:Children<RenderResult>, cursor:Cursor<Native>, later) {
     cursor.insert(this.first = cursor.applicator.createMarker());
