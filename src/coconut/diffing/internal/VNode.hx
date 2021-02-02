@@ -1,4 +1,4 @@
-package coconut.diffing;
+package coconut.diffing.internal;
 
 interface VNode<Native> {
   final type:TypeId;

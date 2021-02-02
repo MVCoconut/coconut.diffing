@@ -1,4 +1,4 @@
-package coconut.diffing;
+package coconut.diffing.internal;
 
 class VNative<Data, Native, Concrete:Native> implements VNode<Native> {
 

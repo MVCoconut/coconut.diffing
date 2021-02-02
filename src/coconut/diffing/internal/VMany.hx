@@ -1,4 +1,4 @@
-package coconut.diffing;
+package coconut.diffing.internal;
 
 class VMany<Native> implements VNode<Native> {
   static final TYPE = new TypeId();
@@ -13,7 +13,7 @@ class VMany<Native> implements VNode<Native> {
     return new RMany(parent, children, cursor, later);
 }
 
-@:access(coconut.diffing.VMany)
+@:access(coconut.diffing.internal.VMany)
 class RMany<Native> implements RNode<Native> {
   public final type = VMany.TYPE;
 

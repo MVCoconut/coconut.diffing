@@ -1,4 +1,4 @@
-package coconut.diffing;
+package coconut.diffing.internal;
 
 class VNativeInst<Native> implements VNode<Native> implements RNode<Native> {
   static final TYPE = new TypeId();

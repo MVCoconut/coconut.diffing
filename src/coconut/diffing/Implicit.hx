@@ -1,8 +1,6 @@
 package coconut.diffing;
 
-import coconut.diffing.VMany.RMany;
 import coconut.ui.internal.ImplicitContext;
-import coconut.diffing.VNode;
 
 class Implicit<Native, RenderResult:VNode<Native>> implements VNode<Native> {
 
@@ -28,11 +26,11 @@ class Implicit<Native, RenderResult:VNode<Native>> implements VNode<Native> {
 private class RImplicit<Native> extends Parent implements RNode<Native> {
   public final type = Implicit.TYPE;
 
-  final children:RMany<Native>;
+  final children:VMany.RMany<Native>;
   public function new<RenderResult:VNode<Native>>(v:Implicit<Native, RenderResult>, parent:Parent, cursor, later) {
     super(new ImplicitContext(parent.context), parent);
     this.context.update(v.defaults);
-    this.children = new RMany(this, v.children, cursor, later);
+    this.children = new VMany.RMany(this, v.children, cursor, later);
   }
 
   public function reiterate(applicator)
