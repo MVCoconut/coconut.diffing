@@ -1,7 +1,5 @@
 package coconut.diffing.internal;
 
-import coconut.diffing.Key.KeyMap;
-
 class RChildren<Native> {
   var byType = new Map<TypeId, Array<RNode<Native>>>();
   var byKey:Null<KeyMap<RNode<Native>>>;
