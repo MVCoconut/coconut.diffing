@@ -1,10 +1,10 @@
 package coconut.diffing;
 
-class VMany<Native, RenderResult:VNode<Native>> implements VNode<Native> {
+class VMany<Native> implements VNode<Native> {
   static final TYPE = new TypeId();
   public final type = TYPE;
   public final key:Null<Key> = null;
-  public final children:Children<RenderResult>;
+  public final children:Children<VNode<Native>>;
 
   public function new(children)
     this.children = children;
@@ -14,13 +14,13 @@ class VMany<Native, RenderResult:VNode<Native>> implements VNode<Native> {
 }
 
 @:access(coconut.diffing.VMany)
-class RMany<Native, RenderResult:VNode<Native>> implements RNode<Native> {
+class RMany<Native> implements RNode<Native> {
   public final type = VMany.TYPE;
 
   final first:Native;
   final children:RChildren<Native>;
 
-  public function new(parent:Parent, children:Children<RenderResult>, cursor:Cursor<Native>, later) {
+  public function new(parent:Parent, children:Children<VNode<Native>>, cursor:Cursor<Native>, later) {
     cursor.insert(this.first = cursor.applicator.createMarker());
     this.children = new RChildren(parent, children, cursor, later);
   }

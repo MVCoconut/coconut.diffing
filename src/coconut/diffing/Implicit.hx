@@ -28,7 +28,7 @@ class Implicit<Native, RenderResult:VNode<Native>> implements VNode<Native> {
 private class RImplicit<Native> extends Parent implements RNode<Native> {
   public final type = Implicit.TYPE;
 
-  final children:RMany<Native, VNode<Native>>;
+  final children:RMany<Native>;
   public function new<RenderResult:VNode<Native>>(v:Implicit<Native, RenderResult>, parent:Parent, cursor, later) {
     super(new ImplicitContext(parent.context), parent);
     this.context.update(v.defaults);

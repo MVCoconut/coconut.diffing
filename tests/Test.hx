@@ -47,7 +47,7 @@ class Test {
     s.set('yo');
     Renderer.updateAll(); trace(dummy.render());
 
-    function update(v:VNode<Dummy>) {
+    function update(v:RenderResult) {
 
       var diffed = render(dummy, v),
           created = render(new Dummy('root'), v);
