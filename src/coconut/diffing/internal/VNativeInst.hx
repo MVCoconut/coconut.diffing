@@ -22,7 +22,7 @@ class VNativeInst<Native> implements VNode<Native> implements RNode<Native> {
     cursor.insert(native);
 
   public function update(next:VNode<Native>, cursor:Cursor<Native>, _):Void {
-    var next = Cast.down(next, VNativeInst);
+    var next = Cast.exactly(next, VNativeInst);
     cursor.insert(next.native);
     if (next.native != native)
       cursor.delete(1);

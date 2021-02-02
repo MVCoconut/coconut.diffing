@@ -1,7 +1,7 @@
 package coconut.diffing.internal;
 
 class Cast {
-  static public function down<X>(v:Dynamic, c:Class<X>):X
+  static public function exactly<X>(v:Dynamic, c:Class<X>):X
     return
       #if debug
         if (Type.getClass(v) == c) v;

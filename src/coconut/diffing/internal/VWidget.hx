@@ -45,7 +45,7 @@ class RWidget<Data, Native, Concrete:Widget<Native>> implements RNode<Native> {
 
   public function update(next:VNode<Native>, cursor:Cursor<Native>, later) {
 
-    var next:VWidget<Data, Native, Concrete> = Cast.down(next, VWidget);
+    var next:VWidget<Data, Native, Concrete> = Cast.exactly(next, VWidget);
     if (last == next)
       return justInsert(cursor, later);
 
