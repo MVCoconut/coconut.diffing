@@ -10,7 +10,7 @@ interface Factory<Data, Target> {
 }
 
 class FactoryTools {
-  static public function instantiate<Data, Native, Concrete:Native, RenderResult:VNode<Native>>(f:Factory<Data, Concrete>, data:Data, ?key:Key, ?ref:Ref<Concrete>, ?children:Children<RenderResult>):Node<Native>
+  static public function vnode<Data, Native, Concrete:Native, RenderResult:VNode<Native>>(f:Factory<Data, Concrete>, data:Data, ?key:Key, ?ref:Ref<Concrete>, ?children:Children<RenderResult>):VNode<Native>
     return new VNative<Data, Native, Concrete>(f, data, key, ref, children);
 }
 
