@@ -1,9 +1,5 @@
 package coconut.diffing.internal;
 
-import tink.state.internal.*;
-import tink.state.Observable;
-using tink.CoreApi;
-
 class VWidget<Data, Native, Concrete:Widget<Native>> implements VNode<Native> {
   public final type:TypeId;
   public final data:Data;
@@ -24,18 +20,21 @@ class VWidget<Data, Native, Concrete:Widget<Native>> implements VNode<Native> {
   }
 }
 
-class RWidget<Data, Native, Concrete:Widget<Native>> implements RNode<Native> {
-  final widget:Concrete;
-  final lifeCycle:WidgetLifeCycle<Native>;
-
-  var last:VWidget<Data, Native, Concrete>;
+class RWidget<Data, Native, Concrete:Widget<Native>> extends WidgetLifeCycle<Native> implements RNode<Native> {
   public final type:TypeId;
+  final widget:Concrete;
+  var last:VWidget<Data, Native, Concrete>;
+
   public function new(parent:Parent, v:VWidget<Data, Native, Concrete>, cursor:Cursor<Native>, later) {
+
+    var context = parent.context;
+    var widget = v.factory.create(v.data, context);
+
+    super(widget, context, parent, cursor, later);
+
     this.last = v;
     this.type = v.type;
-    var context = @:privateAccess parent.context;
-    this.widget = v.factory.create(v.data, context);
-    this.lifeCycle = new WidgetLifeCycle(widget, context, parent, cursor, later);
+    this.widget = widget;
 
     switch v.ref {
       case null:
@@ -62,71 +61,18 @@ class RWidget<Data, Native, Concrete:Widget<Native>> implements RNode<Native> {
 
     last = next;
     next.factory.update(widget, next.data);
-    lifeCycle.rerender(later, cursor);
+    this.rerender(later, cursor);
   }
 
-  public function justInsert(cursor, later) {
-    lifeCycle.justInsert(cursor, later);
-  }
+  // public function forEach(f) {
+  //   lifeCycle.rendered.forEach(f);
+  // }
 
-  public function reiterate(applicator:Applicator<Native>)
-    return lifeCycle.reiterate(applicator);
-
-  public function destroy(applicator:Applicator<Native>) {
+  override public function destroy(applicator:Applicator<Native>) {
     switch last.ref {
       case null:
       case f: f(null);
     }
-    return lifeCycle.destroy(applicator);
-  }
-}
-
-@:access(coconut.diffing.Widget)
-class WidgetLifeCycle<Native> extends Parent implements Invalidatable {
-
-  var owner:Widget<Native>;
-  final rendered:RCell<Native>;
-  final applicator:Applicator<Native>;
-  final link:CallbackLink;
-
-  public function new(owner, context, parent, cursor:Cursor<Native>, later) {
-    super(context, parent);
-    this.owner = owner;
-    this.applicator = cursor.applicator;
-    this.rendered = new RCell(this, poll(), cursor, later);
-    this.link = (owner._coco_vStructure:ObservableObject<VNode<Native>>).onInvalidate(this);
-    later(owner._coco_viewMounted);
-  }
-
-  function poll()
-    return Observable.untracked(() -> owner._coco_vStructure.value);
-
-  public function reiterate(applicator)
-    return rendered.reiterate(applicator);
-
-  public function justInsert(cursor, later)
-    rerender(later, cursor);
-
-  public function rerender(later, ?cursor)
-    if (rendered.update(poll(), cursor, later))
-      later(owner._coco_viewUpdated);
-
-  override public function performUpdate(later) {
-    if (owner == null) return;
-    rerender(later);
-    super.performUpdate(later);
-  }
-
-  public function invalidate()
-    invalidateParent();
-
-  public inline function destroy(applicator:Applicator<Native>) {
-    switch owner._coco_viewUnmounting {
-      case null:
-      case f: f();
-    }
-    link.cancel();
-    owner = null;
-    return rendered.destroy(applicator);
+    return super.destroy(applicator);
   }
 }
