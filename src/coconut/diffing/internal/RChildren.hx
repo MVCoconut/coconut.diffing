@@ -116,4 +116,8 @@ class RChildren<Native> {
     return ret;
     // TODO: perhaps clear maps
   }
+
+  public function forEach(f)
+    for (r in order)
+      r.forEach(f);
 }

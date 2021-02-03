@@ -29,4 +29,14 @@ class Widget<Native> {
     this._coco_viewUpdated = updated;
     this._coco_viewUnmounting = unmounting;
   }
+
+  static public function getAllNative<Native>(w:Widget<Native>):Array<Native>
+    return
+      switch w._coco_lifeCycle {
+        case null: [];
+        case l:
+          var ret = [];
+          l.forEach(n -> ret.push(n));
+          ret;
+      }
 }

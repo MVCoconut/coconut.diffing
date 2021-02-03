@@ -48,4 +48,7 @@ private class RImplicit<Native> extends Parent implements RNode<Native> {
   public function destroy(applicator) // TODO: consider destroying context here
     return children.destroy(applicator);
 
+  public function forEach(f)
+    children.forEach(f);
+
 }

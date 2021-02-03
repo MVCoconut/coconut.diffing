@@ -81,4 +81,7 @@ class RNative<Data, Native, Concrete:Native> implements RNode<Native> {
     return 1;
   }
 
+  public function forEach(f)
+    f(native);
+
 }

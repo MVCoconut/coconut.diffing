@@ -43,4 +43,9 @@ class RMany<Native> implements RNode<Native> {
     applicator.releaseMarker(first);
     return children.destroy(applicator) + 1;
   }
+
+  public function forEach(f) {
+    f(first);
+    children.forEach(f);
+  }
 }

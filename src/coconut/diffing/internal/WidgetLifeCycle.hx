@@ -57,4 +57,7 @@ class WidgetLifeCycle<Native> extends Parent implements Invalidatable {
     owner._coco_lifeCycle = null;
     return rendered.destroy(applicator);
   }
+
+  public function forEach(f)
+    rendered.forEach(f);
 }

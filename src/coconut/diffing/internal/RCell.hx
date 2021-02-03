@@ -48,4 +48,7 @@ class RCell<Native> {
   public function destroy(applicator)
     return this.rendered.destroy(applicator);
 
+  public function forEach(f)
+    this.rendered.forEach(f);
+
 }

@@ -30,4 +30,7 @@ class VNativeInst<Native> implements VNode<Native> implements RNode<Native> {
 
   public function destroy(_):Int
     return 1;
+
+  public function forEach(f)
+    f(native);
 }

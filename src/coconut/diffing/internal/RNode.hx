@@ -6,4 +6,5 @@ interface RNode<Native> {
   function update(next:VNode<Native>, cursor:Cursor<Native>, later:(task:()->Void)->Void):Void;
   function justInsert(cursor:Cursor<Native>, later:(task:()->Void)->Void):Void;
   function destroy(applicator:Applicator<Native>):Int;
+  function forEach(n:Native->Void):Void;
 }
