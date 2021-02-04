@@ -3,20 +3,20 @@ package coconut.diffing;
 import coconut.ui.Ref;
 
 @:using(coconut.diffing.Factory.FactoryTools)
-interface Factory<Data, Target> {
+interface Factory<Data, Native, Target:Native> {
   final type:TypeId;
   function create(data:Data):Target;
   function update(target:Target, next:Data, prev:Data):Void;
 }
 
 class FactoryTools {
-  static public function vnode<Data, Native, Concrete:Native, RenderResult:VNode<Native>>(f:Factory<Data, Concrete>, data:Data, ?key:Key, ?ref:Ref<Concrete>, ?children:Children<RenderResult>):VNode<Native>
+  static public function vnode<Data, Native, Concrete:Native, RenderResult:VNode<Native>>(f:Factory<Data, Native, Concrete>, data:Data, ?key:Key, ?ref:Ref<Concrete>, ?children:Children<RenderResult>):VNode<Native>
     return new VNative<Data, Native, Concrete>(f, data, key, ref, children);
 }
 
 private typedef Dict<T> = Null<haxe.DynamicAccess<Null<T>>>;
 
-class Properties<Value, Target:{}> implements Factory<Dict<Value>, Target> {
+class Properties<Value, Native:{}, Target:Native> implements Factory<Dict<Value>, Native, Target> {
 
   public final type = new TypeId();
 

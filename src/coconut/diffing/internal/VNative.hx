@@ -6,7 +6,7 @@ class VNative<Data, Native, Concrete:Native> implements VNode<Native> {
   public final data:Data;
   public final key:Null<Key>;
 
-  public final factory:Factory<Data, Concrete>;
+  public final factory:Factory<Data, Native, Concrete>;
   public final ref:Null<coconut.ui.Ref<Concrete>>;
   public final children:Children<VNode<Native>>;
 

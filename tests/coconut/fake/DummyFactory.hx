@@ -1,6 +1,6 @@
 package coconut.fake;
 
-class DummyFactory implements Factory<Attr, Dummy> {
+class DummyFactory implements Factory<Attr, Dummy, Dummy> {
 
   public final tag:String;
   public final type:TypeId = new TypeId();

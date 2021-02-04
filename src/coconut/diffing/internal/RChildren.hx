@@ -30,7 +30,7 @@ class RChildren<Native> {
   }
 
   public function update(children:Children<VNode<Native>>, cursor:Cursor<Native>, later) {
-    for (k => _ in byType)
+    for (k in byType.keys())
       counts[k] = 0;
 
     var oldKeyed = byKey;
