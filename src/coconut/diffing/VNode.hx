@@ -1,24 +1,12 @@
 package coconut.diffing;
 
-import coconut.diffing.NodeType;
+import coconut.diffing.internal.VNode as Internal;
 
-@:pure @:transitive
-abstract VNode<Real:{}>(VNodeData<Real>) from VNodeData<Real> to VNodeData<Real> {
+@:transitive
+abstract VNode<Native>(Internal<Native>) from Internal<Native> to Internal<Native> {
+  static public inline function embed<Native>(n:Native):VNode<Native>
+    return new VNativeInst(n);
 
-  static public inline function native<Attr, Real:{}>(type:NodeType<Attr, Real>, ref:Real->Void, key:Key, attr:Attr, ?children:coconut.ui.internal.Children<VNode<Real>>):VNode<Real>
-    return cast VNative(type, ref, key, attr, cast children);
-
-  static public inline function fragment<Real:{}>(attr:{}, children:coconut.ui.internal.Children<VNode<Real>>):VNode<Real>
-    return
-      if (children == null) VMany([]);
-      else if (children.length == 1) children[0];
-      else VMany(cast children);
-}
-
-enum VNodeData<Real:{}> {
-  VNativeInst(n:Real);
-  VWidgetInst(w:Widget<Real>);
-  VMany(nodes:Array<VNode<Real>>);
-  VNative<Attr>(type:NodeType<Attr, Real>, ref:Dynamic->Void, key:Key, a:Attr, ?children:Array<VNode<Real>>);
-  VWidget<Attr>(type:WidgetType<Attr, Real>, ref:Dynamic->Void, key:Key, a:Attr);
+  static public inline function many<Native, RenderResult:VNode<Native>>(c:Children<RenderResult>):VNode<Native>
+    return new VMany(c);
 }

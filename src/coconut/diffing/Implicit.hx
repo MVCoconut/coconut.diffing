@@ -1,43 +1,54 @@
 package coconut.diffing;
 
-import coconut.data.Value;
-import coconut.ui.internal.*;
 import coconut.ui.internal.ImplicitContext;
-import coconut.diffing.VNode;
 
-private typedef Attr<Real:{}, RenderResult:VNode<Real>> = {
-  final children:Value<Children<RenderResult>>;
+class Implicit<Native, RenderResult:VNode<Native>> implements VNode<Native> {
+
+  final children:Children<VNode<Native>>;
   final defaults:ImplicitValues;
-}
 
-class Implicit<Real:{}, RenderResult:VNode<Real>> extends Widget<Real> {
+  static final TYPE = new TypeId();
 
-  final children:Slot<Children<RenderResult>, Value<Children<RenderResult>>>;
+  public final type:TypeId = TYPE;
+  public final key:Null<Key> = null;
 
-  function new(attr:Attr<Real, RenderResult>) {
-    this.children = new Slot<Children<RenderResult>, Value<Children<RenderResult>>>(this);
-
-    children.setData(attr.children);
-
-    super(children.observe().map(c -> VNode.fragment(null, c)), noop, noop, noop #if tink_state.debug , () -> '<Implicit />' #end);
-
-    this._coco_implicits = new ImplicitContext(() -> switch this._coco_parent {
-      case null: null;
-      case v: v._coco_implicits;
-    });
-
-    this._coco_implicits.update(attr.defaults);
+  public function new(attr:{ defaults: ImplicitValues, children:Children<RenderResult> }) {
+    this.children = attr.children;
+    this.defaults = attr.defaults;
   }
 
-  static function noop() {}
+  public function render(parent:Parent, cursor:Cursor<Native>, later):RNode<Native>
+    return new RImplicit(this, parent, cursor, later);
 
-  static public function type<Real:{}, RenderResult:VNode<Real>>():WidgetType<Attr<Real, RenderResult>, Real>
-    return {
-      create: Implicit.new,
-      update: (a, w) -> {
-        var w = (cast w:Implicit<Real, RenderResult>);
-        w.children.setData(a.children);
-        w._coco_implicits.update(a.defaults);
-      }
-    }
+}
+
+@:access(coconut.diffing.Implicit)
+private class RImplicit<Native> extends Parent implements RNode<Native> {
+  public final type = Implicit.TYPE;
+
+  final children:VMany.RMany<Native>;
+  public function new<RenderResult:VNode<Native>>(v:Implicit<Native, RenderResult>, parent:Parent, cursor, later) {
+    super(new ImplicitContext(parent.context), parent);
+    this.context.update(v.defaults);
+    this.children = new VMany.RMany(this, v.children, cursor, later);
+  }
+
+  public function reiterate(applicator)
+    return children.reiterate(applicator);
+
+  public function update(next, cursor, later) {
+    var next = Cast.exactly(next, Implicit);
+    context.update(next.defaults);
+    return children.update(new VMany(next.children), cursor, later);
+  }
+
+  public function justInsert(cursor, later)
+    return children.justInsert(cursor, later);
+
+  public function destroy(applicator) // TODO: consider destroying context here
+    return children.destroy(applicator);
+
+  public function forEach(f)
+    children.forEach(f);
+
 }

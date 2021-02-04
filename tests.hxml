@@ -1,4 +1,6 @@
 -cp tests
--main RunTests
+-main TodoMvc
 -dce full
--lib coconut.vdom
+-lib coconut.diffing
+-lib tink_unittest
+-D no-deprecation-warnings
