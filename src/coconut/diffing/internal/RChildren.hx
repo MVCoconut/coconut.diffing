@@ -5,7 +5,7 @@ class RChildren<Native> {
   var byKey:Null<KeyMap<RNode<Native>>>;
   var counts = new Map<TypeId, Int>();
   var order = new Array<RNode<Native>>();
-  final parent:Parent;
+  public final parent:Parent;
 
   public function new(parent:Parent, children:Children<VNode<Native>>, cursor:Cursor<Native>, later) {
     this.parent = parent;

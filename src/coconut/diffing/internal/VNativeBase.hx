@@ -46,7 +46,7 @@ class RNativeBase<Virtual:VNativeBase<Native, Concrete>, Native, Concrete:Native
   public function justInsert(cursor:Cursor<Native>, _)
     cursor.insert(native);
 
-  function updateNative(native:Concrete, next:Virtual, last:Virtual) {
+  function updateNative(native:Concrete, next:Virtual, last:Virtual, parent:Parent, later:(task:()->Void)->Void) {// TODO: Pretty sure this is a text book case of a fragile base class, but right it gets the job done
     throw 'abstract';
   }
 
@@ -57,7 +57,7 @@ class RNativeBase<Virtual:VNativeBase<Native, Concrete>, Native, Concrete:Native
       return;
     }
 
-    updateNative(native, next, last);
+    updateNative(native, next, last, children.parent, later);
     var prev = last;
     last = next;
 

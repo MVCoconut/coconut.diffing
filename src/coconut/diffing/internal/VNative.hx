@@ -23,7 +23,7 @@ class VNative<Data, Native, Concrete:Native> extends VNativeBase<Native, Concret
 }
 
 class RNative<Data, Native, Concrete:Native> extends RNativeBase<VNative<Data, Native, Concrete>, Native, Concrete> {
-  override function updateNative(native:Concrete, next:VNative<Data, Native, Concrete>, last:VNative<Data, Native, Concrete>) {
+  override function updateNative(native:Concrete, next:VNative<Data, Native, Concrete>, last:VNative<Data, Native, Concrete>, _, _) {
     next.factory.update(native, next.data, last.data);
   }
 }
