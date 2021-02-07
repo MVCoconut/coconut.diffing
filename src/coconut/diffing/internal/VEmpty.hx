@@ -5,6 +5,7 @@ class VEmpty<Native> implements VNode<Native>  {
   static final TYPE = new TypeId();
   public final type:TypeId = TYPE;
   public final key:Null<Key> = null;
+  public final isSingular = true;
 
   public function new() {}
 

@@ -5,6 +5,7 @@ class VMany<Native> implements VNode<Native> {
   public final type = TYPE;
   public final key:Null<Key> = null;
   public final children:Children<VNode<Native>>;
+  public final isSingular = false;
 
   public function new(children)
     this.children = children;

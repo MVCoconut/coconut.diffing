@@ -7,6 +7,8 @@ class Implicit<Native, RenderResult:VNode<Native>> implements VNode<Native> {
   final children:Children<VNode<Native>>;
   final defaults:ImplicitValues;
 
+  public final isSingular = false;
+
   static final TYPE = new TypeId();
 
   public final type:TypeId = TYPE;

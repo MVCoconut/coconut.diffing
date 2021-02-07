@@ -6,6 +6,7 @@ class VWidget<Data, Native, Concrete:Widget<Native>> implements VNode<Native> {
   public final factory:WidgetFactory<Data, Native, Concrete>;
   public final ref:Null<coconut.ui.Ref<Concrete>>;
   public final key:Null<Key>;
+  public final isSingular = false;
 
   public function new(factory, data, ?key, ?ref) {
     this.factory = factory;
