@@ -37,7 +37,7 @@ private class RImplicit<Native> extends Parent implements RNode<Native> {
     return children.reiterate(applicator);
 
   public function update(next, cursor, later) {
-    var next = Cast.exactly(next, Implicit);
+    var next = Cast.down(next, Implicit);
     context.update(next.defaults);
     return children.update(new VMany(next.children), cursor, later);
   }

@@ -45,7 +45,7 @@ class RNative<Data, Native, Concrete:Native> implements RNode<Native> {
     cursor.insert(native);
 
   public function update(next:VNode<Native>, cursor:Cursor<Native>, later) {
-    var next = Cast.exactly(next, VNative);
+    var next = Cast.down(next, VNative);
     if (next == last) {
       justInsert(cursor, later);
       return;

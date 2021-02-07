@@ -44,7 +44,7 @@ class RWidget<Data, Native, Concrete:Widget<Native>> extends WidgetLifeCycle<Nat
 
   public function update(next:VNode<Native>, cursor:Cursor<Native>, later) {
 
-    var next:VWidget<Data, Native, Concrete> = Cast.exactly(next, VWidget);
+    var next:VWidget<Data, Native, Concrete> = Cast.down(next, VWidget);
     if (last == next)
       return justInsert(cursor, later);
 

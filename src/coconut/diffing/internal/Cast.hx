@@ -1,11 +1,11 @@
 package coconut.diffing.internal;
 
 class Cast {
-  static public function exactly<X>(v:Dynamic, c:Class<X>):X
+  static public inline function down<X>(v:Dynamic, c:Class<X>):X
     return
       #if debug
-        if (Type.getClass(v) == c) v;
-        else throw (['invalid cast', v, c]:Array<Dynamic>);
+        if (Std.is(v, c)) v;
+        else throw 'invalid cast';
       #else
         v;
       #end

@@ -31,7 +31,7 @@ class RMany<Native> implements RNode<Native> {
 
   public function update(next:VNode<Native>, cursor:Cursor<Native>, later) {
     cursor.insert(first);
-    children.update(Cast.exactly(next, VMany).children, cursor, later);
+    children.update(Cast.down(next, VMany).children, cursor, later);
   }
 
   public function justInsert(cursor:Cursor<Native>, later) {
