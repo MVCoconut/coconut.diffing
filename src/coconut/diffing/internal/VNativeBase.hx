@@ -17,7 +17,7 @@ class VNativeBase<Native, Concrete:Native> implements VNode<Native> {
   }
 
   public function render(parent, cursor, later):RNode<Native> {
-    return new RNativeBase(VNativeBase, parent, this, cursor, later);
+    return new RNativeBase(this, VNativeBase, parent, cursor, later);
   }
 
   public function create():Concrete
@@ -30,9 +30,9 @@ class RNativeBase<Virtual:VNativeBase<Native, Concrete>, Native, Concrete:Native
   final children:RChildren<Native>;
   final cls:Class<Virtual>;
   var last:Virtual;
-  public function new(cls, parent, v, cursor:Cursor<Native>, later) {
-    this.cls = cls;
+  public function new(v, cls, parent, cursor:Cursor<Native>, later) {
     this.last = v;
+    this.cls = cls;
     this.type = v.type;
     this.native = v.create();
     this.children = new RChildren(parent, v.children, cursor.applicator.children(native), later);
