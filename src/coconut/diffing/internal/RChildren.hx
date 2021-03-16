@@ -1,10 +1,12 @@
 package coconut.diffing.internal;
 
 class RChildren<Native> {
-  var byType = new Map<TypeId, Array<RNode<Native>>>();
   var byKey:Null<KeyMap<RNode<Native>>>;
-  var counts = new Map<TypeId, Int>();
-  var order = new Array<RNode<Native>>();
+
+  final byType = new Map<TypeId, Array<RNode<Native>>>();
+  final counts = new Map<TypeId, Int>();
+  final order = new Array<RNode<Native>>();
+
   public final parent:Parent;
 
   public function new(parent:Parent, children:Children<VNode<Native>>, cursor:Cursor<Native>, later) {
