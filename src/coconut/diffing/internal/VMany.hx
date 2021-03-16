@@ -18,35 +18,31 @@ class VMany<Native> implements VNode<Native> {
 class RMany<Native> implements RNode<Native> {
   public final type = VMany.TYPE;
 
-  final first:Native;
   final children:RChildren<Native>;
 
   public function new(parent:Parent, children:Children<VNode<Native>>, cursor:Cursor<Native>, later) {
-    cursor.insert(this.first = cursor.applicator.createMarker());
-    this.children = new RChildren(parent, children, cursor, later);
+    this.children = new RChildren(parent, ensure(children), cursor, later);
   }
 
-  public function reiterate(applicator:Applicator<Native>) {
-    return applicator.siblings(first);
+  final empty:Children<VNode<Native>> = [new VEmpty()];
+  function ensure(c:Children<VNode<Native>>) {
+    for (n in c)
+      if (n != null) return c;
+    return empty;
   }
 
-  public function update(next:VNode<Native>, cursor:Cursor<Native>, later) {
-    cursor.insert(first);
-    children.update(Cast.down(next, VMany).children, cursor, later);
-  }
+  public function reiterate(applicator:Applicator<Native>)
+    return @:privateAccess children.order[0].reiterate(applicator);
 
-  public function justInsert(cursor:Cursor<Native>, later) {
-    cursor.insert(first);
+  public function update(next:VNode<Native>, cursor:Cursor<Native>, later)
+    children.update(ensure(Cast.down(next, VMany).children), cursor, later);
+
+  public function justInsert(cursor:Cursor<Native>, later)
     children.justInsert(cursor, later);
-  }
 
-  public function destroy(applicator:Applicator<Native>) {
-    applicator.releaseMarker(first);
+  public function destroy(applicator:Applicator<Native>)
     return children.destroy(applicator) + 1;
-  }
 
-  public function forEach(f) {
-    f(first);
+  public function forEach(f)
     children.forEach(f);
-  }
 }

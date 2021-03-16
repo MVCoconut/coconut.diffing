@@ -65,10 +65,6 @@ class RWidget<Data, Native, Concrete:Widget<Native>> extends WidgetLifeCycle<Nat
     this.rerender(later, cursor);
   }
 
-  // public function forEach(f) {
-  //   lifeCycle.rendered.forEach(f);
-  // }
-
   override public function destroy(applicator:Applicator<Native>) {
     switch last.ref {
       case null:
