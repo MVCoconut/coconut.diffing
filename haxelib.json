@@ -8,8 +8,8 @@
 	"contributors": [
 		"back2dos"
 	],
-	"version": "0.2.1",
-	"releasenote": "Avoid diagnostics issues.",
+	"version": "0.3.0",
+	"releasenote": "Overhual internals",
 	"tags": [
 		"coconut",
 		"ui",
