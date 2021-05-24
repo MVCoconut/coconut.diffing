@@ -1,4 +1,4 @@
--D tink_json=0.9.0
-# @install: lix --silent download "gh://github.com/haxetink/tink_json#11a502a3df480146012f12f5c19b20b39fc2347d" into tink_json/0.9.0/github/11a502a3df480146012f12f5c19b20b39fc2347d
+# @install: lix --silent download "gh://github.com/haxetink/tink_json#4215a43807fc74bc5d3ef0d1d5cbb6e44ac27c8f" into tink_json/0.11.0/github/4215a43807fc74bc5d3ef0d1d5cbb6e44ac27c8f
 -lib tink_typecrawler
--cp ${HAXE_LIBCACHE}/tink_json/0.9.0/github/11a502a3df480146012f12f5c19b20b39fc2347d/src
+-cp ${HAXE_LIBCACHE}/tink_json/0.11.0/github/4215a43807fc74bc5d3ef0d1d5cbb6e44ac27c8f/src
+-D tink_json=0.11.0
