@@ -54,7 +54,9 @@ class TodoMvc {
 
   function walk(native:Native, cb:Native->Void) {
     #if coconut.vdom
-      #error
+      cb(native);
+      for (e in native.childNodes)
+        walk(cast e, cb);
     #else
       native.each(cb);
     #end
@@ -102,7 +104,7 @@ class TodoMvc {
     return asserts.done();
   }
 
-  @:include public function testHydration() {
+  public function testHydration() {
 
     function compare(markup) {
 
@@ -111,20 +113,31 @@ class TodoMvc {
           nodes = [];
 
       for (hydrate in [false, true]) {
-        new Root(root, DummyApplicator.INST, markup, hydrate);
+        new Root(
+          cast root,
+          #if coconut.vdom
+            @:privateAccess Renderer.BACKEND // meh
+          #else DummyApplicator.INST #end,
+          markup,
+          hydrate
+        );
         if (hydrate) {
           asserts.assert(root.innerHTML == innerHTML);
           walk(root, n -> {
             asserts.assert(nodes.shift() == n);
+            #if !coconut.vdom
             if (n != root)
               asserts.assert(n.wet);
+            #end
           });
         }
         else {
           innerHTML = root.innerHTML;
           walk(root, n -> {
             nodes.push(n);
+            #if !coconut.vdom
             asserts.assert(!n.wet);
+            #end
           });
         }
       }
@@ -161,7 +174,7 @@ class TodoMvc {
     '));
 
     asserts.assert(TodoListView.mounted == lists + 4);
-    asserts.assert(TodoItemView.mounted == lists + 10);
+    asserts.assert(TodoItemView.mounted == items + 10);
 
     return asserts.done();
   }
