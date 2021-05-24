@@ -6,6 +6,8 @@ import coconut.ui.Ref;
 interface Factory<Data, Native, Target:Native> {
   final type:TypeId;
   function create(data:Data):Target;
+  function adopt(target:Native):Null<Target>;
+  function hydrate(target:Target, data:Data):Void;
   function update(target:Target, next:Data, prev:Data):Void;
 }
 
@@ -27,6 +29,11 @@ class Properties<Value, Native:{}, Target:Native> implements Factory<Dict<Value>
     this.construct = construct;
     this.apply = apply;
   }
+
+  public function adopt(target)
+    return null;
+
+  public function hydrate(target, data) {}
 
   public function create(data:Dict<Value>):Target {
     var ret = construct();

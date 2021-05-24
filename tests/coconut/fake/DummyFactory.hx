@@ -15,6 +15,12 @@ class DummyFactory implements Factory<Attr, Dummy, Dummy> {
     return ret;
   }
 
+  public function adopt(_)
+    return null;
+
+  public function hydrate(_, _)
+    throw 'not implemented';
+
   public function update(target:Dummy, next:Attr, prev:Attr) {
 
     for (k => v in next)

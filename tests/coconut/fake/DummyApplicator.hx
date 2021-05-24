@@ -17,6 +17,9 @@ class DummyCursor implements Cursor<Dummy> {
     target.insert(index++, native);
   }
 
+  public function current()
+    return target.getChild(index);
+
   public function delete(count:Int) {
     target.removeRange(index, count);
   }

@@ -18,4 +18,6 @@ interface Cursor<Native> {
     Delete `count` elements from the current position.
   **/
   function delete(count:Int):Void;
+  // TODO: document
+  function current():Null<Native>;
 }

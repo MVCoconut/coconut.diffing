@@ -29,6 +29,9 @@ class Dummy {
   public function getChildIndex(n:Dummy)
     return children.indexOf(n);
 
+  public function getChild(index:Int)
+    return children[index];
+
   public function insert(index, n:Dummy)
     if (n.parent == this) {
       var prev = children.indexOf(n);

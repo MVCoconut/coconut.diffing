@@ -9,10 +9,10 @@ class RChildren<Native> {
 
   public final parent:Parent;
 
-  public function new(parent:Parent, children:Children<VNode<Native>>, cursor:Cursor<Native>, later) {
+  public function new(parent:Parent, children:Children<VNode<Native>>, cursor:Cursor<Native>, later, hydrate) {
     this.parent = parent;
     for (c in children) if (c != null) {
-      var r = c.render(parent, cursor, later);
+      var r = c.render(parent, cursor, later, hydrate);
       switch [c.key, byType[r.type]] {
         case [null, null]: byType[r.type] = [r];
         case [null, a]: a.push(r);
@@ -45,7 +45,7 @@ class RChildren<Native> {
       }
 
     inline function insert(v:VNode<Native>)
-      return byType[v.type][counts[v.type]++] = v.render(parent, cursor, later);
+      return byType[v.type][counts[v.type]++] = v.render(parent, cursor, later, false);
 
     var deleteCount = 0,
         applicator = cursor.applicator;
@@ -71,7 +71,7 @@ class RChildren<Native> {
           }
         case [k, _]:
           inline function insert(v:VNode<Native>)
-            return setKey(k, v.render(parent, cursor, later));
+            return setKey(k, v.render(parent, cursor, later, false));
           switch getKey(k) {
             case null:
               insert(v);

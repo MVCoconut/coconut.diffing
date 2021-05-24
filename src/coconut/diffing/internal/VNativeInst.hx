@@ -12,7 +12,7 @@ class VNativeInst<Native:{}> implements VNode<Native> implements RNode<Native> {
     this.key = native;
   }
 
-  public function render(_, cursor:Cursor<Native>, later, ?previous) {//TODO: consider detecting double mounting
+  public function render(_, cursor:Cursor<Native>, later, hydrate:Bool) {//TODO: consider detecting double mounting
     cursor.insert(native);
     return this;
   }
