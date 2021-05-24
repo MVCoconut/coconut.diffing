@@ -9,7 +9,7 @@ class VEmpty<Native> implements VNode<Native>  {
 
   public function new() {}
 
-  public function render(_, cursor:Cursor<Native>, _):RNode<Native> {
+  public function render(_, cursor:Cursor<Native>, _, ?_):RNode<Native> {
     return new REmpty(cursor);
   }
 }

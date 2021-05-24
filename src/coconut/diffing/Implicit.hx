@@ -19,7 +19,7 @@ class Implicit<Native, RenderResult:VNode<Native>> implements VNode<Native> {
     this.defaults = attr.defaults;
   }
 
-  public function render(parent:Parent, cursor:Cursor<Native>, later):RNode<Native>
+  public function render(parent:Parent, cursor:Cursor<Native>, later, ?_):RNode<Native>
     return new RImplicit(this, parent, cursor, later);
 
 }

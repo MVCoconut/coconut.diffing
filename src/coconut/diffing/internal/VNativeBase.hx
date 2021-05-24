@@ -16,7 +16,7 @@ class VNativeBase<Native, Concrete:Native> implements VNode<Native> {
     this.children = children;
   }
 
-  public function render(parent, cursor, later):RNode<Native> {
+  public function render(parent, cursor, later, ?_):RNode<Native> {
     return new RNativeBase(this, VNativeBase, parent, cursor, later);
   }
 

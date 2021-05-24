@@ -13,7 +13,7 @@ class VNative<Data, Native, Concrete:Native> extends VNativeBase<Native, Concret
     this.data = data;
   }
 
-  override public function render(parent, cursor, later):RNode<Native> {
+  override public function render(parent, cursor, later, ?_):RNode<Native> {
     return new RNative(this, VNative, parent, cursor, later);
   }
 

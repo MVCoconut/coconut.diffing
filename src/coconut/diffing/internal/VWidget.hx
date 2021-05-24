@@ -16,7 +16,7 @@ class VWidget<Data, Native, Concrete:Widget<Native>> implements VNode<Native> {
     this.key = key;
   }
 
-  public function render(parent, cursor, later) {
+  public function render(parent, cursor, later, ?_) {
     return new RWidget(parent, this, cursor, later);
   }
 }

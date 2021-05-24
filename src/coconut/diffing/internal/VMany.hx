@@ -10,7 +10,7 @@ class VMany<Native> implements VNode<Native> {
   public function new(children)
     this.children = children;
 
-  public function render(parent, cursor, later):RNode<Native>
+  public function render(parent, cursor, later, ?_):RNode<Native>
     return new RMany(parent, children, cursor, later);
 }
 
