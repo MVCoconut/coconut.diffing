@@ -3,6 +3,7 @@ package coconut.fake;
 class Dummy {
   public final tag:String;
   public var parent(default, null):Null<Dummy>;
+  public var wet(default, null):Bool;
   final children = new Array<Dummy>();
 
   public final attr = new Map<String, String>();

@@ -18,7 +18,9 @@ class DummyFactory implements Factory<Attr, Dummy, Dummy> {
   public function adopt(dummy)
     return dummy;
 
-  public function hydrate(_, _) {}
+  public function hydrate(dummy:Dummy, _) {
+    @:privateAccess dummy.wet = true;
+  }
 
   public function update(target:Dummy, next:Attr, prev:Attr) {
 
