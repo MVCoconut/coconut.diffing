@@ -2,25 +2,29 @@ package coconut.diffing;
 
 import coconut.ui.Ref;
 
-@:using(coconut.diffing.Factory.FactoryTools)
-interface Factory<Data, Native, Target:Native> {
-  final type:TypeId;
-  function create(data:Data):Target;
-  function adopt(target:Native):Null<Target>;
-  function hydrate(target:Target, data:Data):Void;
-  function update(target:Target, next:Data, prev:Data):Void;
-}
+abstract class Factory<Data, Native, Target:Native> {
+  public final type = new TypeId();
 
-class FactoryTools {
-  static public function vnode<Data, Native, Concrete:Native, RenderResult:VNode<Native>>(f:Factory<Data, Native, Concrete>, data:Data, ?key:Key, ?ref:Ref<Concrete>, ?children:Children<RenderResult>):VNode<Native>
-    return new VNative<Data, Native, Concrete>(f, data, key, ref, children);
+  public abstract function create(data:Data):Target;
+  public abstract function update(target:Target, next:Data, prev:Data):Void;
+
+  /**
+    Only used in hydration (by coconut.vdom). The currently encountered native node is passed to `adopt`.
+    Return `null` if the wrong type of node is encountered.
+  **/
+  public function adopt(target:Native):Null<Target> return null;
+  /**
+    The actual implementation of the hydration (only used by coconut.vdom)
+  **/
+  public function hydrate(target:Target, data:Data):Void {}
+
+  public function vnode<RenderResult:VNode<Native>>(data:Data, ?key:Key, ?ref:Ref<Target>, ?children:Children<RenderResult>):VNode<Native>
+    return new VNative<Data, Native, Target>(this, data, key, ref, children);
 }
 
 private typedef Dict<T> = Null<haxe.DynamicAccess<Null<T>>>;
 
-class Properties<Value, Native:{}, Target:Native> implements Factory<Dict<Value>, Native, Target> {
-
-  public final type = new TypeId();
+class Properties<Value, Native:{}, Target:Native> extends Factory<Dict<Value>, Native, Target> {
 
   final construct:()->Target;
   final apply:(target:Target, name:String, nu:Null<Value>, old:Null<Value>)->Void;
@@ -29,11 +33,6 @@ class Properties<Value, Native:{}, Target:Native> implements Factory<Dict<Value>
     this.construct = construct;
     this.apply = apply;
   }
-
-  public function adopt(target)
-    return null;
-
-  public function hydrate(target, data) {}
 
   public function create(data:Dict<Value>):Target {
     var ret = construct();
