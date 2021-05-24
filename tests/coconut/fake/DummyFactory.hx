@@ -15,11 +15,10 @@ class DummyFactory implements Factory<Attr, Dummy, Dummy> {
     return ret;
   }
 
-  public function adopt(_)
-    return null;
+  public function adopt(dummy)
+    return dummy;
 
-  public function hydrate(_, _)
-    throw 'not implemented';
+  public function hydrate(_, _) {}
 
   public function update(target:Dummy, next:Attr, prev:Attr) {
 

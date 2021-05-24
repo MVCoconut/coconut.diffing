@@ -1,6 +1,9 @@
+import coconut.diffing.Root;
 #if coconut.vdom
 import coconut.vdom.*;
+import coconut.Ui.hxx;
 #else
+import coconut.fake.Renderer.hxx;
 import coconut.fake.Tags.*;
 import coconut.fake.*;
 #end
@@ -89,9 +92,24 @@ class TodoMvc {
     return asserts.done();
   }
 
+  @:include public function testHydration() {
+    var nativeRoot = createRoot(),
+        innerHTML = '';
+    for (hydrate in [false, true]) {
+      var root = new Root(nativeRoot, DummyApplicator.INST, hydrate);
+      root.render(hxx('<div />'));
+      if (hydrate)
+        asserts.assert(nativeRoot.innerHTML == innerHTML);
+      else
+        innerHTML = nativeRoot.innerHTML;
+    }
+
+    return asserts.done();
+  }
+
   static function main() {
     Runner.run(TestBatch.make([
-      new TodoMvc()
+      new TodoMvc(),
     ])).handle(Runner.exit);
   }
 }
