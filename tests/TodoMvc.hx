@@ -119,7 +119,7 @@ class TodoMvc {
             @:privateAccess Renderer.BACKEND // meh
           #else DummyApplicator.INST #end,
           markup,
-          hydrate
+          if (hydrate) Into else No
         );
         if (hydrate) {
           asserts.assert(root.innerHTML == innerHTML);
