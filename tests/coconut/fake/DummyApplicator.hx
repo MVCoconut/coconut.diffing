@@ -1,14 +1,13 @@
 package coconut.fake;
 
-class DummyCursor implements Cursor<Dummy> {
+class DummyCursor extends Cursor<Dummy> {
 
-  public final applicator:Applicator<Dummy>;
   static var idCounter = 0;
   var index:Int;
   final target:Dummy;
 
   public function new(applicator, target, index) {
-    this.applicator = applicator;
+    super(applicator);
     this.target = target;
     this.index = index;
   }
@@ -16,6 +15,9 @@ class DummyCursor implements Cursor<Dummy> {
   public function insert(native:Dummy) {
     target.insert(index++, native);
   }
+
+  override public function current()
+    return target.getChild(index);
 
   public function delete(count:Int) {
     target.removeRange(index, count);

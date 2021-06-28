@@ -16,8 +16,8 @@ class VWidget<Data, Native, Concrete:Widget<Native>> implements VNode<Native> {
     this.key = key;
   }
 
-  public function render(parent, cursor, later) {
-    return new RWidget(parent, this, cursor, later);
+  public function render(parent, cursor, later, hydrate:Bool) {
+    return new RWidget(parent, this, cursor, later, hydrate);
   }
 }
 
@@ -26,12 +26,12 @@ class RWidget<Data, Native, Concrete:Widget<Native>> extends WidgetLifeCycle<Nat
   final widget:Concrete;
   var last:VWidget<Data, Native, Concrete>;
 
-  public function new(parent:Parent, v:VWidget<Data, Native, Concrete>, cursor:Cursor<Native>, later) {
+  public function new(parent:Parent, v:VWidget<Data, Native, Concrete>, cursor:Cursor<Native>, later, hydrate:Bool) {
 
     var context = parent.context;
     var widget = v.factory.create(v.data, context);
 
-    super(widget, context, parent, cursor, later);
+    super(widget, context, parent, cursor, later, hydrate);
 
     this.last = v;
     this.type = v.type;

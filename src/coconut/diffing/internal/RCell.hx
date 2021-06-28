@@ -7,12 +7,12 @@ class RCell<Native> {
   var virtual:VNode<Native>;
   var rendered:RNode<Native>;
 
-  public function new(parent, virtual, cursor, later) {
+  public function new(parent, virtual, cursor, later, hydrate:Bool) {
     this.parent = parent;
     if (virtual == null)
       virtual = empty;
     this.virtual = virtual;
-    this.rendered = virtual.render(parent, cursor, later);
+    this.rendered = virtual.render(parent, cursor, later, hydrate);
     this.applicator = cursor.applicator;
   }
 
@@ -38,7 +38,7 @@ class RCell<Native> {
         this.rendered.update(virtual, cursor, later);
       else {
         var old = this.rendered;
-        this.rendered = virtual.render(parent, cursor, later);
+        this.rendered = virtual.render(parent, cursor, later, false);
         cursor.delete(old.destroy(applicator));
       }
     }

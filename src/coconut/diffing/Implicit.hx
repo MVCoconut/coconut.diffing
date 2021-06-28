@@ -19,8 +19,8 @@ class Implicit<Native, RenderResult:VNode<Native>> implements VNode<Native> {
     this.defaults = attr.defaults;
   }
 
-  public function render(parent:Parent, cursor:Cursor<Native>, later):RNode<Native>
-    return new RImplicit(this, parent, cursor, later);
+  public function render(parent:Parent, cursor:Cursor<Native>, later, hydrate:Bool):RNode<Native>
+    return new RImplicit(this, parent, cursor, later, hydrate);
 
 }
 
@@ -29,10 +29,10 @@ private class RImplicit<Native> extends Parent implements RNode<Native> {
   public final type = Implicit.TYPE;
 
   final children:VMany.RMany<Native>;
-  public function new<RenderResult:VNode<Native>>(v:Implicit<Native, RenderResult>, parent:Parent, cursor, later) {
+  public function new<RenderResult:VNode<Native>>(v:Implicit<Native, RenderResult>, parent:Parent, cursor, later, hydrate) {
     super(new ImplicitContext(parent.context), parent);
     this.context.update(v.defaults);
-    this.children = new VMany.RMany(this, v.children, cursor, later);
+    this.children = new VMany.RMany(this, v.children, cursor, later, hydrate);
   }
 
   public function reiterate(applicator)

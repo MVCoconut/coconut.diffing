@@ -3,6 +3,7 @@ package coconut.fake;
 class Dummy {
   public final tag:String;
   public var parent(default, null):Null<Dummy>;
+  public var wet(default, null):Bool;
   final children = new Array<Dummy>();
 
   public final attr = new Map<String, String>();
@@ -28,6 +29,9 @@ class Dummy {
 
   public function getChildIndex(n:Dummy)
     return children.indexOf(n);
+
+  public function getChild(index:Int)
+    return children[index];
 
   public function insert(index, n:Dummy)
     if (n.parent == this) {

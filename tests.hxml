@@ -4,3 +4,4 @@
 -lib coconut.diffing
 -lib tink_unittest
 -D no-deprecation-warnings
+-D eval-call-stack-depth=5000

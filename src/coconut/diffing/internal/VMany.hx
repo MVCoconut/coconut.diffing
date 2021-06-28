@@ -10,8 +10,8 @@ class VMany<Native> implements VNode<Native> {
   public function new(children)
     this.children = children;
 
-  public function render(parent, cursor, later):RNode<Native>
-    return new RMany(parent, children, cursor, later);
+  public function render(parent, cursor, later, hydrate:Bool):RNode<Native>
+    return new RMany(parent, children, cursor, later, hydrate);
 }
 
 @:access(coconut.diffing.internal.VMany)
@@ -20,8 +20,8 @@ class RMany<Native> implements RNode<Native> {
 
   final children:RChildren<Native>;
 
-  public function new(parent:Parent, children:Children<VNode<Native>>, cursor:Cursor<Native>, later) {
-    this.children = new RChildren(parent, ensure(children), cursor, later);
+  public function new(parent:Parent, children:Children<VNode<Native>>, cursor:Cursor<Native>, later, hydrate) {
+    this.children = new RChildren(parent, ensure(children), cursor, later, hydrate);
   }
 
   final empty:Children<VNode<Native>> = [new VEmpty()];

@@ -1,6 +1,9 @@
+import coconut.diffing.Root;
 #if coconut.vdom
 import coconut.vdom.*;
+import coconut.Ui.hxx;
 #else
+import coconut.fake.Renderer.hxx;
 import coconut.fake.Tags.*;
 import coconut.fake.*;
 #end
@@ -10,9 +13,11 @@ import tink.unit.*;
 import tink.testrunner.*;
 using tink.CoreApi;
 
+typedef Native = #if coconut.vdom js.html.Element #else Dummy #end;
+
 @:asserts
 class TodoMvc {
-  var root:#if coconut.vdom js.html.Element #else Dummy #end;
+  var root:Native;
   var items:State<List<TodoItem>>;
 
   public function new() {
@@ -45,6 +50,16 @@ class TodoMvc {
   function update(value) {
     items.set(value);
     Renderer.updateAll();
+  }
+
+  function walk(native:Native, cb:Native->Void) {
+    #if coconut.vdom
+      cb(native);
+      for (e in native.childNodes)
+        walk(cast e, cb);
+    #else
+      native.each(cb);
+    #end
   }
 
   function add(desc)
@@ -89,9 +104,84 @@ class TodoMvc {
     return asserts.done();
   }
 
+  public function testHydration() {
+
+    function compare(markup) {
+
+      var root = createRoot(),
+          innerHTML = '',
+          nodes = [];
+
+      for (hydrate in [false, true]) {
+        new Root(
+          cast root,
+          #if coconut.vdom
+            @:privateAccess Renderer.BACKEND // meh
+          #else DummyApplicator.INST #end,
+          markup,
+          if (hydrate) Into else No
+        );
+        if (hydrate) {
+          asserts.assert(root.innerHTML == innerHTML);
+          walk(root, n -> {
+            asserts.assert(nodes.shift() == n);
+            #if !coconut.vdom
+            if (n != root)
+              asserts.assert(n.wet);
+            #end
+          });
+        }
+        else {
+          innerHTML = root.innerHTML;
+          walk(root, n -> {
+            nodes.push(n);
+            #if !coconut.vdom
+            asserts.assert(!n.wet);
+            #end
+          });
+        }
+      }
+    }
+
+    compare(hxx('
+      <div class="todo-list">
+        <div id="header" class="busy" />
+        <div class="todo-item">
+          <div class="todo-item-description">d</div>
+        </div>
+        <div class="todo-item">
+          <div class="todo-item-description">c</div>
+        </div>
+        <div class="todo-item">
+          <div class="todo-item-description">b</div>
+        </div>
+        <div class="todo-item">
+          <div class="todo-item-description">a</div>
+        </div>
+        <div id="footer" class="All">4 items left</div>
+      </div>
+    '));
+
+    var lists = TodoListView.mounted,
+        items = TodoItemView.mounted;
+
+    compare(hxx('
+      <TodoListView list=${[]} keyed/>
+    '));
+
+    compare(hxx('
+      <TodoListView list=${[for (i in 0...5) new TodoItem({ description: 'item $i' })]} keyed/>
+    '));
+
+    asserts.assert(TodoListView.mounted == lists + 4);
+    asserts.assert(TodoItemView.mounted == items + 10);
+
+    return asserts.done();
+  }
+
   static function main() {
     Runner.run(TestBatch.make([
-      new TodoMvc()
+      new TodoMvc(),
     ])).handle(Runner.exit);
   }
 }
@@ -131,6 +221,10 @@ class TodoListView extends View {
       <Footer list=${list} filter=${filter} />
     </div>
   ';
+
+  static public var mounted(default, null) = 0;
+  function viewDidMount()
+    mounted++;
 }
 
 private class Header extends View {
@@ -162,4 +256,8 @@ private class TodoItemView extends View {
       <div class="todo-item-description">${item.description}</div>
     </div>
   ';
+
+  static public var mounted(default, null) = 0;
+  function viewDidMount()
+    mounted++;
 }

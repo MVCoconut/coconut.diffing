@@ -13,13 +13,21 @@ class VNative<Data, Native, Concrete:Native> extends VNativeBase<Native, Concret
     this.data = data;
   }
 
-  override public function render(parent, cursor, later):RNode<Native> {
-    return new RNative(this, VNative, parent, cursor, later);
+  override public function render(parent, cursor, later, hydrate:Bool):RNode<Native> {
+    return new RNative(this, VNative, parent, cursor, later, hydrate);
   }
 
-  override function create():Concrete {
-    return this.factory.create(this.data);
-  }
+  override function create(?previous):Concrete
+    return switch previous {
+      case null: factory.create(data);
+      case v:
+        switch factory.adopt(v) {
+          case null: factory.create(data);
+          case v:
+            factory.hydrate(v, data);
+            v;
+        }
+    }
 }
 
 class RNative<Data, Native, Concrete:Native> extends RNativeBase<VNative<Data, Native, Concrete>, Native, Concrete> {

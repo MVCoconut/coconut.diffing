@@ -1,9 +1,8 @@
 package coconut.fake;
 
-class DummyFactory implements Factory<Attr, Dummy, Dummy> {
+class DummyFactory extends Factory<Attr, Dummy, Dummy> {
 
   public final tag:String;
-  public final type:TypeId = new TypeId();
 
   public function new(tag) {
     this.tag = tag;
@@ -13,6 +12,13 @@ class DummyFactory implements Factory<Attr, Dummy, Dummy> {
     var ret = new Dummy(tag);
     update(ret, data, null);
     return ret;
+  }
+
+  override public function adopt(dummy)
+    return dummy;
+
+  override public function hydrate(dummy:Dummy, _) {
+    @:privateAccess dummy.wet = true;
   }
 
   public function update(target:Dummy, next:Attr, prev:Attr) {

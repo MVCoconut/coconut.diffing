@@ -12,7 +12,7 @@ class WidgetLifeCycle<Native> extends Parent implements Invalidatable {
   final applicator:Applicator<Native>;
   final link:CallbackLink;
 
-  public function new(owner, context, parent, cursor:Cursor<Native>, later) {
+  public function new(owner, context, parent, cursor:Cursor<Native>, later, hydrate:Bool) {
     super(context, parent);
     this.owner = owner;
     #if debug
@@ -21,7 +21,7 @@ class WidgetLifeCycle<Native> extends Parent implements Invalidatable {
     #end
     owner._coco_lifeCycle = this;
     this.applicator = cursor.applicator;
-    this.rendered = new RCell(this, poll(), cursor, later);
+    this.rendered = new RCell(this, poll(), cursor, later, hydrate);
     this.link = (owner._coco_vStructure:ObservableObject<VNode<Native>>).onInvalidate(this);
     later(owner._coco_viewMounted);
   }
