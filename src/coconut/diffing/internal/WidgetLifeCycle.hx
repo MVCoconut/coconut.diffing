@@ -5,12 +5,11 @@ import tink.state.Observable;
 using tink.CoreApi;
 
 @:access(coconut.diffing.Widget)
-class WidgetLifeCycle<Native> extends Parent implements Invalidatable {
+class WidgetLifeCycle<Native> extends Parent implements Observer {
 
   final owner:Widget<Native>;
   final rendered:RCell<Native>;
   final applicator:Applicator<Native>;
-  final link:CallbackLink;
 
   public function new(owner, context, parent, cursor:Cursor<Native>, later, hydrate:Bool) {
     super(context, parent);
@@ -22,7 +21,7 @@ class WidgetLifeCycle<Native> extends Parent implements Invalidatable {
     owner._coco_lifeCycle = this;
     this.applicator = cursor.applicator;
     this.rendered = new RCell(this, poll(), cursor, later, hydrate);
-    this.link = (owner._coco_vStructure:ObservableObject<VNode<Native>>).onInvalidate(this);
+    (owner._coco_vStructure:ObservableObject<VNode<Native>>).subscribe(this);
     later(owner._coco_viewMounted);
   }
 
@@ -45,7 +44,7 @@ class WidgetLifeCycle<Native> extends Parent implements Invalidatable {
     super.performUpdate(later);
   }
 
-  public function invalidate()
+  public function notify(from)
     invalidateParent();
 
   public function destroy(applicator:Applicator<Native>) {
@@ -53,7 +52,7 @@ class WidgetLifeCycle<Native> extends Parent implements Invalidatable {
       case null:
       case f: f();
     }
-    link.cancel();
+    (owner._coco_vStructure:ObservableObject<VNode<Native>>).subscribe(this);
     owner._coco_lifeCycle = null;
     return rendered.destroy(applicator);
   }
