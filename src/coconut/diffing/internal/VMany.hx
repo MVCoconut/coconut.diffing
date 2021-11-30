@@ -41,7 +41,7 @@ class RMany<Native> implements RNode<Native> {
     children.justInsert(cursor, later);
 
   public function destroy(applicator:Applicator<Native>)
-    return children.destroy(applicator) + 1;
+    return children.destroy(applicator);
 
   public function forEach(f)
     children.forEach(f);
