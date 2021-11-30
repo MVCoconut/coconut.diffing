@@ -1,20 +1,3 @@
-import coconut.diffing.Root;
-#if coconut.vdom
-import coconut.vdom.*;
-import coconut.Ui.hxx;
-#else
-import coconut.fake.Renderer.hxx;
-import coconut.fake.Tags.*;
-import coconut.fake.*;
-#end
-import tink.state.*;
-import coconut.data.*;
-import tink.unit.*;
-import tink.testrunner.*;
-using tink.CoreApi;
-
-typedef Native = #if coconut.vdom js.html.Element #else Dummy #end;
-
 @:asserts
 class TodoMvc {
   var root:Native;
@@ -177,12 +160,6 @@ class TodoMvc {
     asserts.assert(TodoItemView.mounted == items + 10);
 
     return asserts.done();
-  }
-
-  static function main() {
-    Runner.run(TestBatch.make([
-      new TodoMvc(),
-    ])).handle(Runner.exit);
   }
 }
 

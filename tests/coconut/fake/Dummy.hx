@@ -71,6 +71,8 @@ class Dummy {
     }
 
   public function removeRange(start:Int, length:Int) {
+    if (start + length > children.length)
+      throw 'assert';
     children.splice(start, length);
   }
 }

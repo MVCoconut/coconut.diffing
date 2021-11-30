@@ -1,5 +1,6 @@
 package coconut.fake;
 
+@:skipCheck
 abstract RenderResult(VNode<Dummy>) from VNode<Dummy> to VNode<Dummy> {
   static final TEXT = new DummyFactory('');
   @:from static function ofString(s:String):RenderResult

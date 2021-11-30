@@ -1,5 +1,5 @@
 -cp tests
--main TodoMvc
+-main RunTests
 -dce full
 -lib coconut.diffing
 -lib tink_unittest
