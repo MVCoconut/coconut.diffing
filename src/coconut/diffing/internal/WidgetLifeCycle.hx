@@ -52,7 +52,7 @@ class WidgetLifeCycle<Native> extends Parent implements Observer {
       case null:
       case f: f();
     }
-    (owner._coco_vStructure:ObservableObject<VNode<Native>>).subscribe(this);
+    (owner._coco_vStructure:ObservableObject<VNode<Native>>).unsubscribe(this);
     owner._coco_lifeCycle = null;
     return rendered.destroy(applicator);
   }
