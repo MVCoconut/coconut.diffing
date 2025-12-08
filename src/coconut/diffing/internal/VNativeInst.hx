@@ -26,7 +26,7 @@ class VNativeInst<Native:{}> implements VNode<Native> implements RNode<Native> {
   public function update(next:VNode<Native>, cursor:Cursor<Native>, _):Void
     inline justInsert(cursor, _);
 
-  public function destroy(_):Int
+  public function destroy(applicator:Applicator<Native>):Int
     return 1;
 
   public function forEach(f)
